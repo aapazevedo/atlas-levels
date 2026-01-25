@@ -7,4 +7,6 @@ python-multipart==0.0.12
 pydantic==2.10.3
 psycopg2-binary
 email-validator
+email-validator
+pydantic[email]
 
