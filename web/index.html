@@ -1,0 +1,174 @@
+<!doctype html>
+<html lang="pt-br">
+<head>
+  <meta charset="utf-8"/>
+  <meta name="viewport" content="width=device-width,initial-scale=1"/>
+  <title>Atlas Levels — Institutional Zones</title>
+  <link rel="stylesheet" href="/static/app.css">
+</head>
+<body>
+  <div class="container">
+
+    <div class="topbar">
+      <div class="brand">
+        <h1>Atlas Levels <span class="muted">— Institutional Zones</span></h1>
+        <div class="tag">Níveis históricos organizados • WIN / WDO / BIT + Global (MVP)</div>
+      </div>
+
+      <div class="row">
+        <span id="whoami" class="pill">Deslogado</span>
+        <button id="logoutBtn" class="btn secondary" style="display:none;">Sair</button>
+      </div>
+    </div>
+
+    <div class="grid">
+
+      <!-- LOGIN -->
+      <section class="card">
+        <h2>Login</h2>
+
+        <div class="row">
+          <input id="email" class="input" placeholder="email" value="demo@atlaslevels.pro"/>
+          <input id="password" class="input" placeholder="senha" type="password" value="demo123"/>
+        </div>
+
+        <div class="row" style="margin-top:10px;">
+          <button id="loginBtn" class="btn">Entrar</button>
+          <div id="loginStatus" class="status"></div>
+        </div>
+
+        <div class="footer small">
+          Admin: <span class="mono">admin@atlaslevels.pro</span> / <span class="mono">admin123</span>
+        </div>
+      </section>
+
+      <!-- NÍVEIS -->
+      <section class="card">
+        <h2>Níveis</h2>
+
+        <div class="row">
+          <select id="symbol" class="input"></select>
+          <input id="validFor" class="input" type="date"/>
+          <button id="loadBtn" class="btn">Carregar</button>
+        </div>
+
+        <div class="kpi">
+          <div class="box">
+            <div class="label">Ativo</div>
+            <div class="val" id="k_symbol">—</div>
+          </div>
+          <div class="box">
+            <div class="label">Data válida</div>
+            <div class="val" id="k_date">—</div>
+          </div>
+        </div>
+
+        <pre id="levelsBox" class="pre">Faça login e carregue um ativo.</pre>
+
+        <div class="row">
+          <button id="copyBtn" class="btn secondary" disabled>Copiar</button>
+          <button id="csvBtn" class="btn secondary" disabled>Baixar CSV</button>
+          <button id="jsonBtn" class="btn secondary" disabled>Baixar JSON</button>
+        </div>
+
+        <div class="small muted" style="margin-top:10px;">
+          Sem sinais. Sem promessas. Apenas contexto técnico.
+        </div>
+      </section>
+
+      <!-- ADMIN -->
+      <section class="card" id="adminCard" style="display:none;">
+        <h2>Admin — Operação</h2>
+
+        <div class="row">
+          <span class="badge purple">Níveis</span>
+          <span class="badge green">CSV</span>
+          <span class="badge">Usuários</span>
+        </div>
+
+        <hr class="sep">
+
+        <h2>Inserir/Atualizar níveis (manual)</h2>
+
+        <div class="row">
+          <input id="a_symbol" class="input" placeholder="SYMBOL (ex: WIN)" value="WIN"/>
+          <input id="a_validfor" class="input" type="date"/>
+          <input id="a_tradedate" class="input" type="date"/>
+        </div>
+
+        <div class="row">
+          <input id="a_vah" class="input" placeholder="VAH"/>
+          <input id="a_val" class="input" placeholder="VAL"/>
+          <input id="a_lvn1" class="input" placeholder="LVN1 (1 nível)"/>
+        </div>
+
+        <div class="row">
+          <input id="a_ib" class="input" placeholder="Institutional Buy"/>
+          <input id="a_is" class="input" placeholder="Institutional Sell"/>
+          <button id="a_save" class="btn">Salvar</button>
+        </div>
+
+        <div id="adminStatus" class="status"></div>
+
+        <hr class="sep">
+
+        <h2>Importar CSV</h2>
+        <div class="row">
+          <input id="csvFile" class="input" type="file" accept=".csv" />
+          <button id="importBtn" class="btn">Importar</button>
+        </div>
+        <div id="importStatus" class="status"></div>
+
+        <hr class="sep">
+
+        <h2>Usuários</h2>
+
+        <div class="row">
+          <input id="u_email" class="input" placeholder="novo email (cliente)"/>
+          <input id="u_pass" class="input" placeholder="senha inicial" type="password"/>
+        </div>
+
+        <div class="row">
+          <select id="u_plan" class="input">
+            <option value="brasil">brasil</option>
+            <option value="global">global</option>
+            <option value="pro">pro</option>
+          </select>
+
+          <select id="u_role" class="input">
+            <option value="user">user</option>
+            <option value="admin">admin</option>
+          </select>
+
+          <button id="u_create" class="btn">Criar usuário</button>
+        </div>
+
+        <div class="row" style="margin-top:6px;">
+          <button id="u_reload" class="btn secondary">Recarregar lista</button>
+          <div id="userStatus" class="status"></div>
+        </div>
+
+        <div class="tableWrap" style="margin-top:10px;">
+          <div id="usersBox"></div>
+        </div>
+
+        <div class="small muted" style="margin-top:10px;">
+          Para resetar senha: digite no campo “Nova senha” e clique em “Salvar”.
+        </div>
+      </section>
+
+      <!-- DISCLAIMER -->
+      <section class="card">
+        <h2>Disclaimer</h2>
+        <p class="small">
+          Ferramenta de apoio à análise técnica e educacional. Não constitui recomendação de investimento.
+          O usuário é responsável por suas decisões.
+        </p>
+      </section>
+
+    </div>
+  </div>
+
+  <script src="/static/app.js"></script>
+</body>
+</html>
