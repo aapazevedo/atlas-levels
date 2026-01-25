@@ -47,24 +47,33 @@ app.mount("/static", StaticFiles(directory=os.path.join(WEB_DIR, "static")), nam
 
 
 # =========================================================
-# BOOTSTRAP ADMIN (cria admin no Postgres se não existir)
+# BOOTSTRAP ADMIN (cria/atualiza admin no Postgres)
 # =========================================================
 @app.on_event("startup")
 def bootstrap_admin():
     """
-    Cria um usuário admin automaticamente na inicialização,
-    somente se ele ainda não existir no banco (Postgres).
+    Cria um usuário admin automaticamente na inicialização.
 
-    Variáveis opcionais (Render > Environment):
+    Por padrão:
+      - cria SOMENTE se ainda não existir no banco
+
+    Se você setar:
+      - BOOTSTRAP_ADMIN_RESET=1
+    então:
+      - atualiza senha/role/plan mesmo se já existir.
+
+    Variáveis (Render > Environment):
       - BOOTSTRAP_ADMIN_EMAIL
       - BOOTSTRAP_ADMIN_PASSWORD
       - BOOTSTRAP_ADMIN_ROLE (default: admin)
       - BOOTSTRAP_ADMIN_PLAN (default: pro)
+      - BOOTSTRAP_ADMIN_RESET (default: 0)
     """
     email = (os.getenv("BOOTSTRAP_ADMIN_EMAIL") or "admin@atlaslevels.pro").lower().strip()
-    password = os.getenv("BOOTSTRAP_ADMIN_PASSWORD") or "Suce$$o2047"
+    password = os.getenv("BOOTSTRAP_ADMIN_PASSWORD") or "admin123"
     role = (os.getenv("BOOTSTRAP_ADMIN_ROLE") or "admin").strip().lower()
     plan = (os.getenv("BOOTSTRAP_ADMIN_PLAN") or "pro").strip().lower()
+    reset = (os.getenv("BOOTSTRAP_ADMIN_RESET") or "0").strip() in ("1", "true", "TRUE", "yes", "YES")
 
     # validações simples
     if role not in ("user", "admin"):
@@ -72,36 +81,48 @@ def bootstrap_admin():
     if plan not in ("brasil", "global", "pro"):
         plan = "pro"
 
-    # abre sessão reaproveitando get_db
     db_gen = get_db()
     db: Session = next(db_gen)
     try:
         exists = db.query(User).filter(User.email == email).first()
+
         if not exists:
             u = User(
                 email=email,
                 password_hash=get_password_hash(password),
                 role=role,
             )
-            # se o model tiver plan, setamos
             if hasattr(u, "plan"):
                 u.plan = plan
-
             db.add(u)
             db.commit()
             print("✅ BOOTSTRAP: admin criado automaticamente no banco.")
+
         else:
-            print("ℹ️ BOOTSTRAP: admin já existe no banco.")
+            if reset:
+                exists.password_hash = get_password_hash(password)
+                exists.role = role
+                if hasattr(exists, "plan"):
+                    exists.plan = plan
+                db.commit()
+                print("✅ BOOTSTRAP: admin EXISTIA — senha/role/plan ATUALIZADOS (RESET=1).")
+            else:
+                print("ℹ️ BOOTSTRAP: admin já existe no banco. (RESET=0, nada alterado)")
+
     except Exception as e:
-        # não derruba a aplicação por causa do bootstrap
         try:
             db.rollback()
         except Exception:
             pass
-        print(f"⚠️ BOOTSTRAP: erro ao criar admin: {e}")
+        print(f"⚠️ BOOTSTRAP: erro ao criar/atualizar admin: {e}")
+
     finally:
         try:
             db.close()
+        except Exception:
+            pass
+        try:
+            db_gen.close()
         except Exception:
             pass
 
@@ -157,7 +178,6 @@ def list_symbols(user=Depends(get_current_user)):
     global_ = ["BTCUSD", "XAUUSD", "ES", "NAS100", "US30",
                "EURUSD", "GBPUSD", "USDJPY", "AUDUSD", "WTI"]
 
-    # plano do usuário (do banco)
     plan = getattr(user, "plan", "pro")
 
     if plan == "brasil":
@@ -167,7 +187,6 @@ def list_symbols(user=Depends(get_current_user)):
     else:
         symbols = brasil + global_
 
-    # remove duplicados (se acontecer)
     symbols = list(dict.fromkeys(symbols))
     return SymbolListOut(symbols=symbols)
 
@@ -335,7 +354,6 @@ def create_user(payload: UserCreateIn, admin=Depends(require_admin), db: Session
         password_hash=get_password_hash(payload.password),
         role=role,
     )
-    # se o model tiver plan, setamos
     if hasattr(u, "plan"):
         u.plan = plan
 
