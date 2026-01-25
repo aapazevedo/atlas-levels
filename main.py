@@ -19,7 +19,14 @@ from schemas import (
     LevelsOut, LevelsUpsertIn, SymbolListOut,
     UserListOut, UserOut, UserCreateIn, UserUpdateIn
 )
-from security import verify_password, create_access_token, get_current_user, require_admin, get_password_hash, oauth2_scheme
+from security import (
+    verify_password,
+    create_access_token,
+    get_current_user,
+    require_admin,
+    get_password_hash,
+    oauth2_scheme,
+)
 
 APP_NAME = os.getenv("APP_NAME", "Atlas Levels — Institutional Zones")
 
@@ -39,10 +46,71 @@ WEB_DIR = os.path.join(os.path.dirname(__file__), "web")
 app.mount("/static", StaticFiles(directory=os.path.join(WEB_DIR, "static")), name="static")
 
 
+# =========================================================
+# BOOTSTRAP ADMIN (cria admin no Postgres se não existir)
+# =========================================================
+@app.on_event("startup")
+def bootstrap_admin():
+    """
+    Cria um usuário admin automaticamente na inicialização,
+    somente se ele ainda não existir no banco (Postgres).
+
+    Variáveis opcionais (Render > Environment):
+      - BOOTSTRAP_ADMIN_EMAIL
+      - BOOTSTRAP_ADMIN_PASSWORD
+      - BOOTSTRAP_ADMIN_ROLE (default: admin)
+      - BOOTSTRAP_ADMIN_PLAN (default: pro)
+    """
+    email = (os.getenv("BOOTSTRAP_ADMIN_EMAIL") or "admin@atlaslevels.pro").lower().strip()
+    password = os.getenv("BOOTSTRAP_ADMIN_PASSWORD") or "Suce$$o2047"
+    role = (os.getenv("BOOTSTRAP_ADMIN_ROLE") or "admin").strip().lower()
+    plan = (os.getenv("BOOTSTRAP_ADMIN_PLAN") or "pro").strip().lower()
+
+    # validações simples
+    if role not in ("user", "admin"):
+        role = "admin"
+    if plan not in ("brasil", "global", "pro"):
+        plan = "pro"
+
+    # abre sessão reaproveitando get_db
+    db_gen = get_db()
+    db: Session = next(db_gen)
+    try:
+        exists = db.query(User).filter(User.email == email).first()
+        if not exists:
+            u = User(
+                email=email,
+                password_hash=get_password_hash(password),
+                role=role,
+            )
+            # se o model tiver plan, setamos
+            if hasattr(u, "plan"):
+                u.plan = plan
+
+            db.add(u)
+            db.commit()
+            print("✅ BOOTSTRAP: admin criado automaticamente no banco.")
+        else:
+            print("ℹ️ BOOTSTRAP: admin já existe no banco.")
+    except Exception as e:
+        # não derruba a aplicação por causa do bootstrap
+        try:
+            db.rollback()
+        except Exception:
+            pass
+        print(f"⚠️ BOOTSTRAP: erro ao criar admin: {e}")
+    finally:
+        try:
+            db.close()
+        except Exception:
+            pass
+
+
 @app.get("/", response_class=HTMLResponse)
 def landing():
     with open(os.path.join(WEB_DIR, "landing.html"), encoding="utf-8") as f:
         return f.read()
+
 
 @app.get("/app", response_class=HTMLResponse)
 def app_page():
