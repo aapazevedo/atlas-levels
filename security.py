@@ -18,17 +18,34 @@ ACCESS_TOKEN_EXPIRE_MINUTES = int(os.getenv("ACCESS_TOKEN_EXPIRE_MINUTES", "4320
 pwd_context = CryptContext(schemes=["bcrypt"], deprecated="auto")
 oauth2_scheme = OAuth2PasswordBearer(tokenUrl="/api/auth/token")
 
+
+def _bcrypt_safe_password(password: str) -> str:
+    """
+    bcrypt aceita no máximo 72 bytes de senha.
+    Se passar disso, ele dá erro.
+    Aqui a gente trunc(a) em bytes (UTF-8) de forma segura.
+    """
+    if password is None:
+        password = ""
+    return password.encode("utf-8")[:72].decode("utf-8", errors="ignore")
+
+
 def get_password_hash(password: str) -> str:
-    return pwd_context.hash(password)
+    safe = _bcrypt_safe_password(password)
+    return pwd_context.hash(safe)
+
 
 def verify_password(password: str, password_hash: str) -> bool:
-    return pwd_context.verify(password, password_hash)
+    safe = _bcrypt_safe_password(password)
+    return pwd_context.verify(safe, password_hash)
+
 
 def create_access_token(data: Dict[str, Any], expires_delta: Optional[timedelta] = None) -> str:
     to_encode = data.copy()
     expire = datetime.utcnow() + (expires_delta or timedelta(minutes=ACCESS_TOKEN_EXPIRE_MINUTES))
     to_encode.update({"exp": expire})
     return jwt.encode(to_encode, JWT_SECRET, algorithm=JWT_ALG)
+
 
 def get_current_user(token: str = Depends(oauth2_scheme), db: Session = Depends(get_db)) -> User:
     try:
@@ -44,6 +61,7 @@ def get_current_user(token: str = Depends(oauth2_scheme), db: Session = Depends(
     if not user:
         raise HTTPException(status_code=401, detail="Usuário não encontrado")
     return user
+
 
 def require_admin(user: User = Depends(get_current_user)) -> User:
     if user.role != "admin":
