@@ -89,6 +89,10 @@ $("loginBtn").onclick = async ()=>{
 
     token = data.access_token;
     role = data.role;
+    
+    // Salvar token no localStorage para outras páginas
+    localStorage.setItem('token', token);
+    localStorage.setItem('role', role);
 
     $("whoami").textContent = `${data.email} (${data.role})`;
     $("logoutBtn").style.display = "inline-block";
@@ -108,11 +112,16 @@ $("loginBtn").onclick = async ()=>{
 
 $("logoutBtn").onclick = ()=>{
   token = null; role = null; lastLevels = null;
+  
+  // Remover token do localStorage
+  localStorage.removeItem('token');
+  localStorage.removeItem('role');
+  
   $("whoami").textContent = "Deslogado";
   $("logoutBtn").style.display = "none";
   $("levelsBox").textContent = "Faça login e carregue um ativo.";
   $("adminCard").style.display = "none";
-};
+};;
 
 // =====================
 // NÍVEIS
