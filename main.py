@@ -135,6 +135,11 @@ def payment_page():
     with open(os.path.join(WEB_DIR, "payment.html"), encoding="utf-8") as f:
         return f.read()
 
+@app.get("/signup", response_class=HTMLResponse)
+def signup_page():
+    with open(os.path.join(WEB_DIR, "signup.html"), encoding="utf-8") as f:
+        return f.read()
+
 
 # =========================
 # AUTH
@@ -158,6 +163,37 @@ def get_current_user_info(current_user: User = Depends(get_current_user)):
         "role": current_user.role,
         "plan": current_user.plan
     }
+
+
+@app.post("/api/auth/register", response_model=TokenOut)
+def register(payload: LoginIn, db: Session = Depends(get_db)):
+    """Registra um novo usuário"""
+    email = payload.email.lower().strip()
+    
+    # Verificar se o email já existe
+    existing_user = db.query(User).filter(User.email == email).first()
+    if existing_user:
+        raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail="Email já cadastrado")
+    
+    # Validar senha (mínimo 6 caracteres)
+    if len(payload.password) < 6:
+        raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail="Senha deve ter no mínimo 6 caracteres")
+    
+    # Criar novo usuário
+    new_user = User(
+        email=email,
+        password_hash=get_password_hash(payload.password),
+        role="user",
+        plan="free"
+    )
+    
+    db.add(new_user)
+    db.commit()
+    db.refresh(new_user)
+    
+    # Gerar token para login automático
+    token = create_access_token({"sub": str(new_user.id), "role": new_user.role})
+    return TokenOut(access_token=token, token_type="bearer", email=new_user.email, role=new_user.role)
 
 
 @app.post("/api/auth/token", response_model=TokenOut)
