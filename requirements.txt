@@ -11,3 +11,4 @@ email-validator
 pydantic[email]
 mercadopago==2.2.1
 resend==2.4.0
+slowapi==0.1.9

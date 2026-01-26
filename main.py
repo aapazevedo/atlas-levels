@@ -5,7 +5,7 @@ import io
 from datetime import datetime, date
 from typing import Optional
 
-from fastapi import FastAPI, Depends, HTTPException, status, UploadFile, File
+from fastapi import FastAPI, Depends, HTTPException, status, UploadFile, File, Request
 from fastapi.responses import HTMLResponse
 from fastapi.staticfiles import StaticFiles
 from fastapi.middleware.cors import CORSMiddleware
@@ -22,6 +22,10 @@ from schemas import (
 )
 from security import verify_password, get_password_hash, create_access_token, get_current_user, require_admin
 from email_service import send_welcome_email, send_payment_confirmation_email
+from security_middleware import SecurityHeadersMiddleware
+from rate_limiter import limiter, LOGIN_LIMIT, ADMIN_LIMIT
+from slowapi.errors import RateLimitExceeded
+from slowapi import _rate_limit_exceeded_handler
 
 APP_NAME = os.getenv("APP_NAME", "Atlas Levels — Institutional Zones")
 
@@ -29,12 +33,26 @@ Base.metadata.create_all(bind=engine)
 
 app = FastAPI(title=APP_NAME)
 
+# Configurar rate limiter
+app.state.limiter = limiter
+app.add_exception_handler(RateLimitExceeded, _rate_limit_exceeded_handler)
+
+# Middleware de segurança (deve vir primeiro)
+app.add_middleware(SecurityHeadersMiddleware)
+
+# CORS - Restrito ao domínio de produção
+# Em desenvolvimento local, adicione "http://localhost:3000" se necessário
+allowed_origins = [
+    "https://atlas-levels-api.onrender.com",
+    "http://localhost:8000",  # Para testes locais
+]
+
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["*"],
+    allow_origins=allowed_origins,
     allow_credentials=True,
-    allow_methods=["*"],
-    allow_headers=["*"],
+    allow_methods=["GET", "POST", "PUT", "DELETE", "OPTIONS"],
+    allow_headers=["Content-Type", "Authorization"],
 )
 
 WEB_DIR = os.path.join(os.path.dirname(__file__), "web")
@@ -141,7 +159,8 @@ def signup_page():
 # AUTH
 # =========================
 @app.post("/api/auth/login", response_model=TokenOut)
-def login(payload: LoginIn, db: Session = Depends(get_db)):
+@limiter.limit(LOGIN_LIMIT)
+def login(request: Request, payload: LoginIn, db: Session = Depends(get_db)):
     user = db.query(User).filter(User.email == payload.email.lower()).first()
     if not user or not verify_password(payload.password, user.password_hash):
         raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail="Credenciais inválidas")
