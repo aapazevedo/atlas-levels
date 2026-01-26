@@ -130,6 +130,11 @@ def app_page():
     with open(os.path.join(WEB_DIR, "index.html"), encoding="utf-8") as f:
         return f.read()
 
+@app.get("/payment", response_class=HTMLResponse)
+def payment_page():
+    with open(os.path.join(WEB_DIR, "payment.html"), encoding="utf-8") as f:
+        return f.read()
+
 
 # =========================
 # AUTH

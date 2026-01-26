@@ -1,0 +1,261 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+  <meta charset="utf-8"/>
+  <meta name="viewport" content="width=device-width,initial-scale=1"/>
+  <title>Assinar Plano - Atlas Levels</title>
+  <link rel="stylesheet" href="/static/app.css">
+  <style>
+    .pricing-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+      gap: 20px;
+      margin: 30px 0;
+    }
+    
+    .plan-card {
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      border-radius: 12px;
+      padding: 30px;
+      color: white;
+      position: relative;
+      transition: transform 0.3s ease;
+    }
+    
+    .plan-card:hover {
+      transform: translateY(-5px);
+    }
+    
+    .plan-card.featured {
+      background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
+      border: 3px solid #ffd700;
+    }
+    
+    .plan-name {
+      font-size: 24px;
+      font-weight: bold;
+      margin-bottom: 10px;
+    }
+    
+    .plan-price {
+      font-size: 36px;
+      font-weight: bold;
+      margin: 20px 0;
+    }
+    
+    .plan-price span {
+      font-size: 18px;
+      font-weight: normal;
+    }
+    
+    .plan-description {
+      font-size: 14px;
+      opacity: 0.9;
+      margin-bottom: 20px;
+    }
+    
+    .plan-features {
+      list-style: none;
+      padding: 0;
+      margin: 20px 0;
+    }
+    
+    .plan-features li {
+      padding: 8px 0;
+      border-bottom: 1px solid rgba(255,255,255,0.2);
+    }
+    
+    .plan-features li:before {
+      content: "✓ ";
+      font-weight: bold;
+      margin-right: 8px;
+    }
+    
+    .payment-methods {
+      display: flex;
+      gap: 10px;
+      margin: 20px 0;
+    }
+    
+    .payment-method {
+      flex: 1;
+      padding: 15px;
+      border: 2px solid #ddd;
+      border-radius: 8px;
+      cursor: pointer;
+      text-align: center;
+      transition: all 0.3s ease;
+    }
+    
+    .payment-method:hover {
+      border-color: #667eea;
+      background: #f8f9ff;
+    }
+    
+    .payment-method.selected {
+      border-color: #667eea;
+      background: #667eea;
+      color: white;
+    }
+    
+    .payment-method img {
+      width: 40px;
+      height: 40px;
+      margin-bottom: 8px;
+    }
+    
+    .modal {
+      display: none;
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background: rgba(0,0,0,0.7);
+      z-index: 1000;
+      align-items: center;
+      justify-content: center;
+    }
+    
+    .modal.active {
+      display: flex;
+    }
+    
+    .modal-content {
+      background: white;
+      border-radius: 12px;
+      padding: 30px;
+      max-width: 500px;
+      width: 90%;
+      max-height: 80vh;
+      overflow-y: auto;
+    }
+    
+    .qr-code {
+      text-align: center;
+      margin: 20px 0;
+    }
+    
+    .qr-code img {
+      max-width: 300px;
+      width: 100%;
+    }
+    
+    .badge {
+      display: inline-block;
+      padding: 4px 12px;
+      background: #ffd700;
+      color: #000;
+      border-radius: 20px;
+      font-size: 12px;
+      font-weight: bold;
+      margin-bottom: 10px;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    
+    <div class="topbar">
+      <div class="brand">
+        <h1>Atlas Levels <span class="muted">— Assinar Plano</span></h1>
+      </div>
+      <div class="row">
+        <span id="whoami" class="pill">Carregando...</span>
+        <button id="backBtn" class="btn secondary">Voltar ao App</button>
+      </div>
+    </div>
+
+    <div class="pricing-grid">
+      
+      <!-- Plano Brasil -->
+      <div class="plan-card" data-plan="brasil">
+        <div class="plan-name">🇧🇷 Plano Brasil</div>
+        <div class="plan-price">R$ 97<span>/mês</span></div>
+        <div class="plan-description">Acesso aos principais ativos brasileiros</div>
+        <ul class="plan-features">
+          <li>WIN (Mini Índice)</li>
+          <li>WDO (Mini Dólar)</li>
+          <li>BIT (Bitcoin Futuro)</li>
+          <li>Suporte por email</li>
+        </ul>
+        <button class="btn" onclick="selectPlan('brasil')">Assinar Agora</button>
+      </div>
+
+      <!-- Plano Global -->
+      <div class="plan-card" data-plan="global">
+        <div class="plan-name">🌎 Plano Global</div>
+        <div class="plan-price">R$ 147<span>/mês</span></div>
+        <div class="plan-description">Acesso aos principais ativos internacionais</div>
+        <ul class="plan-features">
+          <li>BTCUSD, XAUUSD</li>
+          <li>ES, NAS100, US30</li>
+          <li>EURUSD, GBPUSD, USDJPY</li>
+          <li>AUDUSD, WTI</li>
+          <li>Suporte prioritário</li>
+        </ul>
+        <button class="btn" onclick="selectPlan('global')">Assinar Agora</button>
+      </div>
+
+      <!-- Plano Pro -->
+      <div class="plan-card featured" data-plan="pro">
+        <div class="badge">MAIS POPULAR</div>
+        <div class="plan-name">⭐ Plano Pro</div>
+        <div class="plan-price">R$ 197<span>/mês</span></div>
+        <div class="plan-description">Acesso completo a TODOS os ativos</div>
+        <ul class="plan-features">
+          <li>Todos os ativos Brasil</li>
+          <li>Todos os ativos Global</li>
+          <li>Atualizações em tempo real</li>
+          <li>Suporte VIP</li>
+          <li>Acesso antecipado a novos ativos</li>
+        </ul>
+        <button class="btn" onclick="selectPlan('pro')">Assinar Agora</button>
+      </div>
+
+    </div>
+
+  </div>
+
+  <!-- Modal de Pagamento -->
+  <div id="paymentModal" class="modal">
+    <div class="modal-content">
+      <h2>Finalizar Pagamento</h2>
+      <p id="selectedPlanInfo"></p>
+      
+      <h3>Escolha o método de pagamento:</h3>
+      <div class="payment-methods">
+        <div class="payment-method" data-method="pix" onclick="selectPaymentMethod('pix')">
+          <div style="font-size: 40px;">📱</div>
+          <div><strong>PIX</strong></div>
+          <div style="font-size: 12px;">Aprovação instantânea</div>
+        </div>
+        <div class="payment-method" data-method="credit_card" onclick="selectPaymentMethod('credit_card')">
+          <div style="font-size: 40px;">💳</div>
+          <div><strong>Cartão</strong></div>
+          <div style="font-size: 12px;">Até 12x sem juros</div>
+        </div>
+      </div>
+
+      <div id="paymentResult" style="display:none;">
+        <div class="qr-code">
+          <img id="qrCodeImage" src="" alt="QR Code PIX"/>
+          <p><strong>Escaneie o QR Code acima para pagar</strong></p>
+          <p style="font-size: 12px;">Ou copie o código PIX:</p>
+          <input id="pixCode" readonly style="width: 100%; padding: 10px; margin: 10px 0;"/>
+          <button class="btn secondary" onclick="copyPixCode()">Copiar Código PIX</button>
+        </div>
+      </div>
+
+      <div class="row" style="margin-top: 20px; gap: 10px;">
+        <button id="confirmPaymentBtn" class="btn" onclick="processPayment()">Confirmar Pagamento</button>
+        <button class="btn secondary" onclick="closeModal()">Cancelar</button>
+      </div>
+
+      <div id="paymentStatus" class="status"></div>
+    </div>
+  </div>
+
+  <script src="/static/payment.js"></script>
+</body>
+</html>
