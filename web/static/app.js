@@ -311,6 +311,7 @@ function renderUsers(users){
 
       <td style="padding:6px;border-bottom:1px solid #1e2a4a;">
         <button class="btn secondary" onclick="saveUser(${u.id})">Salvar</button>
+        <button class="btn" style="background:#dc2626;border-color:#dc2626;margin-left:4px;" onclick="deleteUser(${u.id})">Deletar</button>
       </td>
     </tr>`;
   }
@@ -339,5 +340,22 @@ window.saveUser = async function(userId){
     await loadUsers();
   }catch(e){
     setStatus($("userStatus"), `Erro ao atualizar usuário ${userId}.`, false);
+  }
+};
+
+window.deleteUser = async function(userId){
+  if(!confirm(`Tem certeza que deseja deletar o usuário ID ${userId}? Esta ação não pode ser desfeita.`)){
+    return;
+  }
+  
+  try{
+    await api(`/api/admin/users/${userId}`, {
+      method: "DELETE"
+    });
+
+    setStatus($("userStatus"), `Usuário ${userId} deletado com sucesso.`, true);
+    await loadUsers();
+  }catch(e){
+    setStatus($("userStatus"), `Erro ao deletar usuário ${userId}.`, false);
   }
 };
