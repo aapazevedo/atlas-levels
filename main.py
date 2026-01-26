@@ -320,10 +320,8 @@ def update_user(user_id: int, payload: UserUpdateIn, db: Session = Depends(get_d
     if not user:
         raise HTTPException(status_code=404, detail="Usuário não encontrado")
     
-    if payload.email:
-        user.email = payload.email.lower().strip()
-    if payload.password:
-        user.password_hash = get_password_hash(payload.password)
+    if payload.new_password:
+        user.password_hash = get_password_hash(payload.new_password)
     if payload.role:
         user.role = payload.role
     if payload.plan:
