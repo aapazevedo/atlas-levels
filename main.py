@@ -47,35 +47,28 @@ app.mount("/static", StaticFiles(directory=os.path.join(WEB_DIR, "static")), nam
 
 
 # =========================================================
-# BOOTSTRAP ADMIN (cria/atualiza admin no Postgres)
+# BOOTSTRAP ADMIN (UPSERT: cria OU atualiza no Postgres)
 # =========================================================
 @app.on_event("startup")
 def bootstrap_admin():
     """
-    Cria um usuário admin automaticamente na inicialização.
-
-    Por padrão:
-      - cria SOMENTE se ainda não existir no banco
-
-    Se você setar:
-      - BOOTSTRAP_ADMIN_RESET=1
-    então:
-      - atualiza senha/role/plan mesmo se já existir.
+    Cria OU ATUALIZA um usuário admin automaticamente na inicialização.
 
     Variáveis (Render > Environment):
       - BOOTSTRAP_ADMIN_EMAIL
       - BOOTSTRAP_ADMIN_PASSWORD
       - BOOTSTRAP_ADMIN_ROLE (default: admin)
       - BOOTSTRAP_ADMIN_PLAN (default: pro)
-      - BOOTSTRAP_ADMIN_RESET (default: 0)
+
+    Comportamento:
+      - Se NÃO existir: cria.
+      - Se existir: atualiza senha/role/plan.
     """
     email = (os.getenv("BOOTSTRAP_ADMIN_EMAIL") or "admin@atlaslevels.pro").lower().strip()
     password = os.getenv("BOOTSTRAP_ADMIN_PASSWORD") or "admin123"
     role = (os.getenv("BOOTSTRAP_ADMIN_ROLE") or "admin").strip().lower()
     plan = (os.getenv("BOOTSTRAP_ADMIN_PLAN") or "pro").strip().lower()
-    reset = (os.getenv("BOOTSTRAP_ADMIN_RESET") or "0").strip() in ("1", "true", "TRUE", "yes", "YES")
 
-    # validações simples
     if role not in ("user", "admin"):
         role = "admin"
     if plan not in ("brasil", "global", "pro"):
@@ -84,9 +77,9 @@ def bootstrap_admin():
     db_gen = get_db()
     db: Session = next(db_gen)
     try:
-        exists = db.query(User).filter(User.email == email).first()
+        u = db.query(User).filter(User.email == email).first()
 
-        if not exists:
+        if not u:
             u = User(
                 email=email,
                 password_hash=get_password_hash(password),
@@ -94,20 +87,19 @@ def bootstrap_admin():
             )
             if hasattr(u, "plan"):
                 u.plan = plan
+
             db.add(u)
             db.commit()
-            print("✅ BOOTSTRAP: admin criado automaticamente no banco.")
-
+            print("✅ BOOTSTRAP: admin criado no banco.")
         else:
-            if reset:
-                exists.password_hash = get_password_hash(password)
-                exists.role = role
-                if hasattr(exists, "plan"):
-                    exists.plan = plan
-                db.commit()
-                print("✅ BOOTSTRAP: admin EXISTIA — senha/role/plan ATUALIZADOS (RESET=1).")
-            else:
-                print("ℹ️ BOOTSTRAP: admin já existe no banco. (RESET=0, nada alterado)")
+            # ✅ UPSERT: atualiza credenciais e permissões
+            u.role = role
+            u.password_hash = get_password_hash(password)
+            if hasattr(u, "plan"):
+                u.plan = plan
+
+            db.commit()
+            print("✅ BOOTSTRAP: admin atualizado no banco (senha/role/plan).")
 
     except Exception as e:
         try:
@@ -115,14 +107,9 @@ def bootstrap_admin():
         except Exception:
             pass
         print(f"⚠️ BOOTSTRAP: erro ao criar/atualizar admin: {e}")
-
     finally:
         try:
             db.close()
-        except Exception:
-            pass
-        try:
-            db_gen.close()
         except Exception:
             pass
 
