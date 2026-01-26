@@ -9,6 +9,7 @@ import mercadopago_config
 from database import SessionLocal, get_db
 from models import User, Payment
 from security import get_current_user
+from email_service import send_payment_confirmation_email
 import logging
 import uuid
 
@@ -188,6 +189,19 @@ async def payment_webhook(request: Request, db: SessionLocal = Depends(get_db)):
                             if user:
                                 user.plan = plan
                                 logger.info(f"Plano do usuário {user.email} atualizado para {plan}")
+                                
+                                # Enviar email de confirmação
+                                try:
+                                    plan_prices = {"brasil": 97.0, "global": 147.0, "pro": 197.0}
+                                    send_payment_confirmation_email(
+                                        to_email=user.email,
+                                        plan_name=plan,
+                                        plan_price=plan_prices.get(plan, payment.amount),
+                                        payment_method=payment_data.get("payment_type_id", "pix"),
+                                        transaction_id=str(payment_id)
+                                    )
+                                except Exception as e:
+                                    logger.error(f"Erro ao enviar email de confirmação: {e}")
                         
                         db.commit()
         

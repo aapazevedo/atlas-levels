@@ -1,4 +1,5 @@
 import os
+import os
 import csv
 import io
 from datetime import datetime, date
@@ -19,13 +20,8 @@ from schemas import (
     LevelsOut, LevelsUpsertIn, SymbolListOut,
     UserListOut, UserOut, UserCreateIn, UserUpdateIn
 )
-from security import (
-    verify_password,
-    create_access_token,
-    get_current_user,
-    require_admin,
-    get_password_hash,
-)
+from security import verify_password, get_password_hash, create_access_token, get_current_user, require_admin
+from email_service import send_welcome_email, send_payment_confirmation_email
 
 APP_NAME = os.getenv("APP_NAME", "Atlas Levels — Institutional Zones")
 
@@ -190,6 +186,12 @@ def register(payload: LoginIn, db: Session = Depends(get_db)):
     db.add(new_user)
     db.commit()
     db.refresh(new_user)
+    
+    # Enviar email de boas-vindas
+    try:
+        send_welcome_email(new_user.email)
+    except Exception as e:
+        print(f"Erro ao enviar email de boas-vindas: {e}")
     
     # Gerar token para login automático
     token = create_access_token({"sub": str(new_user.id), "role": new_user.role})
