@@ -44,10 +44,15 @@ class LevelsOut(BaseModel):
 # USERS (ADMIN)
 # =====================
 class UserOut(BaseModel):
+    """Schema de resposta de usuário - nunca inclui password_hash"""
     id: int
     email: EmailStr
     role: str
     plan: str
+    created_at: Optional[str] = None
+    
+    class Config:
+        from_attributes = True
 
 class UserListOut(BaseModel):
     users: List[UserOut]

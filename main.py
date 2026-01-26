@@ -26,6 +26,9 @@ from security_middleware import SecurityHeadersMiddleware
 from rate_limiter import limiter, LOGIN_LIMIT, ADMIN_LIMIT
 from slowapi.errors import RateLimitExceeded
 from slowapi import _rate_limit_exceeded_handler
+from exception_handlers import validation_exception_handler, generic_exception_handler
+from fastapi.exceptions import RequestValidationError
+from security_monitor import security_monitor
 
 APP_NAME = os.getenv("APP_NAME", "Atlas Levels — Institutional Zones")
 
@@ -36,6 +39,10 @@ app = FastAPI(title=APP_NAME)
 # Configurar rate limiter
 app.state.limiter = limiter
 app.add_exception_handler(RateLimitExceeded, _rate_limit_exceeded_handler)
+
+# Exception handlers customizados (previne vazamento de informações)
+app.add_exception_handler(RequestValidationError, validation_exception_handler)
+app.add_exception_handler(Exception, generic_exception_handler)
 
 # Middleware de segurança (deve vir primeiro)
 app.add_middleware(SecurityHeadersMiddleware)
@@ -158,18 +165,27 @@ def signup_page():
 # =========================
 # AUTH
 # =========================
-@app.post("/api/auth/login", response_model=TokenOut)
+@app.post("/api/v1/auth/login", response_model=TokenOut)
+@app.post("/api/auth/login", response_model=TokenOut, deprecated=True)  # Manter compatibilidade
 @limiter.limit(LOGIN_LIMIT)
 def login(request: Request, payload: LoginIn, db: Session = Depends(get_db)):
+    # Verificar se IP está bloqueado
+    client_ip = request.client.host
+    if security_monitor.is_blocked(client_ip):
+        raise HTTPException(status_code=status.HTTP_403_FORBIDDEN, detail="Acesso temporariamente bloqueado")
+    
     user = db.query(User).filter(User.email == payload.email.lower()).first()
     if not user or not verify_password(payload.password, user.password_hash):
+        # Registrar tentativa falhada
+        security_monitor.record_failed_login(client_ip, payload.email)
         raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail="Credenciais inválidas")
 
     token = create_access_token({"sub": str(user.id), "role": user.role})
     return TokenOut(access_token=token, token_type="bearer", email=user.email, role=user.role)
 
 
-@app.get("/api/auth/me")
+@app.get("/api/v1/auth/me")
+@app.get("/api/auth/me", deprecated=True)  # Manter compatibilidade
 def get_current_user_info(current_user: User = Depends(get_current_user)):
     """Retorna informações do usuário autenticado"""
     return {
@@ -287,7 +303,8 @@ def get_levels(symbol: str, valid_for: Optional[date] = None,
 # =========================
 # ADMIN - USER MANAGEMENT
 # =========================
-@app.get("/api/admin/users", response_model=UserListOut)
+@app.get("/api/v1/admin/users", response_model=UserListOut)
+@app.get("/api/admin/users", response_model=UserListOut, deprecated=True)  # Manter compatibilidade
 def list_users(db: Session = Depends(get_db), admin=Depends(require_admin)):
     """Lista todos os usuários (apenas admin)"""
     users = db.query(User).all()
@@ -302,7 +319,8 @@ def list_users(db: Session = Depends(get_db), admin=Depends(require_admin)):
     ])
 
 
-@app.post("/api/admin/users", response_model=UserOut)
+@app.post("/api/v1/admin/users", response_model=UserOut)
+@app.post("/api/admin/users", response_model=UserOut, deprecated=True)  # Manter compatibilidade
 def create_user(payload: UserCreateIn, db: Session = Depends(get_db), admin=Depends(require_admin)):
     """Cria um novo usuário (apenas admin)"""
     email = payload.email.lower().strip()
@@ -332,7 +350,8 @@ def create_user(payload: UserCreateIn, db: Session = Depends(get_db), admin=Depe
     )
 
 
-@app.put("/api/admin/users/{user_id}", response_model=UserOut)
+@app.put("/api/v1/admin/users/{user_id}", response_model=UserOut)
+@app.put("/api/admin/users/{user_id}", response_model=UserOut, deprecated=True)  # Manter compatibilidade
 def update_user(user_id: int, payload: UserUpdateIn, db: Session = Depends(get_db), admin=Depends(require_admin)):
     """Atualiza um usuário (apenas admin)"""
     user = db.query(User).filter(User.id == user_id).first()
@@ -358,7 +377,15 @@ def update_user(user_id: int, payload: UserUpdateIn, db: Session = Depends(get_d
     )
 
 
-@app.delete("/api/admin/users/{user_id}")
+@app.get("/api/v1/admin/security/stats")
+@app.get("/api/admin/security/stats", deprecated=True)
+def get_security_stats(admin=Depends(require_admin)):
+    """ Retorna estatísticas de segurança (apenas admin)"""
+    return security_monitor.get_stats()
+
+
+@app.delete("/api/v1/admin/users/{user_id}")
+@app.delete("/api/admin/users/{user_id}", deprecated=True)  # Manter compatibilidade
 def delete_user(user_id: int, db: Session = Depends(get_db), admin=Depends(require_admin)):
     """Deleta um usuário (apenas admin)"""
     user = db.query(User).filter(User.id == user_id).first()
