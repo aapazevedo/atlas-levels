@@ -25,7 +25,6 @@ from security import (
     get_current_user,
     require_admin,
     get_password_hash,
-    oauth2_scheme,
 )
 
 APP_NAME = os.getenv("APP_NAME", "Atlas Levels — Institutional Zones")
@@ -47,25 +46,13 @@ app.mount("/static", StaticFiles(directory=os.path.join(WEB_DIR, "static")), nam
 
 
 # =========================================================
-# BOOTSTRAP ADMIN (UPSERT: cria OU atualiza no Postgres)
+# BOOTSTRAP ADMIN (UPSERT + PROTEÇÃO 72 BYTES)
 # =========================================================
 @app.on_event("startup")
 def bootstrap_admin():
-    """
-    Cria OU ATUALIZA um usuário admin automaticamente na inicialização.
 
-    Variáveis (Render > Environment):
-      - BOOTSTRAP_ADMIN_EMAIL
-      - BOOTSTRAP_ADMIN_PASSWORD
-      - BOOTSTRAP_ADMIN_ROLE (default: admin)
-      - BOOTSTRAP_ADMIN_PLAN (default: pro)
-
-    Comportamento:
-      - Se NÃO existir: cria.
-      - Se existir: atualiza senha/role/plan.
-    """
     email = (os.getenv("BOOTSTRAP_ADMIN_EMAIL") or "admin@atlaslevels.pro").lower().strip()
-    password = os.getenv("BOOTSTRAP_ADMIN_PASSWORD") or "admin123"
+    password = (os.getenv("BOOTSTRAP_ADMIN_PASSWORD") or "admin123").strip()
     role = (os.getenv("BOOTSTRAP_ADMIN_ROLE") or "admin").strip().lower()
     plan = (os.getenv("BOOTSTRAP_ADMIN_PLAN") or "pro").strip().lower()
 
@@ -74,8 +61,18 @@ def bootstrap_admin():
     if plan not in ("brasil", "global", "pro"):
         plan = "pro"
 
+    # DEBUG: mostra quantos bytes chegaram da senha
+    pw_bytes = len(password.encode("utf-8"))
+    print(f"ℹ️ BOOTSTRAP: senha recebida tem {pw_bytes} bytes")
+
+    # Proteção: nunca deixa o bcrypt quebrar
+    if pw_bytes > 72:
+        print("⚠️ BOOTSTRAP: senha >72 bytes. Truncando automaticamente.")
+        password = password.encode("utf-8")[:72].decode("utf-8", errors="ignore")
+
     db_gen = get_db()
     db: Session = next(db_gen)
+
     try:
         u = db.query(User).filter(User.email == email).first()
 
@@ -91,15 +88,15 @@ def bootstrap_admin():
             db.add(u)
             db.commit()
             print("✅ BOOTSTRAP: admin criado no banco.")
+
         else:
-            # ✅ UPSERT: atualiza credenciais e permissões
             u.role = role
             u.password_hash = get_password_hash(password)
             if hasattr(u, "plan"):
                 u.plan = plan
 
             db.commit()
-            print("✅ BOOTSTRAP: admin atualizado no banco (senha/role/plan).")
+            print("✅ BOOTSTRAP: admin atualizado no banco.")
 
     except Exception as e:
         try:
@@ -107,6 +104,7 @@ def bootstrap_admin():
         except Exception:
             pass
         print(f"⚠️ BOOTSTRAP: erro ao criar/atualizar admin: {e}")
+
     finally:
         try:
             db.close()
@@ -114,6 +112,9 @@ def bootstrap_admin():
             pass
 
 
+# =========================
+# PÁGINAS
+# =========================
 @app.get("/", response_class=HTMLResponse)
 def landing():
     with open(os.path.join(WEB_DIR, "landing.html"), encoding="utf-8") as f:
@@ -127,7 +128,7 @@ def app_page():
 
 
 # =========================
-# AUTH (JSON login - painel)
+# AUTH
 # =========================
 @app.post("/api/auth/login", response_model=TokenOut)
 def login(payload: LoginIn, db: Session = Depends(get_db)):
@@ -139,9 +140,6 @@ def login(payload: LoginIn, db: Session = Depends(get_db)):
     return TokenOut(access_token=token, token_type="bearer", email=user.email, role=user.role)
 
 
-# =========================
-# AUTH (Swagger Authorize)
-# =========================
 @app.post("/api/auth/token", response_model=TokenOut)
 def token(
     form_data: OAuth2PasswordRequestForm = Depends(),
@@ -178,6 +176,9 @@ def list_symbols(user=Depends(get_current_user)):
     return SymbolListOut(symbols=symbols)
 
 
+# =========================
+# LEVELS
+# =========================
 @app.get("/api/levels", response_model=LevelsOut)
 def get_levels(symbol: str, valid_for: Optional[date] = None,
                user=Depends(get_current_user), db: Session = Depends(get_db)):
@@ -205,172 +206,3 @@ def get_levels(symbol: str, valid_for: Optional[date] = None,
             "institutional_sell": row.inst_sell
         }
     )
-
-
-@app.post("/api/admin/levels", response_model=LevelsOut)
-def upsert_levels(payload: LevelsUpsertIn, admin=Depends(require_admin), db: Session = Depends(get_db)):
-    sym = payload.symbol.upper().strip()
-
-    row = db.query(DailyLevels).filter(
-        DailyLevels.symbol == sym,
-        DailyLevels.valid_for == payload.valid_for
-    ).first()
-
-    if row:
-        row.trade_date = payload.trade_date
-        row.vah = payload.vah
-        row.val = payload.val
-        row.lvn1 = payload.lvn1
-        row.inst_buy = payload.inst_buy
-        row.inst_sell = payload.inst_sell
-        row.created_at = datetime.utcnow()
-    else:
-        db.add(DailyLevels(
-            symbol=sym,
-            trade_date=payload.trade_date,
-            valid_for=payload.valid_for,
-            vah=payload.vah,
-            val=payload.val,
-            lvn1=payload.lvn1,
-            inst_buy=payload.inst_buy,
-            inst_sell=payload.inst_sell
-        ))
-
-    db.commit()
-    return get_levels(sym, payload.valid_for, admin, db)
-
-
-# =========================
-# IMPORTAÇÃO CSV (ADMIN)
-# =========================
-@app.post("/api/admin/import_csv")
-def import_csv(file: UploadFile = File(...),
-               admin=Depends(require_admin),
-               db: Session = Depends(get_db)):
-
-    content = file.file.read().decode("utf-8-sig", errors="ignore")
-    sep = ";" if content.count(";") > content.count(",") else ","
-    reader = csv.DictReader(io.StringIO(content), delimiter=sep)
-
-    required = {"symbol", "valid_for", "vah", "val", "lvn1", "inst_buy", "inst_sell"}
-    cols = set(reader.fieldnames or [])
-    if not required.issubset(cols):
-        raise HTTPException(status_code=400, detail=f"CSV inválido. Precisa conter: {sorted(required)}")
-
-    def pdate(x):
-        x = (x or "").strip()
-        return datetime.strptime(x, "%Y-%m-%d").date() if x else None
-
-    def pfloat(x):
-        x = (x or "").strip()
-        if not x:
-            return None
-        return float(x.replace(",", "."))
-
-    inserted = updated = 0
-
-    for r in reader:
-        sym = (r.get("symbol") or "").strip().upper()
-        valid_for = pdate(r.get("valid_for"))
-        trade_date = pdate(r.get("trade_date"))
-
-        vah = pfloat(r.get("vah"))
-        val = pfloat(r.get("val"))
-        lvn1 = pfloat(r.get("lvn1"))
-        inst_buy = pfloat(r.get("inst_buy"))
-        inst_sell = pfloat(r.get("inst_sell"))
-
-        if not sym or not valid_for:
-            continue
-        if vah is None or val is None or inst_buy is None or inst_sell is None:
-            continue
-
-        row = db.query(DailyLevels).filter(
-            DailyLevels.symbol == sym,
-            DailyLevels.valid_for == valid_for
-        ).first()
-
-        if row:
-            row.trade_date = trade_date
-            row.vah = vah
-            row.val = val
-            row.lvn1 = lvn1
-            row.inst_buy = inst_buy
-            row.inst_sell = inst_sell
-            row.created_at = datetime.utcnow()
-            updated += 1
-        else:
-            db.add(DailyLevels(
-                symbol=sym,
-                valid_for=valid_for,
-                trade_date=trade_date,
-                vah=vah,
-                val=val,
-                lvn1=lvn1,
-                inst_buy=inst_buy,
-                inst_sell=inst_sell
-            ))
-            inserted += 1
-
-    db.commit()
-    return {"ok": True, "inserted": inserted, "updated": updated}
-
-
-# =========================
-# USERS ADMIN (PAINEL)
-# =========================
-@app.get("/api/admin/users", response_model=UserListOut)
-def list_users(admin=Depends(require_admin), db: Session = Depends(get_db)):
-    users = db.query(User).order_by(User.id.asc()).all()
-    out = [UserOut(id=u.id, email=u.email, role=u.role, plan=getattr(u, "plan", "pro")) for u in users]
-    return UserListOut(users=out)
-
-
-@app.post("/api/admin/users", response_model=UserOut)
-def create_user(payload: UserCreateIn, admin=Depends(require_admin), db: Session = Depends(get_db)):
-    email = payload.email.lower().strip()
-    exists = db.query(User).filter(User.email == email).first()
-    if exists:
-        raise HTTPException(status_code=400, detail="Email já existe.")
-
-    role = payload.role if payload.role in ("user", "admin") else "user"
-    plan = payload.plan if payload.plan in ("brasil", "global", "pro") else "brasil"
-
-    u = User(
-        email=email,
-        password_hash=get_password_hash(payload.password),
-        role=role,
-    )
-    if hasattr(u, "plan"):
-        u.plan = plan
-
-    db.add(u)
-    db.commit()
-    db.refresh(u)
-
-    return UserOut(id=u.id, email=u.email, role=u.role, plan=getattr(u, "plan", plan))
-
-
-@app.patch("/api/admin/users/{user_id}", response_model=UserOut)
-def update_user(user_id: int, payload: UserUpdateIn, admin=Depends(require_admin), db: Session = Depends(get_db)):
-    u = db.query(User).filter(User.id == user_id).first()
-    if not u:
-        raise HTTPException(status_code=404, detail="Usuário não encontrado.")
-
-    if payload.role is not None:
-        if payload.role not in ("user", "admin"):
-            raise HTTPException(status_code=400, detail="role inválido (use user|admin).")
-        u.role = payload.role
-
-    if payload.plan is not None:
-        if payload.plan not in ("brasil", "global", "pro"):
-            raise HTTPException(status_code=400, detail="plan inválido (use brasil|global|pro).")
-        if hasattr(u, "plan"):
-            u.plan = payload.plan
-
-    if payload.new_password is not None:
-        u.password_hash = get_password_hash(payload.new_password)
-
-    db.commit()
-    db.refresh(u)
-    return UserOut(id=u.id, email=u.email, role=u.role, plan=getattr(u, "plan", "pro"))
