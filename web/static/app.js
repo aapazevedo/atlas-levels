@@ -34,7 +34,15 @@ async function api(path, opts={}){
   let data = null;
   try { data = JSON.parse(txt); } catch { data = txt; }
 
-  if(!res.ok) throw {status: res.status, data};
+  if(!res.ok) {
+    // Se token expirou, redirecionar para login
+    if(res.status === 401 && token) {
+      alert('Sua sessão expirou. Faça login novamente.');
+      logout();
+      return;
+    }
+    throw {status: res.status, data};
+  }
   return data;
 }
 

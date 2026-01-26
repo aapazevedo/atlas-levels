@@ -13,7 +13,7 @@ from models import User
 
 JWT_SECRET = os.getenv("JWT_SECRET", "CHANGE_ME_TO_A_LONG_RANDOM_SECRET")
 JWT_ALG = os.getenv("JWT_ALG", "HS256")
-ACCESS_TOKEN_EXPIRE_MINUTES = int(os.getenv("ACCESS_TOKEN_EXPIRE_MINUTES", "43200"))
+ACCESS_TOKEN_EXPIRE_MINUTES = int(os.getenv("ACCESS_TOKEN_EXPIRE_MINUTES", "60"))
 
 # ✅ Troca importante aqui: bcrypt_sha256 evita bug dos 72 bytes
 pwd_context = CryptContext(schemes=["bcrypt_sha256"], deprecated="auto")
