@@ -264,3 +264,95 @@ def get_levels(symbol: str, valid_for: Optional[date] = None,
             "institutional_sell": row.inst_sell
         }
     )
+
+# =========================
+# ADMIN - USER MANAGEMENT
+# =========================
+@app.get("/api/admin/users", response_model=UserListOut)
+def list_users(db: Session = Depends(get_db), admin=Depends(require_admin)):
+    """Lista todos os usuários (apenas admin)"""
+    users = db.query(User).all()
+    return UserListOut(users=[
+        UserOut(
+            id=u.id,
+            email=u.email,
+            role=u.role,
+            plan=u.plan,
+            created_at=u.created_at
+        ) for u in users
+    ])
+
+
+@app.post("/api/admin/users", response_model=UserOut)
+def create_user(payload: UserCreateIn, db: Session = Depends(get_db), admin=Depends(require_admin)):
+    """Cria um novo usuário (apenas admin)"""
+    email = payload.email.lower().strip()
+    
+    # Verificar se já existe
+    existing = db.query(User).filter(User.email == email).first()
+    if existing:
+        raise HTTPException(status_code=400, detail="Email já cadastrado")
+    
+    new_user = User(
+        email=email,
+        password_hash=get_password_hash(payload.password),
+        role=payload.role,
+        plan=payload.plan
+    )
+    
+    db.add(new_user)
+    db.commit()
+    db.refresh(new_user)
+    
+    return UserOut(
+        id=new_user.id,
+        email=new_user.email,
+        role=new_user.role,
+        plan=new_user.plan,
+        created_at=new_user.created_at
+    )
+
+
+@app.put("/api/admin/users/{user_id}", response_model=UserOut)
+def update_user(user_id: int, payload: UserUpdateIn, db: Session = Depends(get_db), admin=Depends(require_admin)):
+    """Atualiza um usuário (apenas admin)"""
+    user = db.query(User).filter(User.id == user_id).first()
+    if not user:
+        raise HTTPException(status_code=404, detail="Usuário não encontrado")
+    
+    if payload.email:
+        user.email = payload.email.lower().strip()
+    if payload.password:
+        user.password_hash = get_password_hash(payload.password)
+    if payload.role:
+        user.role = payload.role
+    if payload.plan:
+        user.plan = payload.plan
+    
+    db.commit()
+    db.refresh(user)
+    
+    return UserOut(
+        id=user.id,
+        email=user.email,
+        role=user.role,
+        plan=user.plan,
+        created_at=user.created_at
+    )
+
+
+@app.delete("/api/admin/users/{user_id}")
+def delete_user(user_id: int, db: Session = Depends(get_db), admin=Depends(require_admin)):
+    """Deleta um usuário (apenas admin)"""
+    user = db.query(User).filter(User.id == user_id).first()
+    if not user:
+        raise HTTPException(status_code=404, detail="Usuário não encontrado")
+    
+    # Não permitir deletar o próprio usuário admin
+    if user.id == admin.id:
+        raise HTTPException(status_code=400, detail="Não é possível deletar seu próprio usuário")
+    
+    db.delete(user)
+    db.commit()
+    
+    return {"message": "Usuário deletado com sucesso"}
