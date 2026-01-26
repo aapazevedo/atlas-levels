@@ -10,6 +10,7 @@ from database import SessionLocal, get_db
 from models import User, Payment
 from security import get_current_user
 import logging
+import uuid
 
 logger = logging.getLogger(__name__)
 
@@ -48,84 +49,101 @@ async def create_payment(
     if not plan_info:
         raise HTTPException(status_code=400, detail="Plano inválido")
     
-    # Criar preferência de pagamento
-    preference_data = {
-        "items": [
-            {
-                "title": plan_info["name"],
-                "description": plan_info["description"],
-                "quantity": 1,
-                "currency_id": "BRL",
-                "unit_price": plan_info["price"]
-            }
-        ],
-        "payer": {
-            "email": current_user.email
-        },
-        "back_urls": {
-            "success": "https://atlas-levels-api.onrender.com/app?payment=success",
-            "failure": "https://atlas-levels-api.onrender.com/app?payment=failure",
-            "pending": "https://atlas-levels-api.onrender.com/app?payment=pending"
-        },
-        "auto_return": "approved",
-        "external_reference": f"{current_user.id}_{payment_request.plan}",
-        "notification_url": "https://atlas-levels-api.onrender.com/api/payment/webhook",
-        "statement_descriptor": "ATLAS LEVELS",
-        "expires": True,
-        "expiration_date_from": datetime.now().isoformat(),
-        "expiration_date_to": (datetime.now() + timedelta(days=7)).isoformat()
-    }
-    
-    # Configurar método de pagamento
-    if payment_request.payment_method == "pix":
-        preference_data["payment_methods"] = {
-            "excluded_payment_methods": [],
-            "excluded_payment_types": [
-                {"id": "credit_card"},
-                {"id": "debit_card"},
-                {"id": "ticket"}
-            ],
-            "installments": 1
-        }
-    elif payment_request.payment_method == "credit_card":
-        preference_data["payment_methods"] = {
-            "excluded_payment_methods": [],
-            "excluded_payment_types": [
-                {"id": "ticket"}
-            ],
-            "installments": 12
-        }
-    
     try:
-        # Criar preferência no Mercado Pago
-        preference_response = mercadopago_config.sdk.preference().create(preference_data)
-        preference = preference_response["response"]
-        
-        # Salvar pagamento no banco
-        payment = Payment(
-            user_id=current_user.id,
-            plan=payment_request.plan,
-            amount=plan_info["price"],
-            payment_method=payment_request.payment_method,
-            mp_payment_id=preference["id"],
-            status="pending"
-        )
-        db.add(payment)
-        db.commit()
-        
-        # Retornar resposta
-        response = {
-            "payment_id": preference["id"],
-            "status": "pending",
-            "ticket_url": preference["init_point"]
-        }
-        
-        # Se for PIX, incluir QR Code
+        # Se for PIX, usar Payment API (gera QR Code direto)
         if payment_request.payment_method == "pix":
-            response["qr_code"] = preference.get("point_of_interaction", {}).get("transaction_data", {}).get("qr_code")
-            response["qr_code_base64"] = preference.get("point_of_interaction", {}).get("transaction_data", {}).get("qr_code_base64")
+            payment_data = {
+                "transaction_amount": plan_info["price"],
+                "description": plan_info["name"],
+                "payment_method_id": "pix",
+                "payer": {
+                    "email": current_user.email,
+                    "first_name": current_user.email.split("@")[0],
+                    "last_name": "User"
+                },
+                "external_reference": f"{current_user.id}_{payment_request.plan}",
+                "notification_url": "https://atlas-levels-api.onrender.com/api/payment/webhook"
+            }
+            
+            payment_response = mercadopago_config.sdk.payment().create(payment_data)
+            payment_result = payment_response["response"]
+            
+            # Salvar pagamento no banco
+            payment = Payment(
+                user_id=current_user.id,
+                plan=payment_request.plan,
+                amount=plan_info["price"],
+                payment_method=payment_request.payment_method,
+                mp_payment_id=str(payment_result["id"]),
+                status=payment_result.get("status", "pending")
+            )
+            db.add(payment)
+            db.commit()
+            
+            # Extrair dados do PIX
+            qr_code = payment_result.get("point_of_interaction", {}).get("transaction_data", {}).get("qr_code", "")
+            qr_code_base64 = payment_result.get("point_of_interaction", {}).get("transaction_data", {}).get("qr_code_base64", "")
+            
+            return PaymentResponse(
+                payment_id=str(payment_result["id"]),
+                status=payment_result.get("status", "pending"),
+                qr_code=qr_code,
+                qr_code_base64=qr_code_base64
+            )
         
-        return response
+        # Se for cartão, usar Preference API (checkout completo)
+        else:
+            preference_data = {
+                "items": [
+                    {
+                        "title": plan_info["name"],
+                        "description": plan_info["description"],
+                        "quantity": 1,
+                        "currency_id": "BRL",
+                        "unit_price": plan_info["price"]
+                    }
+                ],
+                "payer": {
+                    "email": current_user.email
+                },
+                "back_urls": {
+                    "success": "https://atlas-levels-api.onrender.com/app?payment=success",
+                    "failure": "https://atlas-levels-api.onrender.com/app?payment=failure",
+                    "pending": "https://atlas-levels-api.onrender.com/app?payment=pending"
+                },
+                "auto_return": "approved",
+                "external_reference": f"{current_user.id}_{payment_request.plan}",
+                "notification_url": "https://atlas-levels-api.onrender.com/api/payment/webhook",
+                "statement_descriptor": "ATLAS LEVELS",
+                "payment_methods": {
+                    "excluded_payment_methods": [],
+                    "excluded_payment_types": [
+                        {"id": "ticket"}
+                    ],
+                    "installments": 12
+                }
+            }
+            
+            preference_response = mercadopago_config.sdk.preference().create(preference_data)
+            preference = preference_response["response"]
+            
+            # Salvar pagamento no banco
+            payment = Payment(
+                user_id=current_user.id,
+                plan=payment_request.plan,
+                amount=plan_info["price"],
+                payment_method=payment_request.payment_method,
+                mp_payment_id=preference["id"],
+                status="pending"
+            )
+            db.add(payment)
+            db.commit()
+            
+            return PaymentResponse(
+                payment_id=preference["id"],
+                status="pending",
+                ticket_url=preference["init_point"]
+            )
         
     except Exception as e:
         logger.error(f"Erro ao criar pagamento: {e}")
@@ -158,12 +176,11 @@ async def payment_webhook(request: Request, db: SessionLocal = Depends(get_db)):
                     payment = db.query(Payment).filter(
                         Payment.user_id == int(user_id),
                         Payment.plan == plan,
-                        Payment.mp_payment_id == str(payment_data.get("preference_id", ""))
+                        Payment.mp_payment_id == str(payment_id)
                     ).first()
                     
                     if payment:
                         payment.status = payment_data.get("status")
-                        payment.mp_payment_id = str(payment_id)
                         
                         # Se pagamento aprovado, atualizar plano do usuário
                         if payment_data.get("status") == "approved":
@@ -200,12 +217,21 @@ async def get_payment_status(
             raise HTTPException(status_code=404, detail="Pagamento não encontrado")
         
         # Buscar status atualizado no Mercado Pago
-        payment_info = mercadopago_config.sdk.payment().get(payment_id)
-        payment_data = payment_info["response"]
-        
-        # Atualizar status no banco
-        payment.status = payment_data.get("status")
-        db.commit()
+        try:
+            payment_info = mercadopago_config.sdk.payment().get(payment_id)
+            payment_data = payment_info["response"]
+            
+            # Atualizar status no banco
+            payment.status = payment_data.get("status")
+            
+            # Se aprovado, atualizar plano do usuário
+            if payment_data.get("status") == "approved":
+                current_user.plan = payment.plan
+            
+            db.commit()
+        except:
+            # Se falhar ao buscar no MP, usar status do banco
+            pass
         
         return {
             "payment_id": payment_id,
@@ -214,6 +240,8 @@ async def get_payment_status(
             "amount": payment.amount
         }
         
+    except HTTPException:
+        raise
     except Exception as e:
         logger.error(f"Erro ao buscar status do pagamento: {e}")
         raise HTTPException(status_code=500, detail=str(e))
