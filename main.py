@@ -149,6 +149,17 @@ def login(payload: LoginIn, db: Session = Depends(get_db)):
     return TokenOut(access_token=token, token_type="bearer", email=user.email, role=user.role)
 
 
+@app.get("/api/auth/me")
+def get_current_user_info(current_user: User = Depends(get_current_user)):
+    """Retorna informações do usuário autenticado"""
+    return {
+        "id": current_user.id,
+        "email": current_user.email,
+        "role": current_user.role,
+        "plan": current_user.plan
+    }
+
+
 @app.post("/api/auth/token", response_model=TokenOut)
 def token(
     form_data: OAuth2PasswordRequestForm = Depends(),
