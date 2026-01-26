@@ -69,6 +69,10 @@ app.mount("/static", StaticFiles(directory=os.path.join(WEB_DIR, "static")), nam
 from payment_routes import router as payment_router
 app.include_router(payment_router)
 
+# Importar rotas admin (protegidas globalmente)
+from admin_routes import admin_router
+app.include_router(admin_router)
+
 
 # =========================================================
 # BOOTSTRAP ADMIN (UPSERT + PROTEÇÃO 72 BYTES)
@@ -301,12 +305,14 @@ def get_levels(symbol: str, valid_for: Optional[date] = None,
     )
 
 # =========================
-# ADMIN - USER MANAGEMENT
+# ROTAS ANTIGAS (DEPRECATED) - Manter compatibilidade
 # =========================
-@app.get("/api/v1/admin/users", response_model=UserListOut)
-@app.get("/api/admin/users", response_model=UserListOut, deprecated=True)  # Manter compatibilidade
-def list_users(db: Session = Depends(get_db), admin=Depends(require_admin)):
-    """Lista todos os usuários (apenas admin)"""
+# As rotas antigas redirecionam para o novo admin_router
+# Mantidas apenas para compatibilidade com frontend antigo
+
+@app.get("/api/admin/users", response_model=UserListOut, deprecated=True)
+def list_users_old(db: Session = Depends(get_db), admin=Depends(require_admin)):
+    """[DEPRECATED] Use /api/v1/admin/users"""
     users = db.query(User).all()
     return UserListOut(users=[
         UserOut(
@@ -318,29 +324,22 @@ def list_users(db: Session = Depends(get_db), admin=Depends(require_admin)):
         ) for u in users
     ])
 
-
-@app.post("/api/v1/admin/users", response_model=UserOut)
-@app.post("/api/admin/users", response_model=UserOut, deprecated=True)  # Manter compatibilidade
-def create_user(payload: UserCreateIn, db: Session = Depends(get_db), admin=Depends(require_admin)):
-    """Cria um novo usuário (apenas admin)"""
+@app.post("/api/admin/users", response_model=UserOut, deprecated=True)
+def create_user_old(payload: UserCreateIn, db: Session = Depends(get_db), admin=Depends(require_admin)):
+    """[DEPRECATED] Use /api/v1/admin/users"""
     email = payload.email.lower().strip()
-    
-    # Verificar se já existe
     existing = db.query(User).filter(User.email == email).first()
     if existing:
         raise HTTPException(status_code=400, detail="Email já cadastrado")
-    
     new_user = User(
         email=email,
         password_hash=get_password_hash(payload.password),
         role=payload.role,
         plan=payload.plan
     )
-    
     db.add(new_user)
     db.commit()
     db.refresh(new_user)
-    
     return UserOut(
         id=new_user.id,
         email=new_user.email,
@@ -349,25 +348,20 @@ def create_user(payload: UserCreateIn, db: Session = Depends(get_db), admin=Depe
         created_at=new_user.created_at
     )
 
-
-@app.put("/api/v1/admin/users/{user_id}", response_model=UserOut)
-@app.put("/api/admin/users/{user_id}", response_model=UserOut, deprecated=True)  # Manter compatibilidade
-def update_user(user_id: int, payload: UserUpdateIn, db: Session = Depends(get_db), admin=Depends(require_admin)):
-    """Atualiza um usuário (apenas admin)"""
+@app.put("/api/admin/users/{user_id}", response_model=UserOut, deprecated=True)
+def update_user_old(user_id: int, payload: UserUpdateIn, db: Session = Depends(get_db), admin=Depends(require_admin)):
+    """[DEPRECATED] Use /api/v1/admin/users/{user_id}"""
     user = db.query(User).filter(User.id == user_id).first()
     if not user:
         raise HTTPException(status_code=404, detail="Usuário não encontrado")
-    
     if payload.new_password:
         user.password_hash = get_password_hash(payload.new_password)
     if payload.role:
         user.role = payload.role
     if payload.plan:
         user.plan = payload.plan
-    
     db.commit()
     db.refresh(user)
-    
     return UserOut(
         id=user.id,
         email=user.email,
@@ -376,27 +370,19 @@ def update_user(user_id: int, payload: UserUpdateIn, db: Session = Depends(get_d
         created_at=user.created_at
     )
 
-
-@app.get("/api/v1/admin/security/stats")
-@app.get("/api/admin/security/stats", deprecated=True)
-def get_security_stats(admin=Depends(require_admin)):
-    """ Retorna estatísticas de segurança (apenas admin)"""
-    return security_monitor.get_stats()
-
-
-@app.delete("/api/v1/admin/users/{user_id}")
-@app.delete("/api/admin/users/{user_id}", deprecated=True)  # Manter compatibilidade
-def delete_user(user_id: int, db: Session = Depends(get_db), admin=Depends(require_admin)):
-    """Deleta um usuário (apenas admin)"""
+@app.delete("/api/admin/users/{user_id}", deprecated=True)
+def delete_user_old(user_id: int, db: Session = Depends(get_db), admin=Depends(require_admin)):
+    """[DEPRECATED] Use /api/v1/admin/users/{user_id}"""
     user = db.query(User).filter(User.id == user_id).first()
     if not user:
         raise HTTPException(status_code=404, detail="Usuário não encontrado")
-    
-    # Não permitir deletar o próprio usuário admin
     if user.id == admin.id:
         raise HTTPException(status_code=400, detail="Não é possível deletar seu próprio usuário")
-    
     db.delete(user)
     db.commit()
-    
     return {"message": "Usuário deletado com sucesso"}
+
+@app.get("/api/admin/security/stats", deprecated=True)
+def get_security_stats_old(admin=Depends(require_admin)):
+    """[DEPRECATED] Use /api/v1/admin/security/stats"""
+    return security_monitor.get_stats()
