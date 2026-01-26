@@ -9,3 +9,4 @@ pydantic==2.10.3
 psycopg2-binary
 email-validator
 pydantic[email]
+mercadopago==2.2.1

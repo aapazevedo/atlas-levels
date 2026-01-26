@@ -28,3 +28,15 @@ class DailyLevels(Base):
     created_at = Column(DateTime, default=datetime.utcnow, nullable=False)
 
     __table_args__ = (Index("ix_levels_symbol_validfor", "symbol", "valid_for"),)
+
+class Payment(Base):
+    __tablename__ = "payments"
+    id = Column(Integer, primary_key=True, index=True)
+    user_id = Column(Integer, index=True, nullable=False)
+    plan = Column(String(32), nullable=False)  # brasil | global | pro
+    amount = Column(Float, nullable=False)
+    payment_method = Column(String(32), nullable=False)  # pix | credit_card
+    mp_payment_id = Column(String(255), index=True, nullable=True)
+    status = Column(String(32), default="pending", nullable=False)  # pending | approved | rejected | cancelled
+    created_at = Column(DateTime, default=datetime.utcnow, nullable=False)
+    updated_at = Column(DateTime, default=datetime.utcnow, onupdate=datetime.utcnow, nullable=False)

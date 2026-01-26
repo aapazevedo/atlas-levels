@@ -13,7 +13,7 @@ from fastapi.security import OAuth2PasswordRequestForm
 from sqlalchemy.orm import Session
 
 from database import Base, engine, get_db
-from models import User, DailyLevels
+from models import User, DailyLevels, Payment
 from schemas import (
     LoginIn, TokenOut,
     LevelsOut, LevelsUpsertIn, SymbolListOut,
@@ -43,6 +43,10 @@ app.add_middleware(
 
 WEB_DIR = os.path.join(os.path.dirname(__file__), "web")
 app.mount("/static", StaticFiles(directory=os.path.join(WEB_DIR, "static")), name="static")
+
+# Importar rotas de pagamento
+from payment_routes import router as payment_router
+app.include_router(payment_router)
 
 
 # =========================================================
