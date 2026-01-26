@@ -331,7 +331,7 @@ window.saveUser = async function(userId){
     }
 
     await api(`/api/admin/users/${userId}`, {
-      method: "PATCH",
+      method: "PUT",
       json: body
     });
 
