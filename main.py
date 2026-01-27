@@ -177,26 +177,27 @@ def signup_page():
 def health_check(db: Session = Depends(get_db)):
     """Endpoint de health check para diagnóstico"""
     try:
-        from sqlalchemy import text
+        from sqlalchemy import text, inspect
+        from database import DATABASE_URL
         
         # Testar conexão com banco
         db.execute(text("SELECT 1"))
         
-        # Verificar se tabelas existem
-        tables_result = db.execute(text("SELECT name FROM sqlite_master WHERE type='table'"))
-        tables = [row[0] for row in tables_result.fetchall()]
+        # Usar inspector do SQLAlchemy (funciona com qualquer banco)
+        inspector = inspect(db.bind)
+        tables = inspector.get_table_names()
         
         # Verificar colunas da tabela users
-        columns_result = db.execute(text("PRAGMA table_info(users)"))
-        columns = [row[1] for row in columns_result.fetchall()]
-        
-        # Verificar DATABASE_URL
-        from database import DATABASE_URL
+        columns = []
+        if 'users' in tables:
+            columns_info = inspector.get_columns('users')
+            columns = [col['name'] for col in columns_info]
         
         return {
             "status": "healthy",
             "database": "connected",
-            "database_url": DATABASE_URL.split("://")[0] + "://***",  # Não expor credenciais
+            "database_type": DATABASE_URL.split("://")[0],
+            "database_url": DATABASE_URL.split("://")[0] + "://***",
             "tables": tables,
             "users_columns": columns,
             "subscription_expires_exists": "subscription_expires" in columns
