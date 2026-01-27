@@ -1,6 +1,7 @@
 from datetime import date, datetime
 from typing import List, Optional, Dict, Any
-from pydantic import BaseModel, EmailStr, Field
+from pydantic import BaseModel, EmailStr, Field, ConfigDict
+from pydantic.functional_serializers import field_serializer
 
 # =====================
 # AUTH
@@ -50,10 +51,14 @@ class UserOut(BaseModel):
     role: str
     plan: str
     created_at: Optional[datetime] = None
-    subscription_expires: Optional[datetime] = None
+    subscription_expires: Optional[datetime] = Field(default=None)
     
-    class Config:
-        from_attributes = True
+    model_config = ConfigDict(from_attributes=True)
+    
+    @field_serializer('subscription_expires', 'created_at')
+    def serialize_datetime(self, dt: Optional[datetime], _info):
+        """Serializa datetime para ISO format ou None"""
+        return dt.isoformat() if dt else None
 
 class UserListOut(BaseModel):
     users: List[UserOut]

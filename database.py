@@ -2,7 +2,12 @@ import os
 from sqlalchemy import create_engine
 from sqlalchemy.orm import sessionmaker, declarative_base
 
-DATABASE_URL = os.getenv("DATABASE_URL", "sqlite:///./atlas.db")
+# Aceitar DATABASE_URL ou DB_URL, com fallback para atlas_levels.db
+DATABASE_URL = (
+    os.getenv("DATABASE_URL") 
+    or os.getenv("DB_URL") 
+    or "sqlite:///./atlas_levels.db"
+)
 
 # Render às vezes fornece postgres://... e o SQLAlchemy espera postgresql://...
 if DATABASE_URL.startswith("postgres://"):

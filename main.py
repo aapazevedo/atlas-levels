@@ -1,9 +1,13 @@
 import os
-import os
 import csv
 import io
+import logging
 from datetime import datetime, date
 from typing import Optional
+
+# Configurar logging
+logging.basicConfig(level=logging.INFO)
+logger = logging.getLogger(__name__)
 
 from fastapi import FastAPI, Depends, HTTPException, status, UploadFile, File, Request
 from fastapi.responses import HTMLResponse
@@ -167,25 +171,75 @@ def signup_page():
 
 
 # =========================
+# HEALTH CHECK
+# =========================
+@app.get("/health")
+def health_check(db: Session = Depends(get_db)):
+    """Endpoint de health check para diagnóstico"""
+    try:
+        # Testar conexão com banco
+        db.execute("SELECT 1")
+        
+        # Verificar se tabelas existem
+        tables_result = db.execute("SELECT name FROM sqlite_master WHERE type='table'")
+        tables = [row[0] for row in tables_result.fetchall()]
+        
+        # Verificar colunas da tabela users
+        columns_result = db.execute("PRAGMA table_info(users)")
+        columns = [row[1] for row in columns_result.fetchall()]
+        
+        # Verificar DATABASE_URL
+        from database import DATABASE_URL
+        
+        return {
+            "status": "healthy",
+            "database": "connected",
+            "database_url": DATABASE_URL.split("://")[0] + "://***",  # Não expor credenciais
+            "tables": tables,
+            "users_columns": columns,
+            "subscription_expires_exists": "subscription_expires" in columns
+        }
+    except Exception as e:
+        logger.error(f"Health check failed: {str(e)}", exc_info=True)
+        return {
+            "status": "unhealthy",
+            "error": str(e)
+        }
+
+
+# =========================
 # AUTH
 # =========================
 @app.post("/api/v1/auth/login", response_model=TokenOut)
 @app.post("/api/auth/login", response_model=TokenOut, deprecated=True)  # Manter compatibilidade
 @limiter.limit(LOGIN_LIMIT)
 def login(request: Request, payload: LoginIn, db: Session = Depends(get_db)):
-    # Verificar se IP está bloqueado
-    client_ip = request.client.host
-    if security_monitor.is_blocked(client_ip):
-        raise HTTPException(status_code=status.HTTP_403_FORBIDDEN, detail="Acesso temporariamente bloqueado")
-    
-    user = db.query(User).filter(User.email == payload.email.lower()).first()
-    if not user or not verify_password(payload.password, user.password_hash):
-        # Registrar tentativa falhada
-        security_monitor.record_failed_login(client_ip, payload.email)
-        raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail="Credenciais inválidas")
+    try:
+        logger.info(f"Login attempt for: {payload.email}")
+        
+        # Verificar se IP está bloqueado
+        client_ip = request.client.host
+        if security_monitor.is_blocked(client_ip):
+            logger.warning(f"Blocked IP attempt: {client_ip}")
+            raise HTTPException(status_code=status.HTTP_403_FORBIDDEN, detail="Acesso temporariamente bloqueado")
+        
+        user = db.query(User).filter(User.email == payload.email.lower()).first()
+        logger.info(f"User found: {user is not None}")
+        
+        if not user or not verify_password(payload.password, user.password_hash):
+            # Registrar tentativa falhada
+            security_monitor.record_failed_login(client_ip, payload.email)
+            logger.warning(f"Invalid credentials for: {payload.email}")
+            raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail="Credenciais inválidas")
 
-    token = create_access_token({"sub": str(user.id), "role": user.role})
-    return TokenOut(access_token=token, token_type="bearer", email=user.email, role=user.role)
+        logger.info(f"Login successful for: {payload.email}")
+        token = create_access_token({"sub": str(user.id), "role": user.role})
+        return TokenOut(access_token=token, token_type="bearer", email=user.email, role=user.role)
+    except HTTPException:
+        raise
+    except Exception as e:
+        logger.error(f"Login error for {payload.email}: {str(e)}", exc_info=True)
+        raise HTTPException(status_code=status.HTTP_500_INTERNAL_SERVER_ERROR, detail="Erro interno do servidor. Tente novamente mais tarde.")
 
 
 @app.get("/api/v1/auth/me")
