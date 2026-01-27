@@ -50,6 +50,7 @@ class UserOut(BaseModel):
     role: str
     plan: str
     created_at: Optional[datetime] = None
+    subscription_expires: Optional[datetime] = None
     
     class Config:
         from_attributes = True
@@ -67,3 +68,4 @@ class UserUpdateIn(BaseModel):
     role: Optional[str] = None            # user | admin
     plan: Optional[str] = None            # brasil | global | pro
     new_password: Optional[str] = Field(default=None, min_length=4)
+    subscription_expires: Optional[datetime] = None

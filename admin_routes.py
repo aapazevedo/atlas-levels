@@ -33,7 +33,8 @@ def list_users(db: Session = Depends(get_db)):
             email=u.email,
             role=u.role,
             plan=u.plan,
-            created_at=u.created_at
+            created_at=u.created_at,
+            subscription_expires=u.subscription_expires
         ) for u in users
     ])
 
@@ -64,7 +65,8 @@ def create_user(payload: UserCreateIn, db: Session = Depends(get_db)):
         email=new_user.email,
         role=new_user.role,
         plan=new_user.plan,
-        created_at=new_user.created_at
+        created_at=new_user.created_at,
+        subscription_expires=new_user.subscription_expires
     )
 
 
@@ -81,6 +83,8 @@ def update_user(user_id: int, payload: UserUpdateIn, db: Session = Depends(get_d
         user.plan = payload.plan
     if payload.new_password:
         user.password_hash = get_password_hash(payload.new_password)
+    if payload.subscription_expires is not None:
+        user.subscription_expires = payload.subscription_expires
     
     db.commit()
     db.refresh(user)
@@ -90,7 +94,8 @@ def update_user(user_id: int, payload: UserUpdateIn, db: Session = Depends(get_d
         email=user.email,
         role=user.role,
         plan=user.plan,
-        created_at=user.created_at
+        created_at=user.created_at,
+        subscription_expires=user.subscription_expires
     )
 
 

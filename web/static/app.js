@@ -288,6 +288,7 @@ function renderUsers(users){
         <th style="padding:6px;border-bottom:1px solid #263355;">Email</th>
         <th style="padding:6px;border-bottom:1px solid #263355;">Role</th>
         <th style="padding:6px;border-bottom:1px solid #263355;">Plan</th>
+        <th style="padding:6px;border-bottom:1px solid #263355;">Vencimento</th>
         <th style="padding:6px;border-bottom:1px solid #263355;">Nova senha</th>
         <th style="padding:6px;border-bottom:1px solid #263355;">Ação</th>
       </tr>
@@ -307,10 +308,14 @@ function renderUsers(users){
 
       <td style="padding:6px;border-bottom:1px solid #1e2a4a;">
         <select id="plan_${u.id}" class="input" style="height:28px;padding:4px;">
-          <option value="brasil" ${u.plan==="brasil"?"selected":""}>brasil</option>
-          <option value="global" ${u.plan==="global"?"selected":""}>global</option>
-          <option value="pro" ${u.plan==="pro"?"selected":""}>pro</option>
+          <option value="brasil" ${u.plan==="brasil"?"selected":""}}>brasil</option>
+          <option value="global" ${u.plan==="global"?"selected":""}}>global</option>
+          <option value="pro" ${u.plan==="pro"?"selected":""}}>pro</option>
         </select>
+      </td>
+
+      <td style="padding:6px;border-bottom:1px solid #1e2a4a;">
+        <input id="expires_${u.id}" class="input" type="date" value="${u.subscription_expires ? u.subscription_expires.split('T')[0] : ''}" style="height:28px;padding:4px;">
       </td>
 
       <td style="padding:6px;border-bottom:1px solid #1e2a4a;">
@@ -333,10 +338,14 @@ window.saveUser = async function(userId){
     const roleV = $(`role_${userId}`).value;
     const planV = $(`plan_${userId}`).value;
     const passV = $(`pass_${userId}`).value;
+    const expiresV = $(`expires_${userId}`).value;
 
     const body = { role: roleV, plan: planV };
     if(passV && passV.trim()){
       body.new_password = passV.trim();
+    }
+    if(expiresV && expiresV.trim()){
+      body.subscription_expires = new Date(expiresV + 'T23:59:59').toISOString();
     }
 
     await api(`/api/admin/users/${userId}`, {
@@ -367,3 +376,87 @@ window.deleteUser = async function(userId){
     setStatus($("userStatus"), `Erro ao deletar usuário ${userId}.`, false);
   }
 };
+
+
+// =====================
+// RELATÓRIO DE ASSINATURAS
+// =====================
+$("subscriptions_reload").onclick = async ()=>{
+  await loadSubscriptions();
+};
+
+async function loadSubscriptions(){
+  try{
+    const data = await api("/api/v1/admin/users");
+    renderSubscriptions(data.users || []);
+    setStatus($("subscriptionsStatus"), `Relatório carregado: ${(data.users||[]).length} usuários`, true);
+  }catch{
+    setStatus($("subscriptionsStatus"), "Erro ao carregar relatório.", false);
+  }
+}
+
+function renderSubscriptions(users){
+  const now = new Date();
+  
+  let html = `<table style="width:100%;border-collapse:collapse;font-size:12px;">
+    <thead>
+      <tr style="text-align:left;">
+        <th style="padding:6px;border-bottom:1px solid #263355;">ID</th>
+        <th style="padding:6px;border-bottom:1px solid #263355;">Email</th>
+        <th style="padding:6px;border-bottom:1px solid #263355;">Plano</th>
+        <th style="padding:6px;border-bottom:1px solid #263355;">Criado em</th>
+        <th style="padding:6px;border-bottom:1px solid #263355;">Vencimento</th>
+        <th style="padding:6px;border-bottom:1px solid #263355;">Status</th>
+        <th style="padding:6px;border-bottom:1px solid #263355;">Dias Restantes</th>
+      </tr>
+    </thead><tbody>`;
+
+  for(const u of users){
+    const createdAt = u.created_at ? new Date(u.created_at).toLocaleDateString('pt-BR') : '-';
+    const expiresAt = u.subscription_expires ? new Date(u.subscription_expires) : null;
+    const expiresStr = expiresAt ? expiresAt.toLocaleDateString('pt-BR') : '-';
+    
+    let status = '-';
+    let statusColor = '#94a3b8';
+    let daysRemaining = '-';
+    
+    if(expiresAt){
+      const diffTime = expiresAt - now;
+      const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
+      
+      if(diffDays < 0){
+        status = 'Expirado';
+        statusColor = '#dc2626';
+        daysRemaining = '0';
+      } else if(diffDays <= 7){
+        status = 'Expira em breve';
+        statusColor = '#f59e0b';
+        daysRemaining = diffDays.toString();
+      } else {
+        status = 'Ativo';
+        statusColor = '#10b981';
+        daysRemaining = diffDays.toString();
+      }
+    } else {
+      status = 'Sem vencimento';
+      statusColor = '#667eea';
+    }
+    
+    html += `<tr>
+      <td style="padding:6px;border-bottom:1px solid #1e2a4a;">${u.id}</td>
+      <td style="padding:6px;border-bottom:1px solid #1e2a4a;">${u.email}</td>
+      <td style="padding:6px;border-bottom:1px solid #1e2a4a;">
+        <span style="background:#263355;color:#94a3b8;padding:2px 6px;border-radius:4px;font-size:11px;">${u.plan}</span>
+      </td>
+      <td style="padding:6px;border-bottom:1px solid #1e2a4a;">${createdAt}</td>
+      <td style="padding:6px;border-bottom:1px solid #1e2a4a;">${expiresStr}</td>
+      <td style="padding:6px;border-bottom:1px solid #1e2a4a;">
+        <span style="color:${statusColor};font-weight:600;">${status}</span>
+      </td>
+      <td style="padding:6px;border-bottom:1px solid #1e2a4a;">${daysRemaining}</td>
+    </tr>`;
+  }
+
+  html += `</tbody></table>`;
+  $("subscriptionsBox").innerHTML = html;
+}

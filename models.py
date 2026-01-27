@@ -10,6 +10,7 @@ class User(Base):
     role = Column(String(32), default="user", nullable=False)   # admin | user
     plan = Column(String(32), default="pro", nullable=False)    # brasil | global | pro
     created_at = Column(DateTime, default=datetime.utcnow, nullable=False)
+    subscription_expires = Column(DateTime, nullable=True)  # Data de vencimento da assinatura
 
 class DailyLevels(Base):
     __tablename__ = "daily_levels"
