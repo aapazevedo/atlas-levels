@@ -1,4 +1,4 @@
-from datetime import date
+from datetime import date, datetime
 from typing import List, Optional, Dict, Any
 from pydantic import BaseModel, EmailStr, Field
 
@@ -49,7 +49,7 @@ class UserOut(BaseModel):
     email: EmailStr
     role: str
     plan: str
-    created_at: Optional[str] = None
+    created_at: Optional[datetime] = None
     
     class Config:
         from_attributes = True
