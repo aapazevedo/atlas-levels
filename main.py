@@ -177,15 +177,17 @@ def signup_page():
 def health_check(db: Session = Depends(get_db)):
     """Endpoint de health check para diagnóstico"""
     try:
+        from sqlalchemy import text
+        
         # Testar conexão com banco
-        db.execute("SELECT 1")
+        db.execute(text("SELECT 1"))
         
         # Verificar se tabelas existem
-        tables_result = db.execute("SELECT name FROM sqlite_master WHERE type='table'")
+        tables_result = db.execute(text("SELECT name FROM sqlite_master WHERE type='table'"))
         tables = [row[0] for row in tables_result.fetchall()]
         
         # Verificar colunas da tabela users
-        columns_result = db.execute("PRAGMA table_info(users)")
+        columns_result = db.execute(text("PRAGMA table_info(users)"))
         columns = [row[1] for row in columns_result.fetchall()]
         
         # Verificar DATABASE_URL
