@@ -82,6 +82,68 @@ Error generating stack: `+l.message+`
       defer
       src="%VITE_ANALYTICS_ENDPOINT%/umami"
       data-website-id="%VITE_ANALYTICS_WEBSITE_ID%"></script>
+    <!-- Vídeo de Apresentação -->
+    <style>
+      .video-presentation-section {
+        width: 100%;
+        max-width: 1200px;
+        margin: 4rem auto;
+        padding: 0 1.5rem;
+      }
+      .video-presentation-container {
+        position: relative;
+        width: 100%;
+        padding-bottom: 56.25%; /* 16:9 aspect ratio */
+        background: #0F172A;
+        border-radius: 16px;
+        overflow: hidden;
+        box-shadow: 0 20px 60px rgba(16, 185, 129, 0.15);
+      }
+      .video-presentation-container video {
+        position: absolute;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+      }
+      .video-presentation-title {
+        text-align: center;
+        font-size: 2rem;
+        font-weight: 700;
+        color: #fff;
+        margin-bottom: 2rem;
+      }
+      .video-presentation-title span {
+        background: linear-gradient(135deg, #10b981 0%, #3b82f6 100%);
+        -webkit-background-clip: text;
+        -webkit-text-fill-color: transparent;
+        background-clip: text;
+      }
+      @media (max-width: 768px) {
+        .video-presentation-title {
+          font-size: 1.5rem;
+        }
+        .video-presentation-section {
+          margin: 2rem auto;
+        }
+      }
+    </style>
+    <div class="video-presentation-section" id="video-demo">
+      <h2 class="video-presentation-title">
+        Veja o <span>Atlas Levels</span> em Ação
+      </h2>
+      <div class="video-presentation-container">
+        <video 
+          controls 
+          preload="metadata"
+          poster="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='1200' height='675'%3E%3Crect fill='%230F172A' width='1200' height='675'/%3E%3Ctext fill='%2310b981' font-family='sans-serif' font-size='48' font-weight='bold' x='50%25' y='50%25' text-anchor='middle' dominant-baseline='middle'%3EAtlas Levels Demo%3C/text%3E%3C/svg%3E"
+        >
+          <source src="https://files.manuscdn.com/user_upload_by_module/session_file/310419663029906894/LjeGczrPOOrNahPN.mp4" type="video/mp4">
+          Seu navegador não suporta a reprodução de vídeos.
+        </video>
+      </div>
+    </div>
   </body>
 
 </html>
