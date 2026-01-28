@@ -16,20 +16,30 @@
     <link rel="stylesheet" crossorigin href="/static/assets/index-Byva6znW.css">
     <link rel="icon" type="image/png" href="/static/atlas-logo.png">
     <style>
-      /* Substituir logo AL por imagem */
-      [class*="logo"] > div:first-child,
-      a[href="/"] > div:first-child {
-        background-image: url('/static/atlas-logo.png') !important;
-        background-size: contain !important;
-        background-repeat: no-repeat !important;
-        background-position: center !important;
+      /* Estilo para o logo */
+      .atlas-logo-img {
         width: 48px !important;
         height: 48px !important;
         border-radius: 50% !important;
-        font-size: 0 !important;
-        color: transparent !important;
+        object-fit: cover !important;
       }
     </style>
+    <script>
+      // Substituir logo AL por imagem após React renderizar
+      window.addEventListener('DOMContentLoaded', function() {
+        setTimeout(function() {
+          // Encontrar o elemento do logo (div com "AL")
+          const logoElements = document.querySelectorAll('a[href="/"] > div, div[class*="logo"] > div');
+          
+          logoElements.forEach(function(logoDiv) {
+            if (logoDiv.textContent.trim() === 'AL') {
+              // Substituir por imagem
+              logoDiv.innerHTML = '<img src="/static/atlas-logo.png" alt="Atlas Levels" class="atlas-logo-img" />';
+            }
+          });
+        }, 500); // Aguardar 500ms para React renderizar
+      });
+    </script>
   </head>
 
   <body>
