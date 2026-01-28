@@ -25,19 +25,28 @@
       }
     </style>
     <script>
-      // Substituir logo AL por imagem após React renderizar
+      // Substituir logo AL por imagem usando MutationObserver
+      function replaceLogo() {
+        const logoElements = document.querySelectorAll('a[href="/"] > div');
+        logoElements.forEach(function(logoDiv) {
+          if (logoDiv.textContent.trim() === 'AL' && !logoDiv.querySelector('img')) {
+            logoDiv.innerHTML = '<img src="/static/atlas-logo.png" alt="Atlas Levels" class="atlas-logo-img" />';
+          }
+        });
+      }
+
+      // Executar quando o DOM carregar
       window.addEventListener('DOMContentLoaded', function() {
-        setTimeout(function() {
-          // Encontrar o elemento do logo (div com "AL")
-          const logoElements = document.querySelectorAll('a[href="/"] > div, div[class*="logo"] > div');
-          
-          logoElements.forEach(function(logoDiv) {
-            if (logoDiv.textContent.trim() === 'AL') {
-              // Substituir por imagem
-              logoDiv.innerHTML = '<img src="/static/atlas-logo.png" alt="Atlas Levels" class="atlas-logo-img" />';
-            }
-          });
-        }, 500); // Aguardar 500ms para React renderizar
+        replaceLogo();
+        
+        // Observar mudanças no DOM para re-aplicar quando React re-renderizar
+        const observer = new MutationObserver(replaceLogo);
+        observer.observe(document.body, { childList: true, subtree: true });
+        
+        // Também tentar após um delay
+        setTimeout(replaceLogo, 100);
+        setTimeout(replaceLogo, 500);
+        setTimeout(replaceLogo, 1000);
       });
     </script>
   </head>
