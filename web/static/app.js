@@ -145,15 +145,20 @@ $("loginBtn").onclick = async ()=>{
 $("logoutBtn").onclick = ()=>{
   token = null; role = null; lastLevels = null;
   
-  // Remover token do localStorage
+  // Remover TODOS os dados do localStorage
   localStorage.removeItem('token');
+  localStorage.removeItem('access_token');
   localStorage.removeItem('role');
+  localStorage.removeItem('user_email');
   
   $("whoami").textContent = "Deslogado";
   $("logoutBtn").style.display = "none";
   $("levelsBox").textContent = "Faça login e carregue um ativo.";
   $("adminCard").style.display = "none";
-};;
+  
+  // Redirecionar para a landing page
+  window.location.href = '/';
+};
 
 // =====================
 // NÍVEIS
