@@ -11,7 +11,8 @@ if (token) {
   setTimeout(() => {
     const whoamiEl = document.getElementById('whoami');
     const logoutBtnEl = document.getElementById('logoutBtn');
-    const loginSectionEl = document.getElementById('loginBtn')?.parentElement?.parentElement;
+    const loginBtnEl = document.getElementById('loginBtn');
+    const loginSectionEl = loginBtnEl && loginBtnEl.parentElement && loginBtnEl.parentElement.parentElement ? loginBtnEl.parentElement.parentElement : null;
     
     if (whoamiEl) whoamiEl.textContent = email;
     if (logoutBtnEl) logoutBtnEl.style.display = 'inline-block';
