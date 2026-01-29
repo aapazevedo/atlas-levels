@@ -438,3 +438,134 @@ def send_payment_confirmation_email(
     except Exception as e:
         print(f"❌ Erro ao enviar email de confirmação: {e}")
         return False
+
+
+async def send_verification_email(to_email: str, verification_token: str) -> bool:
+    """
+    Envia email com link para verificação de email
+    """
+    try:
+        subject = "✉️ Verifique seu Email - Atlas Levels"
+        
+        # URL de verificação (usar domínio correto)
+        verification_url = f"https://atlas-levels-pro.com.br/verify-email?token={verification_token}"
+        
+        html_content = f"""
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8">
+    <style>
+        body {{
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+            line-height: 1.6;
+            color: #333;
+            max-width: 600px;
+            margin: 0 auto;
+            padding: 20px;
+        }}
+        .header {{
+            background: linear-gradient(135deg, #3b82f6 0%, #2563eb 100%);
+            color: white;
+            padding: 30px;
+            text-align: center;
+            border-radius: 10px 10px 0 0;
+        }}
+        .content {{
+            background: #f8f9fa;
+            padding: 30px;
+            border-radius: 0 0 10px 10px;
+        }}
+        .button {{
+            display: inline-block;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 15px 30px;
+            text-decoration: none;
+            border-radius: 5px;
+            margin: 20px 0;
+            font-weight: bold;
+        }}
+        .info {{
+            background: #dbeafe;
+            border-left: 4px solid #3b82f6;
+            padding: 15px;
+            margin: 20px 0;
+            border-radius: 4px;
+        }}
+        .footer {{
+            text-align: center;
+            margin-top: 30px;
+            color: #666;
+            font-size: 14px;
+        }}
+        .token-box {{
+            background: white;
+            padding: 15px;
+            border-radius: 8px;
+            margin: 20px 0;
+            font-family: monospace;
+            word-break: break-all;
+            border: 1px solid #e5e7eb;
+        }}
+    </style>
+</head>
+<body>
+    <div class="header">
+        <h1>✉️ Verifique seu Email</h1>
+    </div>
+    
+    <div class="content">
+        <p>Olá! 👋</p>
+        
+        <p>Obrigado por se cadastrar no Atlas Levels! Para completar seu cadastro, precisamos verificar seu endereço de email.</p>
+        
+        <p>Clique no botão abaixo para verificar seu email:</p>
+        
+        <center>
+            <a href="{verification_url}" class="button">
+                Verificar Meu Email
+            </a>
+        </center>
+        
+        <p>Ou copie e cole este link no seu navegador:</p>
+        <div class="token-box">
+            {verification_url}
+        </div>
+        
+        <div class="info">
+            <strong>ℹ️ Por que verificar?</strong>
+            <ul>
+                <li>Garantir que você receba notificações importantes</li>
+                <li>Proteger sua conta contra acessos não autorizados</li>
+                <li>Permitir recuperação de senha se necessário</li>
+            </ul>
+        </div>
+        
+        <p>Se você não criou uma conta no Atlas Levels, pode ignorar este email com segurança.</p>
+        
+        <p><strong>Equipe Atlas Levels</strong></p>
+    </div>
+    
+    <div class="footer">
+        <p>Atlas Levels - Níveis Históricos Organizados</p>
+        <p>Este é um email automático, por favor não responda.</p>
+    </div>
+</body>
+</html>
+        """
+        
+        params = {
+            "from": f"{FROM_NAME} <{FROM_EMAIL}>",
+            "to": [to_email],
+            "subject": subject,
+            "html": html_content,
+        }
+        
+        email = resend.Emails.send(params)
+        print(f"✅ Email de verificação enviado para {to_email}: {email}")
+        return True
+        
+    except Exception as e:
+        print(f"❌ Erro ao enviar email de verificação: {e}")
+        return False

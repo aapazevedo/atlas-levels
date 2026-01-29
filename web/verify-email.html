@@ -1,0 +1,183 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Verificar Email - Atlas Levels</title>
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+      background: linear-gradient(135deg, #3b82f6 0%, #2563eb 100%);
+      min-height: 100vh;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 20px;
+    }
+
+    .verify-container {
+      background: white;
+      border-radius: 20px;
+      box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+      padding: 40px;
+      width: 100%;
+      max-width: 500px;
+      text-align: center;
+    }
+
+    .logo {
+      margin-bottom: 30px;
+    }
+
+    .logo-icon {
+      font-size: 48px;
+      margin-bottom: 10px;
+    }
+
+    .logo h1 {
+      font-size: 28px;
+      background: linear-gradient(135deg, #3b82f6 0%, #2563eb 100%);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+      margin-bottom: 10px;
+    }
+
+    .logo p {
+      color: #666;
+      font-size: 14px;
+    }
+
+    .status-icon {
+      font-size: 64px;
+      margin: 20px 0;
+    }
+
+    .status-icon.loading {
+      animation: spin 1s linear infinite;
+    }
+
+    @keyframes spin {
+      0% { transform: rotate(0deg); }
+      100% { transform: rotate(360deg); }
+    }
+
+    h2 {
+      color: #333;
+      margin-bottom: 15px;
+      font-size: 24px;
+    }
+
+    .message {
+      color: #666;
+      margin-bottom: 30px;
+      line-height: 1.6;
+    }
+
+    .success {
+      color: #10b981;
+    }
+
+    .error {
+      color: #ef4444;
+    }
+
+    .button {
+      display: inline-block;
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      color: white;
+      padding: 15px 40px;
+      border-radius: 10px;
+      text-decoration: none;
+      font-weight: 600;
+      font-size: 16px;
+      transition: transform 0.2s, box-shadow 0.2s;
+    }
+
+    .button:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 10px 20px rgba(102, 126, 234, 0.3);
+    }
+
+    .footer {
+      margin-top: 30px;
+      padding-top: 20px;
+      border-top: 1px solid #e5e7eb;
+    }
+
+    .footer a {
+      color: #667eea;
+      text-decoration: none;
+      font-size: 14px;
+    }
+
+    .footer a:hover {
+      text-decoration: underline;
+    }
+  </style>
+</head>
+<body>
+  <div class="verify-container">
+    <div class="logo">
+      <div class="logo-icon">✉️</div>
+      <h1>Atlas Levels</h1>
+      <p>Verificação de Email</p>
+    </div>
+
+    <div id="content">
+      <div class="status-icon loading">⏳</div>
+      <h2>Verificando seu email...</h2>
+      <p class="message">Aguarde enquanto confirmamos seu endereço de email.</p>
+    </div>
+
+    <div class="footer">
+      <a href="/login">← Voltar para o login</a>
+    </div>
+  </div>
+
+  <script>
+    // Obter token da URL
+    const urlParams = new URLSearchParams(window.location.search);
+    const token = urlParams.get('token');
+
+    if (!token) {
+      document.getElementById('content').innerHTML = `
+        <div class="status-icon error">❌</div>
+        <h2 class="error">Token Inválido</h2>
+        <p class="message">O link de verificação está incompleto ou inválido.</p>
+        <a href="/login" class="button">Ir para Login</a>
+      `;
+    } else {
+      // Verificar email via API
+      fetch(`/api/auth/email/verify?token=${token}`)
+        .then(response => response.json())
+        .then(data => {
+          if (data.verified) {
+            document.getElementById('content').innerHTML = `
+              <div class="status-icon success">✅</div>
+              <h2 class="success">Email Verificado!</h2>
+              <p class="message">Seu email foi verificado com sucesso. Agora você pode fazer login e aproveitar todos os recursos do Atlas Levels!</p>
+              <a href="/login" class="button">Fazer Login</a>
+            `;
+          } else {
+            throw new Error(data.message || 'Erro ao verificar email');
+          }
+        })
+        .catch(error => {
+          document.getElementById('content').innerHTML = `
+            <div class="status-icon error">❌</div>
+            <h2 class="error">Erro na Verificação</h2>
+            <p class="message">${error.message || 'Não foi possível verificar seu email. O link pode ter expirado ou já foi usado.'}</p>
+            <a href="/api/auth/email/resend-verification" class="button">Reenviar Email</a>
+          `;
+        });
+    }
+  </script>
+</body>
+</html>

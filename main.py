@@ -81,6 +81,9 @@ app.include_router(admin_router)
 from password_reset_routes import router as password_reset_router
 app.include_router(password_reset_router)
 
+from email_verification_routes import router as email_verification_router
+app.include_router(email_verification_router)
+
 
 # =========================================================
 # BOOTSTRAP ADMIN (UPSERT + PROTEÇÃO 72 BYTES)
@@ -181,6 +184,11 @@ def forgot_password_page():
 @app.get("/reset-password", response_class=HTMLResponse)
 def reset_password_page():
     with open(os.path.join(WEB_DIR, "reset-password.html"), encoding="utf-8") as f:
+        return f.read()
+
+@app.get("/verify-email", response_class=HTMLResponse)
+def verify_email_page():
+    with open(os.path.join(WEB_DIR, "verify-email.html"), encoding="utf-8") as f:
         return f.read()
 
 

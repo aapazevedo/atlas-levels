@@ -13,6 +13,8 @@ class User(Base):
     subscription_expires = Column(DateTime, nullable=True)  # Data de vencimento da assinatura
     reset_token = Column(String(255), nullable=True)  # Token para reset de senha
     reset_token_expires = Column(DateTime, nullable=True)  # Expiração do token de reset
+    email_verified = Column(Integer, default=0, nullable=False)  # 0 = não verificado, 1 = verificado
+    verification_token = Column(String(255), nullable=True)  # Token para verificação de email
 
 class DailyLevels(Base):
     __tablename__ = "daily_levels"
