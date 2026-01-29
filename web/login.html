@@ -328,9 +328,9 @@
           
           showAlert('Login realizado com sucesso! Redirecionando...', 'success');
           
-          // Redirect to dashboard (or home)
+          // Redirect to app
           setTimeout(() => {
-            window.location.href = '/';
+            window.location.href = '/app';
           }, 1000);
         } else {
           showAlert(data.detail || 'Email ou senha incorretos', 'error');
@@ -346,7 +346,7 @@
 
     // Check if already logged in
     if (localStorage.getItem('access_token')) {
-      window.location.href = '/';
+      window.location.href = '/app';
     }
   </script>
 </body>

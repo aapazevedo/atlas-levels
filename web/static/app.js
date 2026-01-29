@@ -1,8 +1,29 @@
 const $ = (id) => document.getElementById(id);
 
-let token = null;
-let role = null;
+// Verificar se já existe token no localStorage (login de outra página)
+let token = localStorage.getItem('access_token') || localStorage.getItem('token') || null;
+let role = localStorage.getItem('role') || null;
 let lastLevels = null;
+
+// Se já estiver logado, atualizar UI
+if (token) {
+  const email = localStorage.getItem('user_email') || 'Usuário';
+  setTimeout(() => {
+    const whoamiEl = document.getElementById('whoami');
+    const logoutBtnEl = document.getElementById('logoutBtn');
+    const loginSectionEl = document.getElementById('loginBtn')?.parentElement?.parentElement;
+    
+    if (whoamiEl) whoamiEl.textContent = email;
+    if (logoutBtnEl) logoutBtnEl.style.display = 'inline-block';
+    if (loginSectionEl) loginSectionEl.style.display = 'none';
+    
+    // Se for admin, mostrar painel admin
+    if (role === 'admin') {
+      const adminCardEl = document.getElementById('adminCard');
+      if (adminCardEl) adminCardEl.style.display = 'block';
+    }
+  }, 100);
+}
 
 function setStatus(el, msg, ok=true){
   el.textContent = msg;
@@ -100,7 +121,9 @@ $("loginBtn").onclick = async ()=>{
     
     // Salvar token no localStorage para outras páginas
     localStorage.setItem('token', token);
+    localStorage.setItem('access_token', token);
     localStorage.setItem('role', role);
+    localStorage.setItem('user_email', data.email);
 
     $("whoami").textContent = `${data.email} (${data.role})`;
     $("logoutBtn").style.display = "inline-block";
