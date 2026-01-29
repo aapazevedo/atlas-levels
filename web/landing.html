@@ -35,18 +35,68 @@
         });
       }
 
+      // Adicionar botão de Login no header
+      function addLoginButton() {
+        // Encontrar o botão "Acessar Plataforma"
+        const platformButton = Array.from(document.querySelectorAll('a')).find(a => a.textContent.trim() === 'Acessar Plataforma');
+        
+        if (platformButton && !document.getElementById('login-button-added')) {
+          // Criar botão de Login
+          const loginButton = document.createElement('a');
+          loginButton.href = '/login';
+          loginButton.textContent = 'Login';
+          loginButton.id = 'login-button-added';
+          
+          // Copiar estilos do botão "Acessar Plataforma"
+          const platformStyles = window.getComputedStyle(platformButton);
+          loginButton.style.cssText = `
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            padding: 12px 24px;
+            border-radius: 12px;
+            font-weight: 600;
+            font-size: 15px;
+            transition: all 0.2s;
+            text-decoration: none;
+            margin-right: 12px;
+            background: transparent;
+            border: 2px solid rgba(16, 185, 129, 0.5);
+            color: rgb(16, 185, 129);
+          `;
+          
+          // Efeito hover
+          loginButton.addEventListener('mouseenter', function() {
+            this.style.background = 'rgba(16, 185, 129, 0.1)';
+            this.style.borderColor = 'rgb(16, 185, 129)';
+          });
+          
+          loginButton.addEventListener('mouseleave', function() {
+            this.style.background = 'transparent';
+            this.style.borderColor = 'rgba(16, 185, 129, 0.5)';
+          });
+          
+          // Inserir antes do botão "Acessar Plataforma"
+          platformButton.parentNode.insertBefore(loginButton, platformButton);
+        }
+      }
+
       // Executar quando o DOM carregar
       window.addEventListener('DOMContentLoaded', function() {
         replaceLogo();
+        addLoginButton();
         
         // Observar mudanças no DOM para re-aplicar quando React re-renderizar
-        const observer = new MutationObserver(replaceLogo);
+        const observer = new MutationObserver(function() {
+          replaceLogo();
+          addLoginButton();
+        });
         observer.observe(document.body, { childList: true, subtree: true });
         
         // Também tentar após um delay
-        setTimeout(replaceLogo, 100);
-        setTimeout(replaceLogo, 500);
-        setTimeout(replaceLogo, 1000);
+        setTimeout(function() { replaceLogo(); addLoginButton(); }, 100);
+        setTimeout(function() { replaceLogo(); addLoginButton(); }, 500);
+        setTimeout(function() { replaceLogo(); addLoginButton(); }, 1000);
       });
     </script>
   </head>
