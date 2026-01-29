@@ -11,6 +11,8 @@ class User(Base):
     plan = Column(String(32), default="pro", nullable=False)    # brasil | global | pro
     created_at = Column(DateTime, default=datetime.utcnow, nullable=False)
     subscription_expires = Column(DateTime, nullable=True)  # Data de vencimento da assinatura
+    reset_token = Column(String(255), nullable=True)  # Token para reset de senha
+    reset_token_expires = Column(DateTime, nullable=True)  # Expiração do token de reset
 
 class DailyLevels(Base):
     __tablename__ = "daily_levels"

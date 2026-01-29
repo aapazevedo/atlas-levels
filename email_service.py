@@ -144,6 +144,137 @@ def send_welcome_email(to_email: str, user_name: Optional[str] = None) -> bool:
         return False
 
 
+def send_password_reset_email(to_email: str, reset_token: str) -> bool:
+    """
+    Envia email com link para reset de senha
+    """
+    try:
+        subject = "🔑 Recuperação de Senha - Atlas Levels"
+        
+        # URL do reset (usar domínio correto)
+        reset_url = f"https://atlas-levels-pro.com.br/reset-password?token={reset_token}"
+        
+        html_content = f"""
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8">
+    <style>
+        body {{
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+            line-height: 1.6;
+            color: #333;
+            max-width: 600px;
+            margin: 0 auto;
+            padding: 20px;
+        }}
+        .header {{
+            background: linear-gradient(135deg, #f59e0b 0%, #d97706 100%);
+            color: white;
+            padding: 30px;
+            text-align: center;
+            border-radius: 10px 10px 0 0;
+        }}
+        .content {{
+            background: #f8f9fa;
+            padding: 30px;
+            border-radius: 0 0 10px 10px;
+        }}
+        .button {{
+            display: inline-block;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 15px 30px;
+            text-decoration: none;
+            border-radius: 5px;
+            margin: 20px 0;
+            font-weight: bold;
+        }}
+        .warning {{
+            background: #fef3c7;
+            border-left: 4px solid #f59e0b;
+            padding: 15px;
+            margin: 20px 0;
+            border-radius: 4px;
+        }}
+        .footer {{
+            text-align: center;
+            margin-top: 30px;
+            color: #666;
+            font-size: 14px;
+        }}
+        .token-box {{
+            background: white;
+            padding: 15px;
+            border-radius: 8px;
+            margin: 20px 0;
+            font-family: monospace;
+            word-break: break-all;
+            border: 1px solid #e5e7eb;
+        }}
+    </style>
+</head>
+<body>
+    <div class="header">
+        <h1>🔑 Recuperação de Senha</h1>
+    </div>
+    
+    <div class="content">
+        <p>Olá! 👋</p>
+        
+        <p>Recebemos uma solicitação para redefinir a senha da sua conta no Atlas Levels.</p>
+        
+        <p>Clique no botão abaixo para criar uma nova senha:</p>
+        
+        <center>
+            <a href="{reset_url}" class="button">
+                Redefinir Minha Senha
+            </a>
+        </center>
+        
+        <p>Ou copie e cole este link no seu navegador:</p>
+        <div class="token-box">
+            {reset_url}
+        </div>
+        
+        <div class="warning">
+            <strong>⚠️ Importante:</strong>
+            <ul>
+                <li>Este link é válido por <strong>1 hora</strong></li>
+                <li>Se você não solicitou esta recuperação, ignore este email</li>
+                <li>Sua senha atual continua funcionando normalmente</li>
+            </ul>
+        </div>
+        
+        <p>Se tiver qualquer dúvida, entre em contato conosco.</p>
+        
+        <p><strong>Equipe Atlas Levels</strong></p>
+    </div>
+    
+    <div class="footer">
+        <p>Atlas Levels - Níveis Históricos Organizados</p>
+        <p>Este é um email automático, por favor não responda.</p>
+    </div>
+</body>
+</html>
+        """
+        
+        params = {
+            "from": f"{FROM_NAME} <{FROM_EMAIL}>",
+            "to": [to_email],
+            "subject": subject,
+            "html": html_content,
+        }
+        
+        email = resend.Emails.send(params)
+        print(f"✅ Email de reset de senha enviado para {to_email}: {email}")
+        return True
+        
+    except Exception as e:
+        print(f"❌ Erro ao enviar email de reset de senha: {e}")
+        return False
+
+
 def send_payment_confirmation_email(
     to_email: str,
     plan_name: str,

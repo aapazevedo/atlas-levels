@@ -77,6 +77,10 @@ app.include_router(payment_router)
 from admin_routes import admin_router
 app.include_router(admin_router)
 
+# Importar rotas de recuperação de senha
+from password_reset_routes import router as password_reset_router
+app.include_router(password_reset_router)
+
 
 # =========================================================
 # BOOTSTRAP ADMIN (UPSERT + PROTEÇÃO 72 BYTES)
@@ -167,6 +171,16 @@ def payment_page():
 @app.get("/signup", response_class=HTMLResponse)
 def signup_page():
     with open(os.path.join(WEB_DIR, "signup.html"), encoding="utf-8") as f:
+        return f.read()
+
+@app.get("/forgot-password", response_class=HTMLResponse)
+def forgot_password_page():
+    with open(os.path.join(WEB_DIR, "forgot-password.html"), encoding="utf-8") as f:
+        return f.read()
+
+@app.get("/reset-password", response_class=HTMLResponse)
+def reset_password_page():
+    with open(os.path.join(WEB_DIR, "reset-password.html"), encoding="utf-8") as f:
         return f.read()
 
 
