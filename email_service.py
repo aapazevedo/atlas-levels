@@ -8,8 +8,8 @@ from typing import Optional
 # Configurar API Key do Resend
 resend.api_key = os.getenv("RESEND_API_KEY", "")
 
-# Email remetente (usando domínio de teste do Resend)
-FROM_EMAIL = "onboarding@resend.dev"
+# Email remetente (usando domínio customizado verificado)
+FROM_EMAIL = "noreply@atlas-levels-pro.com.br"
 FROM_NAME = "Atlas Levels"
 
 
