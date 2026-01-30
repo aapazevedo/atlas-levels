@@ -1,1574 +1,1476 @@
 <!DOCTYPE html>
 <html lang="pt-BR">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+  <head>
+    <meta charset="UTF-8" />
+    <meta
+      name="viewport"
+      content="width=device-width, initial-scale=1.0, maximum-scale=1" />
     <title>Atlas Levels — Níveis Institucionais de Negociação</title>
-    <meta name="description" content="Pare de reagir ao mercado. Comece a operar onde as decisões realmente acontecem. Níveis institucionais baseados em liquidez real.">
-    <meta name="theme-color" content="#0F172A">
+    <meta name="description" content="Pare de reagir ao mercado. Comece a operar onde as decisões realmente acontecem. Níveis institucionais baseados em liquidez real." />
+    <meta name="theme-color" content="#0F172A" />
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link href="https://fonts.googleapis.com/css2?family=Sora:wght@400;500;600;700&family=IBM+Plex+Mono:wght@400;500;600&display=swap" rel="stylesheet" />
+    <script type="module" crossorigin src="/static/assets/index-DtnjAI8T.js"></script>
+    <link rel="stylesheet" crossorigin href="/static/assets/index-Byva6znW.css">
     <link rel="icon" type="image/png" href="/static/atlas-logo.png">
-    
-    <!-- Fonts -->
-    <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Sora:wght@400;500;600;700&family=IBM+Plex+Mono:wght@400;500;600&display=swap" rel="stylesheet">
-    
     <style>
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-        }
+      /* Estilo para o logo */
+      .atlas-logo-img {
+        width: 48px !important;
+        height: 48px !important;
+        border-radius: 50% !important;
+        object-fit: cover !important;
+      }
+      
+      /* Estilos para as novas seções */
+      * {
+        margin: 0;
+        padding: 0;
+        box-sizing: border-box;
+      }
 
-        :root {
-            --primary: #10b981;
-            --primary-dark: #059669;
-            --bg-dark: #0F172A;
-            --bg-darker: #020617;
-            --bg-card: #1E293B;
-            --text-primary: #F1F5F9;
-            --text-secondary: #94A3B8;
-            --accent: #3B82F6;
-        }
+      :root {
+        --primary: #10b981;
+        --primary-dark: #059669;
+        --bg-dark: #0F172A;
+        --bg-darker: #020617;
+        --bg-card: #1E293B;
+        --text-primary: #F1F5F9;
+        --text-secondary: #94A3B8;
+        --accent: #3B82F6;
+      }
 
-        body {
-            font-family: 'Sora', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
-            background: var(--bg-darker);
-            color: var(--text-primary);
-            line-height: 1.6;
-            overflow-x: hidden;
-        }
+      body {
+        font-family: 'Sora', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+        background: var(--bg-darker);
+        color: var(--text-primary);
+        line-height: 1.6;
+        overflow-x: hidden;
+      }
 
-        /* Header */
-        header {
-            position: fixed;
-            top: 0;
-            left: 0;
-            right: 0;
-            z-index: 1000;
-            background: rgba(15, 23, 42, 0.95);
-            backdrop-filter: blur(10px);
-            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
-        }
+      /* Container */
+      .container {
+        max-width: 1200px;
+        margin: 0 auto;
+        padding: 0 2rem;
+      }
 
-        nav {
-            max-width: 1200px;
-            margin: 0 auto;
-            padding: 1rem 2rem;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-        }
+      section.content-section {
+        padding: 6rem 0;
+      }
 
-        .logo {
-            display: flex;
-            align-items: center;
-            gap: 0.75rem;
-            font-size: 1.25rem;
-            font-weight: 700;
-            color: var(--text-primary);
-            text-decoration: none;
-        }
+      /* Section Titles */
+      .section-title {
+        font-size: 2.5rem;
+        font-weight: 700;
+        text-align: center;
+        margin-bottom: 1rem;
+      }
 
-        .logo img {
-            width: 40px;
-            height: 40px;
-            border-radius: 50%;
-        }
+      .section-subtitle {
+        font-size: 1.25rem;
+        color: var(--text-secondary);
+        text-align: center;
+        max-width: 700px;
+        margin: 0 auto 3rem;
+      }
 
-        .nav-links {
-            display: flex;
-            gap: 2rem;
-            align-items: center;
-        }
+      /* Pain Section */
+      .pain-section {
+        background: var(--bg-dark);
+      }
 
-        .nav-links a {
-            color: var(--text-secondary);
-            text-decoration: none;
-            font-size: 0.9rem;
-            transition: color 0.3s;
-        }
+      .pain-content {
+        max-width: 800px;
+        margin: 0 auto;
+      }
 
-        .nav-links a:hover {
-            color: var(--primary);
-        }
+      .pain-content p {
+        font-size: 1.15rem;
+        line-height: 1.8;
+        margin-bottom: 1.5rem;
+        color: var(--text-secondary);
+      }
 
-        .btn {
-            padding: 0.75rem 1.5rem;
-            border-radius: 8px;
-            font-weight: 600;
-            text-decoration: none;
-            transition: all 0.3s;
-            display: inline-block;
-            font-size: 0.9rem;
-        }
+      .pain-conclusion {
+        font-size: 1.5rem;
+        font-weight: 600;
+        text-align: center;
+        margin-top: 3rem;
+        padding: 2rem;
+        background: var(--bg-card);
+        border-radius: 12px;
+        border-left: 4px solid var(--primary);
+      }
 
-        .btn-primary {
-            background: var(--primary);
-            color: white;
-        }
+      .pain-conclusion strong {
+        color: var(--primary);
+        display: block;
+        margin-bottom: 0.5rem;
+      }
 
-        .btn-primary:hover {
-            background: var(--primary-dark);
-            transform: translateY(-2px);
-            box-shadow: 0 10px 25px rgba(16, 185, 129, 0.3);
-        }
+      /* Education Section */
+      .education-section {
+        background: var(--bg-darker);
+      }
 
-        .btn-outline {
-            border: 2px solid var(--primary);
-            color: var(--primary);
-            background: transparent;
-        }
+      .education-content {
+        max-width: 800px;
+        margin: 0 auto;
+      }
 
-        .btn-outline:hover {
-            background: var(--primary);
-            color: white;
-        }
+      .education-content p {
+        font-size: 1.15rem;
+        line-height: 1.8;
+        margin-bottom: 1.5rem;
+        color: var(--text-secondary);
+      }
 
-        /* Container */
-        .container {
-            max-width: 1200px;
-            margin: 0 auto;
-            padding: 0 2rem;
-        }
+      .education-highlight {
+        font-size: 1.5rem;
+        font-weight: 600;
+        text-align: center;
+        margin-top: 3rem;
+        padding: 2rem;
+        background: linear-gradient(135deg, rgba(16, 185, 129, 0.1) 0%, rgba(59, 130, 246, 0.1) 100%);
+        border-radius: 12px;
+        border: 1px solid rgba(16, 185, 129, 0.3);
+      }
 
-        section {
-            padding: 6rem 0;
-        }
+      .education-highlight strong {
+        color: var(--primary);
+        display: block;
+        margin-bottom: 0.5rem;
+      }
 
-        /* Hero Section */
-        .hero {
-            min-height: 100vh;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            text-align: center;
-            padding-top: 8rem;
-            background: linear-gradient(135deg, var(--bg-darker) 0%, var(--bg-dark) 100%);
-            position: relative;
-            overflow: hidden;
-        }
+      /* Solution Section */
+      .solution-section {
+        background: var(--bg-dark);
+      }
 
-        .hero::before {
-            content: '';
-            position: absolute;
-            top: -50%;
-            left: -50%;
-            width: 200%;
-            height: 200%;
-            background: radial-gradient(circle, rgba(16, 185, 129, 0.1) 0%, transparent 70%);
-            animation: pulse 15s ease-in-out infinite;
-        }
+      .solution-content {
+        max-width: 800px;
+        margin: 0 auto;
+      }
 
-        @keyframes pulse {
-            0%, 100% { transform: scale(1); opacity: 0.5; }
-            50% { transform: scale(1.1); opacity: 0.8; }
-        }
+      .solution-content p {
+        font-size: 1.15rem;
+        line-height: 1.8;
+        margin-bottom: 1.5rem;
+        color: var(--text-secondary);
+      }
 
-        .hero-content {
-            position: relative;
-            z-index: 1;
-        }
+      .benefits-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+        gap: 1.5rem;
+        margin-top: 3rem;
+      }
 
-        .hero h1 {
-            font-size: 3.5rem;
-            font-weight: 700;
-            line-height: 1.2;
-            margin-bottom: 1.5rem;
-            background: linear-gradient(135deg, var(--text-primary) 0%, var(--primary) 100%);
-            -webkit-background-clip: text;
-            -webkit-text-fill-color: transparent;
-            background-clip: text;
-        }
+      .benefit-card {
+        padding: 1.5rem;
+        background: var(--bg-card);
+        border-radius: 12px;
+        border: 1px solid rgba(255, 255, 255, 0.1);
+        display: flex;
+        align-items: center;
+        gap: 1rem;
+      }
 
-        .hero h2 {
-            font-size: 1.5rem;
-            color: var(--primary);
-            font-weight: 600;
-            margin-bottom: 1rem;
-        }
+      .benefit-icon {
+        font-size: 1.5rem;
+      }
 
-        .hero p {
-            font-size: 1.25rem;
-            color: var(--text-secondary);
-            max-width: 700px;
-            margin: 0 auto 2.5rem;
-        }
+      .benefit-text {
+        font-size: 1rem;
+        font-weight: 500;
+      }
 
-        .hero-cta {
-            display: flex;
-            gap: 1rem;
-            justify-content: center;
-            flex-wrap: wrap;
-        }
+      /* What Is Section */
+      .what-is-section {
+        background: var(--bg-darker);
+      }
 
-        /* Stats */
-        .stats {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-            gap: 2rem;
-            margin-top: 4rem;
-        }
+      .features-list {
+        max-width: 700px;
+        margin: 3rem auto 0;
+      }
 
-        .stat-card {
-            text-align: center;
-            padding: 2rem;
-            background: var(--bg-card);
-            border-radius: 12px;
-            border: 1px solid rgba(255, 255, 255, 0.1);
-        }
+      .feature-item {
+        display: flex;
+        align-items: flex-start;
+        gap: 1rem;
+        margin-bottom: 1.5rem;
+        padding: 1.5rem;
+        background: var(--bg-card);
+        border-radius: 12px;
+        border: 1px solid rgba(255, 255, 255, 0.1);
+      }
 
-        .stat-number {
-            font-size: 2.5rem;
-            font-weight: 700;
-            color: var(--primary);
-            font-family: 'IBM Plex Mono', monospace;
-        }
+      .feature-icon {
+        font-size: 1.5rem;
+        color: var(--primary);
+        flex-shrink: 0;
+      }
 
-        .stat-label {
-            color: var(--text-secondary);
-            font-size: 0.9rem;
-            margin-top: 0.5rem;
-        }
+      .feature-text {
+        flex: 1;
+      }
 
-        /* Section Titles */
+      .feature-text strong {
+        color: var(--text-primary);
+        display: block;
+        margin-bottom: 0.25rem;
+      }
+
+      .feature-text span {
+        color: var(--text-secondary);
+        font-size: 0.95rem;
+      }
+
+      .conclusion-box {
+        text-align: center;
+        font-size: 1.5rem;
+        font-weight: 600;
+        margin-top: 3rem;
+        padding: 2rem;
+        background: var(--bg-card);
+        border-radius: 12px;
+        border: 2px solid var(--primary);
+      }
+
+      .conclusion-box strong {
+        color: var(--primary);
+        display: block;
+        margin-bottom: 0.5rem;
+      }
+
+      /* Technical Features Section */
+      .tech-features-section {
+        background: var(--bg-dark);
+      }
+
+      .tech-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+        gap: 2rem;
+        margin-top: 3rem;
+      }
+
+      .tech-card {
+        padding: 2rem;
+        background: var(--bg-card);
+        border-radius: 12px;
+        border: 1px solid rgba(255, 255, 255, 0.1);
+        text-align: center;
+        transition: transform 0.3s, box-shadow 0.3s;
+      }
+
+      .tech-card:hover {
+        transform: translateY(-5px);
+        box-shadow: 0 10px 30px rgba(16, 185, 129, 0.2);
+      }
+
+      .tech-icon {
+        font-size: 3rem;
+        margin-bottom: 1rem;
+      }
+
+      .tech-title {
+        font-size: 1.25rem;
+        font-weight: 600;
+        margin-bottom: 0.5rem;
+        color: var(--text-primary);
+      }
+
+      .tech-description {
+        color: var(--text-secondary);
+        font-size: 0.95rem;
+      }
+
+      /* Markets Section */
+      .markets-section {
+        background: var(--bg-darker);
+      }
+
+      .markets-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+        gap: 2rem;
+        margin-top: 3rem;
+      }
+
+      .market-card {
+        padding: 2rem;
+        background: var(--bg-card);
+        border-radius: 12px;
+        border: 1px solid rgba(255, 255, 255, 0.1);
+        text-align: center;
+        transition: transform 0.3s;
+      }
+
+      .market-card:hover {
+        transform: scale(1.05);
+      }
+
+      .market-emoji {
+        font-size: 3rem;
+        margin-bottom: 1rem;
+      }
+
+      .market-title {
+        font-size: 1.25rem;
+        font-weight: 600;
+        margin-bottom: 0.5rem;
+      }
+
+      .market-assets {
+        color: var(--text-secondary);
+        font-size: 0.9rem;
+        margin-bottom: 0.5rem;
+      }
+
+      .market-exchange {
+        color: var(--primary);
+        font-size: 0.85rem;
+        font-weight: 500;
+      }
+
+      /* Target Audience Section */
+      .target-section {
+        background: var(--bg-dark);
+      }
+
+      .target-list {
+        max-width: 700px;
+        margin: 3rem auto 0;
+      }
+
+      .target-item {
+        display: flex;
+        align-items: center;
+        gap: 1rem;
+        padding: 1.5rem;
+        margin-bottom: 1rem;
+        background: var(--bg-card);
+        border-radius: 12px;
+        border: 1px solid rgba(255, 255, 255, 0.1);
+      }
+
+      .target-check {
+        font-size: 1.5rem;
+        color: var(--primary);
+        flex-shrink: 0;
+      }
+
+      .target-text {
+        color: var(--text-secondary);
+        font-size: 1rem;
+      }
+
+      /* Differentiation Section */
+      .diff-section {
+        background: var(--bg-darker);
+      }
+
+      .diff-content {
+        max-width: 700px;
+        margin: 3rem auto 0;
+      }
+
+      .diff-list {
+        margin-bottom: 3rem;
+      }
+
+      .diff-item {
+        display: flex;
+        align-items: center;
+        gap: 1rem;
+        padding: 1.5rem;
+        margin-bottom: 1rem;
+        background: var(--bg-card);
+        border-radius: 12px;
+        border: 1px solid rgba(255, 255, 255, 0.1);
+      }
+
+      .diff-icon {
+        font-size: 1.5rem;
+        flex-shrink: 0;
+      }
+
+      .diff-text {
+        color: var(--text-secondary);
+        font-size: 1rem;
+      }
+
+      .diff-value {
+        text-align: center;
+        font-size: 1.75rem;
+        font-weight: 600;
+        padding: 2rem;
+        background: linear-gradient(135deg, rgba(16, 185, 129, 0.2) 0%, rgba(59, 130, 246, 0.2) 100%);
+        border-radius: 12px;
+        border: 2px solid var(--primary);
+      }
+
+      /* Pricing Section */
+      .pricing-section {
+        background: var(--bg-dark);
+      }
+
+      .pricing-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+        gap: 2rem;
+        margin-top: 3rem;
+      }
+
+      .pricing-card {
+        padding: 2.5rem;
+        background: var(--bg-card);
+        border-radius: 12px;
+        border: 1px solid rgba(255, 255, 255, 0.1);
+        position: relative;
+        transition: transform 0.3s, box-shadow 0.3s;
+      }
+
+      .pricing-card:hover {
+        transform: translateY(-10px);
+        box-shadow: 0 20px 40px rgba(16, 185, 129, 0.3);
+      }
+
+      .pricing-card.popular {
+        border: 2px solid var(--primary);
+      }
+
+      .popular-badge {
+        position: absolute;
+        top: -15px;
+        right: 20px;
+        background: var(--primary);
+        color: white;
+        padding: 0.5rem 1rem;
+        border-radius: 20px;
+        font-size: 0.85rem;
+        font-weight: 600;
+      }
+
+      .plan-name {
+        font-size: 1.5rem;
+        font-weight: 600;
+        margin-bottom: 0.5rem;
+      }
+
+      .plan-description {
+        color: var(--text-secondary);
+        font-size: 0.9rem;
+        margin-bottom: 1.5rem;
+      }
+
+      .plan-price {
+        font-size: 3rem;
+        font-weight: 700;
+        color: var(--primary);
+        font-family: 'IBM Plex Mono', monospace;
+        margin-bottom: 0.5rem;
+      }
+
+      .plan-period {
+        color: var(--text-secondary);
+        font-size: 0.9rem;
+        margin-bottom: 2rem;
+      }
+
+      .plan-features {
+        list-style: none;
+        margin-bottom: 2rem;
+      }
+
+      .plan-features li {
+        padding: 0.75rem 0;
+        color: var(--text-secondary);
+        display: flex;
+        align-items: center;
+        gap: 0.75rem;
+      }
+
+      .plan-features li::before {
+        content: '✓';
+        color: var(--primary);
+        font-weight: 700;
+        font-size: 1.25rem;
+      }
+
+      .btn {
+        padding: 0.75rem 1.5rem;
+        border-radius: 8px;
+        font-weight: 600;
+        text-decoration: none;
+        transition: all 0.3s;
+        display: inline-block;
+        font-size: 0.9rem;
+        text-align: center;
+      }
+
+      .btn-primary {
+        background: var(--primary);
+        color: white;
+        border: none;
+        cursor: pointer;
+      }
+
+      .btn-primary:hover {
+        background: var(--primary-dark);
+        transform: translateY(-2px);
+        box-shadow: 0 10px 25px rgba(16, 185, 129, 0.3);
+      }
+
+      /* FAQ Section */
+      .faq-section {
+        background: var(--bg-darker);
+      }
+
+      .faq-container {
+        max-width: 800px;
+        margin: 3rem auto 0;
+      }
+
+      .faq-item {
+        margin-bottom: 1.5rem;
+        background: var(--bg-card);
+        border-radius: 12px;
+        border: 1px solid rgba(255, 255, 255, 0.1);
+        overflow: hidden;
+      }
+
+      .faq-question {
+        padding: 1.5rem;
+        font-size: 1.15rem;
+        font-weight: 600;
+        cursor: pointer;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        transition: background 0.3s;
+      }
+
+      .faq-question:hover {
+        background: rgba(16, 185, 129, 0.1);
+      }
+
+      .faq-icon {
+        font-size: 1.5rem;
+        color: var(--primary);
+        transition: transform 0.3s;
+      }
+
+      .faq-item.active .faq-icon {
+        transform: rotate(45deg);
+      }
+
+      .faq-answer {
+        max-height: 0;
+        overflow: hidden;
+        transition: max-height 0.3s ease-out;
+      }
+
+      .faq-item.active .faq-answer {
+        max-height: 500px;
+      }
+
+      .faq-answer-content {
+        padding: 0 1.5rem 1.5rem;
+        color: var(--text-secondary);
+        line-height: 1.8;
+      }
+
+      .faq-answer-content strong {
+        color: var(--text-primary);
+      }
+
+      /* CTA Final Section */
+      .cta-final-section {
+        background: linear-gradient(135deg, var(--bg-dark) 0%, var(--bg-darker) 100%);
+        text-align: center;
+      }
+
+      .cta-final-content {
+        max-width: 700px;
+        margin: 0 auto;
+      }
+
+      .cta-final-content p {
+        font-size: 1.25rem;
+        color: var(--text-secondary);
+        margin-bottom: 2rem;
+      }
+
+      .cta-final-btn {
+        font-size: 1.25rem;
+        padding: 1.25rem 3rem;
+      }
+
+      .cta-secondary-text {
+        margin-top: 1.5rem;
+        color: var(--text-secondary);
+        font-size: 1rem;
+      }
+
+      /* Footer */
+      footer {
+        background: var(--bg-darker);
+        border-top: 1px solid rgba(255, 255, 255, 0.1);
+        padding: 3rem 0 2rem;
+      }
+
+      .footer-content {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+        gap: 3rem;
+        margin-bottom: 3rem;
+      }
+
+      .footer-section h3 {
+        font-size: 1.25rem;
+        margin-bottom: 1rem;
+        color: var(--primary);
+      }
+
+      .footer-section ul {
+        list-style: none;
+      }
+
+      .footer-section ul li {
+        margin-bottom: 0.75rem;
+      }
+
+      .footer-section a {
+        color: var(--text-secondary);
+        text-decoration: none;
+        transition: color 0.3s;
+      }
+
+      .footer-section a:hover {
+        color: var(--primary);
+      }
+
+      .footer-bottom {
+        text-align: center;
+        padding-top: 2rem;
+        border-top: 1px solid rgba(255, 255, 255, 0.1);
+        color: var(--text-secondary);
+        font-size: 0.9rem;
+      }
+
+      .social-links {
+        display: flex;
+        gap: 1rem;
+        margin-top: 1rem;
+      }
+
+      .social-links a {
+        width: 40px;
+        height: 40px;
+        border-radius: 50%;
+        background: var(--bg-card);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        transition: all 0.3s;
+      }
+
+      .social-links a:hover {
+        background: var(--primary);
+        transform: translateY(-3px);
+      }
+
+      /* Responsive */
+      @media (max-width: 768px) {
         .section-title {
-            font-size: 2.5rem;
-            font-weight: 700;
-            text-align: center;
-            margin-bottom: 1rem;
+          font-size: 1.75rem;
         }
 
         .section-subtitle {
-            font-size: 1.25rem;
-            color: var(--text-secondary);
-            text-align: center;
-            max-width: 700px;
-            margin: 0 auto 3rem;
-        }
-
-        /* Pain Section */
-        .pain-section {
-            background: var(--bg-dark);
-        }
-
-        .pain-content {
-            max-width: 800px;
-            margin: 0 auto;
-        }
-
-        .pain-content p {
-            font-size: 1.15rem;
-            line-height: 1.8;
-            margin-bottom: 1.5rem;
-            color: var(--text-secondary);
-        }
-
-        .pain-conclusion {
-            font-size: 1.5rem;
-            font-weight: 600;
-            text-align: center;
-            margin-top: 3rem;
-            padding: 2rem;
-            background: var(--bg-card);
-            border-radius: 12px;
-            border-left: 4px solid var(--primary);
-        }
-
-        .pain-conclusion strong {
-            color: var(--primary);
-            display: block;
-            margin-bottom: 0.5rem;
-        }
-
-        /* Education Section */
-        .education-section {
-            background: var(--bg-darker);
-        }
-
-        .education-content {
-            max-width: 800px;
-            margin: 0 auto;
-        }
-
-        .education-content p {
-            font-size: 1.15rem;
-            line-height: 1.8;
-            margin-bottom: 1.5rem;
-            color: var(--text-secondary);
-        }
-
-        .education-highlight {
-            font-size: 1.5rem;
-            font-weight: 600;
-            text-align: center;
-            margin-top: 3rem;
-            padding: 2rem;
-            background: linear-gradient(135deg, rgba(16, 185, 129, 0.1) 0%, rgba(59, 130, 246, 0.1) 100%);
-            border-radius: 12px;
-            border: 1px solid rgba(16, 185, 129, 0.3);
-        }
-
-        .education-highlight strong {
-            color: var(--primary);
-            display: block;
-            margin-bottom: 0.5rem;
-        }
-
-        /* Solution Section */
-        .solution-section {
-            background: var(--bg-dark);
-        }
-
-        .solution-content {
-            max-width: 800px;
-            margin: 0 auto;
-        }
-
-        .solution-content p {
-            font-size: 1.15rem;
-            line-height: 1.8;
-            margin-bottom: 1.5rem;
-            color: var(--text-secondary);
-        }
-
-        .benefits-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
-            gap: 1.5rem;
-            margin-top: 3rem;
-        }
-
-        .benefit-card {
-            padding: 1.5rem;
-            background: var(--bg-card);
-            border-radius: 12px;
-            border: 1px solid rgba(255, 255, 255, 0.1);
-            display: flex;
-            align-items: center;
-            gap: 1rem;
-        }
-
-        .benefit-icon {
-            font-size: 1.5rem;
-        }
-
-        .benefit-text {
-            font-size: 1rem;
-            font-weight: 500;
-        }
-
-        /* What Is Section */
-        .what-is-section {
-            background: var(--bg-darker);
-        }
-
-        .features-list {
-            max-width: 700px;
-            margin: 3rem auto 0;
-        }
-
-        .feature-item {
-            display: flex;
-            align-items: flex-start;
-            gap: 1rem;
-            margin-bottom: 1.5rem;
-            padding: 1.5rem;
-            background: var(--bg-card);
-            border-radius: 12px;
-            border: 1px solid rgba(255, 255, 255, 0.1);
-        }
-
-        .feature-icon {
-            font-size: 1.5rem;
-            color: var(--primary);
-            flex-shrink: 0;
-        }
-
-        .feature-text {
-            flex: 1;
-        }
-
-        .feature-text strong {
-            color: var(--text-primary);
-            display: block;
-            margin-bottom: 0.25rem;
-        }
-
-        .feature-text span {
-            color: var(--text-secondary);
-            font-size: 0.95rem;
-        }
-
-        .conclusion-box {
-            text-align: center;
-            font-size: 1.5rem;
-            font-weight: 600;
-            margin-top: 3rem;
-            padding: 2rem;
-            background: var(--bg-card);
-            border-radius: 12px;
-            border: 2px solid var(--primary);
-        }
-
-        .conclusion-box strong {
-            color: var(--primary);
-            display: block;
-            margin-bottom: 0.5rem;
-        }
-
-        /* Technical Features Section */
-        .tech-features-section {
-            background: var(--bg-dark);
-        }
-
-        .tech-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
-            gap: 2rem;
-            margin-top: 3rem;
-        }
-
-        .tech-card {
-            padding: 2rem;
-            background: var(--bg-card);
-            border-radius: 12px;
-            border: 1px solid rgba(255, 255, 255, 0.1);
-            text-align: center;
-            transition: transform 0.3s, box-shadow 0.3s;
-        }
-
-        .tech-card:hover {
-            transform: translateY(-5px);
-            box-shadow: 0 10px 30px rgba(16, 185, 129, 0.2);
-        }
-
-        .tech-icon {
-            font-size: 3rem;
-            margin-bottom: 1rem;
-        }
-
-        .tech-title {
-            font-size: 1.25rem;
-            font-weight: 600;
-            margin-bottom: 0.5rem;
-            color: var(--text-primary);
-        }
-
-        .tech-description {
-            color: var(--text-secondary);
-            font-size: 0.95rem;
-        }
-
-        /* Markets Section */
-        .markets-section {
-            background: var(--bg-darker);
-        }
-
-        .markets-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
-            gap: 2rem;
-            margin-top: 3rem;
-        }
-
-        .market-card {
-            padding: 2rem;
-            background: var(--bg-card);
-            border-radius: 12px;
-            border: 1px solid rgba(255, 255, 255, 0.1);
-            text-align: center;
-            transition: transform 0.3s;
-        }
-
-        .market-card:hover {
-            transform: scale(1.05);
-        }
-
-        .market-emoji {
-            font-size: 3rem;
-            margin-bottom: 1rem;
-        }
-
-        .market-title {
-            font-size: 1.25rem;
-            font-weight: 600;
-            margin-bottom: 0.5rem;
-        }
-
-        .market-assets {
-            color: var(--text-secondary);
-            font-size: 0.9rem;
-            margin-bottom: 0.5rem;
-        }
-
-        .market-exchange {
-            color: var(--primary);
-            font-size: 0.85rem;
-            font-weight: 500;
-        }
-
-        /* Target Audience Section */
-        .target-section {
-            background: var(--bg-dark);
-        }
-
-        .target-list {
-            max-width: 700px;
-            margin: 3rem auto 0;
-        }
-
-        .target-item {
-            display: flex;
-            align-items: center;
-            gap: 1rem;
-            padding: 1.5rem;
-            margin-bottom: 1rem;
-            background: var(--bg-card);
-            border-radius: 12px;
-            border: 1px solid rgba(255, 255, 255, 0.1);
-        }
-
-        .target-check {
-            font-size: 1.5rem;
-            color: var(--primary);
-            flex-shrink: 0;
-        }
-
-        .target-text {
-            color: var(--text-secondary);
-            font-size: 1rem;
-        }
-
-        /* Differentiation Section */
-        .diff-section {
-            background: var(--bg-darker);
-        }
-
-        .diff-content {
-            max-width: 700px;
-            margin: 3rem auto 0;
-        }
-
-        .diff-list {
-            margin-bottom: 3rem;
-        }
-
-        .diff-item {
-            display: flex;
-            align-items: center;
-            gap: 1rem;
-            padding: 1.5rem;
-            margin-bottom: 1rem;
-            background: var(--bg-card);
-            border-radius: 12px;
-            border: 1px solid rgba(255, 255, 255, 0.1);
-        }
-
-        .diff-icon {
-            font-size: 1.5rem;
-            flex-shrink: 0;
-        }
-
-        .diff-text {
-            color: var(--text-secondary);
-            font-size: 1rem;
-        }
-
-        .diff-value {
-            text-align: center;
-            font-size: 1.75rem;
-            font-weight: 600;
-            padding: 2rem;
-            background: linear-gradient(135deg, rgba(16, 185, 129, 0.2) 0%, rgba(59, 130, 246, 0.2) 100%);
-            border-radius: 12px;
-            border: 2px solid var(--primary);
-        }
-
-        /* Pricing Section */
-        .pricing-section {
-            background: var(--bg-dark);
-        }
-
-        .pricing-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
-            gap: 2rem;
-            margin-top: 3rem;
-        }
-
-        .pricing-card {
-            padding: 2.5rem;
-            background: var(--bg-card);
-            border-radius: 12px;
-            border: 1px solid rgba(255, 255, 255, 0.1);
-            position: relative;
-            transition: transform 0.3s, box-shadow 0.3s;
-        }
-
-        .pricing-card:hover {
-            transform: translateY(-10px);
-            box-shadow: 0 20px 40px rgba(16, 185, 129, 0.3);
-        }
-
-        .pricing-card.popular {
-            border: 2px solid var(--primary);
-        }
-
-        .popular-badge {
-            position: absolute;
-            top: -15px;
-            right: 20px;
-            background: var(--primary);
-            color: white;
-            padding: 0.5rem 1rem;
-            border-radius: 20px;
-            font-size: 0.85rem;
-            font-weight: 600;
-        }
-
-        .plan-name {
-            font-size: 1.5rem;
-            font-weight: 600;
-            margin-bottom: 0.5rem;
-        }
-
-        .plan-description {
-            color: var(--text-secondary);
-            font-size: 0.9rem;
-            margin-bottom: 1.5rem;
-        }
-
-        .plan-price {
-            font-size: 3rem;
-            font-weight: 700;
-            color: var(--primary);
-            font-family: 'IBM Plex Mono', monospace;
-            margin-bottom: 0.5rem;
-        }
-
-        .plan-period {
-            color: var(--text-secondary);
-            font-size: 0.9rem;
-            margin-bottom: 2rem;
-        }
-
-        .plan-features {
-            list-style: none;
-            margin-bottom: 2rem;
-        }
-
-        .plan-features li {
-            padding: 0.75rem 0;
-            color: var(--text-secondary);
-            display: flex;
-            align-items: center;
-            gap: 0.75rem;
-        }
-
-        .plan-features li::before {
-            content: '✓';
-            color: var(--primary);
-            font-weight: 700;
-            font-size: 1.25rem;
-        }
-
-        /* FAQ Section */
-        .faq-section {
-            background: var(--bg-darker);
-        }
-
-        .faq-container {
-            max-width: 800px;
-            margin: 3rem auto 0;
-        }
-
-        .faq-item {
-            margin-bottom: 1.5rem;
-            background: var(--bg-card);
-            border-radius: 12px;
-            border: 1px solid rgba(255, 255, 255, 0.1);
-            overflow: hidden;
-        }
-
-        .faq-question {
-            padding: 1.5rem;
-            font-size: 1.15rem;
-            font-weight: 600;
-            cursor: pointer;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            transition: background 0.3s;
-        }
-
-        .faq-question:hover {
-            background: rgba(16, 185, 129, 0.1);
-        }
-
-        .faq-icon {
-            font-size: 1.5rem;
-            color: var(--primary);
-            transition: transform 0.3s;
-        }
-
-        .faq-item.active .faq-icon {
-            transform: rotate(45deg);
-        }
-
-        .faq-answer {
-            max-height: 0;
-            overflow: hidden;
-            transition: max-height 0.3s ease-out;
-        }
-
-        .faq-item.active .faq-answer {
-            max-height: 500px;
-        }
-
-        .faq-answer-content {
-            padding: 0 1.5rem 1.5rem;
-            color: var(--text-secondary);
-            line-height: 1.8;
-        }
-
-        .faq-answer-content strong {
-            color: var(--text-primary);
-        }
-
-        /* CTA Final Section */
-        .cta-final-section {
-            background: linear-gradient(135deg, var(--bg-dark) 0%, var(--bg-darker) 100%);
-            text-align: center;
-        }
-
-        .cta-final-content {
-            max-width: 700px;
-            margin: 0 auto;
-        }
-
-        .cta-final-content p {
-            font-size: 1.25rem;
-            color: var(--text-secondary);
-            margin-bottom: 2rem;
-        }
-
-        .cta-final-btn {
-            font-size: 1.25rem;
-            padding: 1.25rem 3rem;
-        }
-
-        .cta-secondary-text {
-            margin-top: 1.5rem;
-            color: var(--text-secondary);
-            font-size: 1rem;
-        }
-
-        /* Video Section */
-        .video-section {
-            background: var(--bg-dark);
-            text-align: center;
-        }
-
-        .video-container {
-            max-width: 900px;
-            margin: 3rem auto 0;
-            border-radius: 12px;
-            overflow: hidden;
-            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.5);
-        }
-
-        .video-container video {
-            width: 100%;
-            height: auto;
-            display: block;
-        }
-
-        /* Footer */
-        footer {
-            background: var(--bg-darker);
-            border-top: 1px solid rgba(255, 255, 255, 0.1);
-            padding: 3rem 0 2rem;
-        }
-
-        .footer-content {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
-            gap: 3rem;
-            margin-bottom: 3rem;
-        }
-
-        .footer-section h3 {
-            font-size: 1.25rem;
-            margin-bottom: 1rem;
-            color: var(--primary);
-        }
-
-        .footer-section ul {
-            list-style: none;
-        }
-
-        .footer-section ul li {
-            margin-bottom: 0.75rem;
-        }
-
-        .footer-section a {
-            color: var(--text-secondary);
-            text-decoration: none;
-            transition: color 0.3s;
-        }
-
-        .footer-section a:hover {
-            color: var(--primary);
-        }
-
-        .footer-bottom {
-            text-align: center;
-            padding-top: 2rem;
-            border-top: 1px solid rgba(255, 255, 255, 0.1);
-            color: var(--text-secondary);
-            font-size: 0.9rem;
-        }
-
-        .social-links {
-            display: flex;
-            gap: 1rem;
-            margin-top: 1rem;
-        }
-
-        .social-links a {
-            width: 40px;
-            height: 40px;
-            border-radius: 50%;
-            background: var(--bg-card);
-            display: flex;
+          font-size: 1rem;
+        }
+
+        section.content-section {
+          padding: 4rem 0;
+        }
+
+        .container {
+          padding: 0 1rem;
+        }
+      }
+
+      /* Smooth Scroll */
+      html {
+        scroll-behavior: smooth;
+      }
+
+      /* Fade In Animation */
+      .fade-in {
+        opacity: 0;
+        transform: translateY(30px);
+        transition: opacity 0.6s, transform 0.6s;
+      }
+
+      .fade-in.visible {
+        opacity: 1;
+        transform: translateY(0);
+      }
+    </style>
+    <script>
+      // Substituir logo AL por imagem usando MutationObserver
+      function replaceLogo() {
+        const logoElements = document.querySelectorAll('a[href="/"] > div');
+        logoElements.forEach(function(logoDiv) {
+          if (logoDiv.textContent.trim() === 'AL' && !logoDiv.querySelector('img')) {
+            logoDiv.innerHTML = '<img src="/static/atlas-logo.png" alt="Atlas Levels" class="atlas-logo-img" />';
+          }
+        });
+      }
+
+      // Adicionar botão de Login no header
+      function addLoginButton() {
+        // Encontrar o botão "Acessar Plataforma"
+        const platformButton = Array.from(document.querySelectorAll('a')).find(a => a.textContent.trim() === 'Acessar Plataforma');
+        
+        if (platformButton && !document.getElementById('login-button-added')) {
+          // Criar botão de Login
+          const loginButton = document.createElement('a');
+          loginButton.href = '/login';
+          loginButton.textContent = 'Login';
+          loginButton.id = 'login-button-added';
+          
+          // Copiar estilos do botão "Acessar Plataforma"
+          loginButton.style.cssText = `
+            display: inline-flex;
             align-items: center;
             justify-content: center;
-            transition: all 0.3s;
+            padding: 12px 24px;
+            border-radius: 12px;
+            font-weight: 600;
+            font-size: 15px;
+            transition: all 0.2s;
+            text-decoration: none;
+            margin-right: 12px;
+            background: transparent;
+            border: 2px solid rgba(16, 185, 129, 0.5);
+            color: rgb(16, 185, 129);
+          `;
+          
+          // Efeito hover
+          loginButton.addEventListener('mouseenter', function() {
+            this.style.background = 'rgba(16, 185, 129, 0.1)';
+            this.style.borderColor = 'rgb(16, 185, 129)';
+          });
+          
+          loginButton.addEventListener('mouseleave', function() {
+            this.style.background = 'transparent';
+            this.style.borderColor = 'rgba(16, 185, 129, 0.5)';
+          });
+          
+          // Inserir antes do botão "Acessar Plataforma"
+          platformButton.parentNode.insertBefore(loginButton, platformButton);
         }
+      }
 
-        .social-links a:hover {
-            background: var(--primary);
-            transform: translateY(-3px);
-        }
+      // Executar quando o DOM carregar
+      window.addEventListener('DOMContentLoaded', function() {
+        replaceLogo();
+        addLoginButton();
+        
+        // Observar mudanças no DOM para re-aplicar quando React re-renderizar
+        const observer = new MutationObserver(function() {
+          replaceLogo();
+          addLoginButton();
+        });
+        observer.observe(document.body, { childList: true, subtree: true });
+        
+        // Também tentar após um delay
+        setTimeout(function() { replaceLogo(); addLoginButton(); }, 100);
+        setTimeout(function() { replaceLogo(); addLoginButton(); }, 500);
+        setTimeout(function() { replaceLogo(); addLoginButton(); }, 1000);
+      });
+    </script>
+  </head>
 
-        /* Responsive */
-        @media (max-width: 768px) {
-            .hero h1 {
-                font-size: 2rem;
-            }
-
-            .hero h2 {
-                font-size: 1.25rem;
-            }
-
-            .hero p {
-                font-size: 1rem;
-            }
-
-            .section-title {
-                font-size: 1.75rem;
-            }
-
-            .section-subtitle {
-                font-size: 1rem;
-            }
-
-            .nav-links {
-                display: none;
-            }
-
-            section {
-                padding: 4rem 0;
-            }
-
-            .container {
-                padding: 0 1rem;
-            }
-        }
-
-        /* Smooth Scroll */
-        html {
-            scroll-behavior: smooth;
-        }
-
-        /* Fade In Animation */
-        .fade-in {
-            opacity: 0;
-            transform: translateY(30px);
-            transition: opacity 0.6s, transform 0.6s;
-        }
-
-        .fade-in.visible {
-            opacity: 1;
-            transform: translateY(0);
-        }
-    </style>
-</head>
-<body>
-    <!-- Header -->
-    <header>
-        <nav>
-            <a href="/" class="logo">
-                <img src="/static/atlas-logo.png" alt="Atlas Levels">
-                <span>Atlas Levels</span>
-            </a>
-            <div class="nav-links">
-                <a href="#por-que">Por quê?</a>
-                <a href="#mercados">Mercados</a>
-                <a href="#planos">Planos</a>
-                <a href="#faq">FAQ</a>
-                <a href="/login" class="btn btn-outline">Login</a>
-                <a href="/app" class="btn btn-primary">Acessar Plataforma</a>
-            </div>
-        </nav>
-    </header>
-
-    <!-- Hero Section -->
-    <section class="hero">
-        <div class="container">
-            <div class="hero-content fade-in">
-                <h1>Pare de reagir ao mercado.<br>Comece a operar onde as decisões realmente acontecem.</h1>
-                <h2>Níveis institucionais de negociação baseados em liquidez real</h2>
-                <p>Atlas Levels revela as zonas onde grandes players atuam, para você operar com mais clareza, contexto e assimetria de risco-retorno.</p>
-                <div class="hero-cta">
-                    <a href="/app" class="btn btn-primary">Começar Agora</a>
-                    <a href="#por-que" class="btn btn-outline">Ver Como Funciona ↓</a>
-                </div>
-                
-                <div class="stats">
-                    <div class="stat-card fade-in">
-                        <div class="stat-number">7</div>
-                        <div class="stat-label">Mercados principais</div>
-                    </div>
-                    <div class="stat-card fade-in">
-                        <div class="stat-number">Diário</div>
-                        <div class="stat-label">Atualização de níveis</div>
-                    </div>
-                    <div class="stat-card fade-in">
-                        <div class="stat-number">CSV/JSON</div>
-                        <div class="stat-label">Exportação de dados</div>
-                    </div>
-                </div>
-            </div>
-        </div>
-    </section>
+  <body>
+    <!-- React Hero Section (Helicoidal) -->
+    <div id="root"></div>
+    
+    <script
+      defer
+      src="%VITE_ANALYTICS_ENDPOINT%/umami"
+      data-website-id="%VITE_ANALYTICS_WEBSITE_ID%"></script>
 
     <!-- Pain Section -->
-    <section id="por-que" class="pain-section">
-        <div class="container">
-            <h2 class="section-title fade-in">Você já passou por isso</h2>
-            <div class="pain-content fade-in">
-                <p>Você entra bem posicionado, com análise correta, o preço varre seu stop, e logo depois anda exatamente até o seu alvo.</p>
-                
-                <p>Ou então o mercado sinaliza uma compra ou venda, atrai a maioria dos traders, e no momento em que todos entram, o preço trava em range.</p>
-                
-                <p>Depois de um tempo, surge a sensação mais perigosa de todas: a de que o mercado é aleatório, imprevisível e que o resultado depende mais da sorte do que de método.</p>
-                
-                <div class="pain-conclusion">
-                    <strong>O problema não é você.</strong>
-                    O problema é operar sem entender liquidez.
-                </div>
-            </div>
+    <section id="por-que" class="pain-section content-section">
+      <div class="container">
+        <h2 class="section-title fade-in">Você já passou por isso</h2>
+        <div class="pain-content fade-in">
+          <p>Você entra bem posicionado, com análise correta, o preço varre seu stop, e logo depois anda exatamente até o seu alvo.</p>
+          
+          <p>Ou então o mercado sinaliza uma compra ou venda, atrai a maioria dos traders, e no momento em que todos entram, o preço trava em range.</p>
+          
+          <p>Depois de um tempo, surge a sensação mais perigosa de todas: a de que o mercado é aleatório, imprevisível e que o resultado depende mais da sorte do que de método.</p>
+          
+          <div class="pain-conclusion">
+            <strong>O problema não é você.</strong>
+            O problema é operar sem entender liquidez.
+          </div>
         </div>
+      </div>
     </section>
 
     <!-- Education Section -->
-    <section class="education-section">
-        <div class="container">
-            <h2 class="section-title fade-in">O que realmente move o mercado</h2>
-            <div class="education-content fade-in">
-                <p>O mercado não se move por padrões bonitos ou indicadores populares. Ele se move em busca de liquidez.</p>
-                
-                <p>Os grandes participantes precisam de volume para executar posições relevantes. Essa liquidez vem, em grande parte, do trader de varejo.</p>
-                
-                <p>É por isso que ocorrem induções, falsas quebras, varridas de stop e movimentos que parecem ilógicos. Não são aleatórios, são estruturais.</p>
-                
-                <div class="education-highlight">
-                    <strong>Quem entende isso deixa de ser liquidez.</strong>
-                    Quem não entende, fornece liquidez.
-                </div>
-            </div>
+    <section class="education-section content-section">
+      <div class="container">
+        <h2 class="section-title fade-in">O que realmente move o mercado</h2>
+        <div class="education-content fade-in">
+          <p>O mercado não se move por padrões bonitos ou indicadores populares. Ele se move em busca de liquidez.</p>
+          
+          <p>Os grandes participantes precisam de volume para executar posições relevantes. Essa liquidez vem, em grande parte, do trader de varejo.</p>
+          
+          <p>É por isso que ocorrem induções, falsas quebras, varridas de stop e movimentos que parecem ilógicos. Não são aleatórios, são estruturais.</p>
+          
+          <div class="education-highlight">
+            <strong>Quem entende isso deixa de ser liquidez.</strong>
+            Quem não entende, fornece liquidez.
+          </div>
         </div>
+      </div>
     </section>
 
     <!-- Solution Section -->
-    <section class="solution-section">
-        <div class="container">
-            <h2 class="section-title fade-in">Onde entram os níveis institucionais Atlas</h2>
-            <div class="solution-content fade-in">
-                <p>Os níveis institucionais Atlas foram criados para identificar exatamente essas regiões: zonas onde a liquidez é relevante, onde decisões institucionais tendem a ocorrer, e onde existe assimetria real de risco e retorno.</p>
-                
-                <p>Ao operar nesses níveis, você deixa de perseguir o preço e passa a se posicionar onde o mercado realmente decide.</p>
-            </div>
-            
-            <div class="benefits-grid">
-                <div class="benefit-card fade-in">
-                    <div class="benefit-icon">✓</div>
-                    <div class="benefit-text">Menos trades forçados</div>
-                </div>
-                <div class="benefit-card fade-in">
-                    <div class="benefit-icon">✓</div>
-                    <div class="benefit-text">Mais operações estratégicas</div>
-                </div>
-                <div class="benefit-card fade-in">
-                    <div class="benefit-icon">✓</div>
-                    <div class="benefit-text">Mais controle de risco</div>
-                </div>
-            </div>
+    <section class="solution-section content-section">
+      <div class="container">
+        <h2 class="section-title fade-in">Onde entram os níveis institucionais Atlas</h2>
+        <div class="solution-content fade-in">
+          <p>Os níveis institucionais Atlas foram criados para identificar exatamente essas regiões: zonas onde a liquidez é relevante, onde decisões institucionais tendem a ocorrer, e onde existe assimetria real de risco e retorno.</p>
+          
+          <p>Ao operar nesses níveis, você deixa de perseguir o preço e passa a se posicionar onde o mercado realmente decide.</p>
         </div>
+        
+        <div class="benefits-grid">
+          <div class="benefit-card fade-in">
+            <div class="benefit-icon">✓</div>
+            <div class="benefit-text">Menos trades forçados</div>
+          </div>
+          <div class="benefit-card fade-in">
+            <div class="benefit-icon">✓</div>
+            <div class="benefit-text">Mais operações estratégicas</div>
+          </div>
+          <div class="benefit-card fade-in">
+            <div class="benefit-icon">✓</div>
+            <div class="benefit-text">Mais controle de risco</div>
+          </div>
+        </div>
+      </div>
     </section>
 
     <!-- What Is Section -->
-    <section class="what-is-section">
-        <div class="container">
-            <h2 class="section-title fade-in">O que é o Atlas Levels</h2>
-            <p class="section-subtitle fade-in">Uma ferramenta que revela as zonas mais importantes do mercado, baseadas em dinâmica de oferta, demanda e liquidez institucional.</p>
-            
-            <div class="features-list">
-                <div class="feature-item fade-in">
-                    <div class="feature-icon">🎯</div>
-                    <div class="feature-text">
-                        <strong>Identificar regiões</strong>
-                        <span>onde grandes players provavelmente estão atuando</span>
-                    </div>
-                </div>
-                <div class="feature-item fade-in">
-                    <div class="feature-icon">⚡</div>
-                    <div class="feature-text">
-                        <strong>Evitar entradas tardias</strong>
-                        <span>e armadilhas de liquidez</span>
-                    </div>
-                </div>
-                <div class="feature-item fade-in">
-                    <div class="feature-icon">🔍</div>
-                    <div class="feature-text">
-                        <strong>Reduzir operações</strong>
-                        <span>de baixa qualidade</span>
-                    </div>
-                </div>
-                <div class="feature-item fade-in">
-                    <div class="feature-icon">📊</div>
-                    <div class="feature-text">
-                        <strong>Aumentar a clareza</strong>
-                        <span>e a confiança na tomada de decisão</span>
-                    </div>
-                </div>
+    <section class="what-is-section content-section">
+      <div class="container">
+        <h2 class="section-title fade-in">O que é o Atlas Levels</h2>
+        <p class="section-subtitle fade-in">Uma ferramenta que revela as zonas mais importantes do mercado, baseadas em dinâmica de oferta, demanda e liquidez institucional.</p>
+        
+        <div class="features-list">
+          <div class="feature-item fade-in">
+            <div class="feature-icon">🎯</div>
+            <div class="feature-text">
+              <strong>Identificar regiões</strong>
+              <span>onde grandes players provavelmente estão atuando</span>
             </div>
-            
-            <div class="conclusion-box fade-in">
-                <strong>Não é previsão.</strong>
-                É leitura estrutural do mercado.
+          </div>
+          <div class="feature-item fade-in">
+            <div class="feature-icon">⚡</div>
+            <div class="feature-text">
+              <strong>Evitar entradas tardias</strong>
+              <span>e armadilhas de liquidez</span>
             </div>
+          </div>
+          <div class="feature-item fade-in">
+            <div class="feature-icon">🔍</div>
+            <div class="feature-text">
+              <strong>Reduzir operações</strong>
+              <span>de baixa qualidade</span>
+            </div>
+          </div>
+          <div class="feature-item fade-in">
+            <div class="feature-icon">📊</div>
+            <div class="feature-text">
+              <strong>Aumentar a clareza</strong>
+              <span>e a confiança na tomada de decisão</span>
+            </div>
+          </div>
         </div>
+        
+        <div class="conclusion-box fade-in">
+          <strong>Não é previsão.</strong>
+          É leitura estrutural do mercado.
+        </div>
+      </div>
     </section>
 
     <!-- Technical Features Section -->
-    <section class="tech-features-section">
-        <div class="container">
-            <h2 class="section-title fade-in">O que você recebe</h2>
-            
-            <div class="tech-grid">
-                <div class="tech-card fade-in">
-                    <div class="tech-icon">📊</div>
-                    <div class="tech-title">7 Mercados Principais</div>
-                    <div class="tech-description">WIN, WDO, BIT, BTCUSD, XAUUSD, EURUSD, S&P500</div>
-                </div>
-                <div class="tech-card fade-in">
-                    <div class="tech-icon">📅</div>
-                    <div class="tech-title">Atualização Diária</div>
-                    <div class="tech-description">Níveis atualizados todos os dias antes da abertura</div>
-                </div>
-                <div class="tech-card fade-in">
-                    <div class="tech-icon">💾</div>
-                    <div class="tech-title">Exportação CSV/JSON</div>
-                    <div class="tech-description">Dados estruturados prontos para análise</div>
-                </div>
-                <div class="tech-card fade-in">
-                    <div class="tech-icon">🔌</div>
-                    <div class="tech-title">API Access</div>
-                    <div class="tech-description">Integre com suas ferramentas favoritas</div>
-                </div>
-                <div class="tech-card fade-in">
-                    <div class="tech-icon">📈</div>
-                    <div class="tech-title">Histórico Completo</div>
-                    <div class="tech-description">Acesso a dados históricos para backtesting</div>
-                </div>
-                <div class="tech-card fade-in">
-                    <div class="tech-icon">💬</div>
-                    <div class="tech-title">Suporte Especializado</div>
-                    <div class="tech-description">Equipe pronta para ajudar você</div>
-                </div>
-            </div>
+    <section class="tech-features-section content-section">
+      <div class="container">
+        <h2 class="section-title fade-in">O que você recebe</h2>
+        
+        <div class="tech-grid">
+          <div class="tech-card fade-in">
+            <div class="tech-icon">📊</div>
+            <div class="tech-title">7 Mercados Principais</div>
+            <div class="tech-description">WIN, WDO, BIT, BTCUSD, XAUUSD, EURUSD, S&P500</div>
+          </div>
+          <div class="tech-card fade-in">
+            <div class="tech-icon">📅</div>
+            <div class="tech-title">Atualização Diária</div>
+            <div class="tech-description">Níveis atualizados todos os dias antes da abertura</div>
+          </div>
+          <div class="tech-card fade-in">
+            <div class="tech-icon">💾</div>
+            <div class="tech-title">Exportação CSV/JSON</div>
+            <div class="tech-description">Dados estruturados prontos para análise</div>
+          </div>
+          <div class="tech-card fade-in">
+            <div class="tech-icon">🔌</div>
+            <div class="tech-title">API Access</div>
+            <div class="tech-description">Integre com suas ferramentas favoritas</div>
+          </div>
+          <div class="tech-card fade-in">
+            <div class="tech-icon">📈</div>
+            <div class="tech-title">Histórico Completo</div>
+            <div class="tech-description">Acesso a dados históricos para backtesting</div>
+          </div>
+          <div class="tech-card fade-in">
+            <div class="tech-icon">💬</div>
+            <div class="tech-title">Suporte Especializado</div>
+            <div class="tech-description">Equipe pronta para ajudar você</div>
+          </div>
         </div>
+      </div>
     </section>
 
     <!-- Markets Section -->
-    <section id="mercados" class="markets-section">
-        <div class="container">
-            <h2 class="section-title fade-in">Mercados Disponíveis</h2>
-            <p class="section-subtitle fade-in">Acesso a 7 principais mercados com dados atualizados diariamente</p>
-            
-            <div class="markets-grid">
-                <div class="market-card fade-in">
-                    <div class="market-emoji">🇧🇷</div>
-                    <div class="market-title">Brasil</div>
-                    <div class="market-assets">WIN / WDO / BIT</div>
-                    <div class="market-exchange">B3</div>
-                </div>
-                <div class="market-card fade-in">
-                    <div class="market-emoji">💱</div>
-                    <div class="market-title">Forex</div>
-                    <div class="market-assets">EURUSD / GBPUSD / USDJPY</div>
-                    <div class="market-exchange">Principais pares</div>
-                </div>
-                <div class="market-card fade-in">
-                    <div class="market-emoji">🪙</div>
-                    <div class="market-title">Cripto</div>
-                    <div class="market-assets">BTC / ETH</div>
-                    <div class="market-exchange">Mercado 24/7</div>
-                </div>
-                <div class="market-card fade-in">
-                    <div class="market-emoji">📈</div>
-                    <div class="market-title">Índices</div>
-                    <div class="market-assets">S&P500 / Nasdaq / Dow Jones</div>
-                    <div class="market-exchange">Mercados globais</div>
-                </div>
-                <div class="market-card fade-in">
-                    <div class="market-emoji">🥇</div>
-                    <div class="market-title">Commodities</div>
-                    <div class="market-assets">Ouro (XAUUSD)</div>
-                    <div class="market-exchange">Ativo refúgio</div>
-                </div>
-                <div class="market-card fade-in">
-                    <div class="market-emoji">🛢️</div>
-                    <div class="market-title">Energia</div>
-                    <div class="market-assets">Petróleo (WTI)</div>
-                    <div class="market-exchange">Commodity estratégica</div>
-                </div>
-            </div>
+    <section id="mercados" class="markets-section content-section">
+      <div class="container">
+        <h2 class="section-title fade-in">Mercados Disponíveis</h2>
+        <p class="section-subtitle fade-in">Acesso a 7 principais mercados com dados atualizados diariamente</p>
+        
+        <div class="markets-grid">
+          <div class="market-card fade-in">
+            <div class="market-emoji">🇧🇷</div>
+            <div class="market-title">Brasil</div>
+            <div class="market-assets">WIN / WDO / BIT</div>
+            <div class="market-exchange">B3</div>
+          </div>
+          <div class="market-card fade-in">
+            <div class="market-emoji">💱</div>
+            <div class="market-title">Forex</div>
+            <div class="market-assets">EURUSD / GBPUSD / USDJPY</div>
+            <div class="market-exchange">Principais pares</div>
+          </div>
+          <div class="market-card fade-in">
+            <div class="market-emoji">🪙</div>
+            <div class="market-title">Cripto</div>
+            <div class="market-assets">BTC / ETH</div>
+            <div class="market-exchange">Mercado 24/7</div>
+          </div>
+          <div class="market-card fade-in">
+            <div class="market-emoji">📈</div>
+            <div class="market-title">Índices</div>
+            <div class="market-assets">S&P500 / Nasdaq / Dow Jones</div>
+            <div class="market-exchange">Mercados globais</div>
+          </div>
+          <div class="market-card fade-in">
+            <div class="market-emoji">🥇</div>
+            <div class="market-title">Commodities</div>
+            <div class="market-assets">Ouro (XAUUSD)</div>
+            <div class="market-exchange">Ativo refúgio</div>
+          </div>
+          <div class="market-card fade-in">
+            <div class="market-emoji">🛢️</div>
+            <div class="market-title">Energia</div>
+            <div class="market-assets">Petróleo (WTI)</div>
+            <div class="market-exchange">Commodity estratégica</div>
+          </div>
         </div>
+      </div>
     </section>
 
     <!-- Target Audience Section -->
-    <section class="target-section">
-        <div class="container">
-            <h2 class="section-title fade-in">Para quem é o Atlas Levels</h2>
-            
-            <div class="target-list">
-                <div class="target-item fade-in">
-                    <div class="target-check">✓</div>
-                    <div class="target-text">Traders que já tentaram vários métodos e sentem que falta estrutura</div>
-                </div>
-                <div class="target-item fade-in">
-                    <div class="target-check">✓</div>
-                    <div class="target-text">Operadores que buscam assimetria real de risco-retorno</div>
-                </div>
-                <div class="target-item fade-in">
-                    <div class="target-check">✓</div>
-                    <div class="target-text">Quem quer menos ruído e mais contexto institucional</div>
-                </div>
-                <div class="target-item fade-in">
-                    <div class="target-check">✓</div>
-                    <div class="target-text">Traders que entendem que consistência vem de processo, não de sorte</div>
-                </div>
-            </div>
-            
-            <div class="pain-conclusion fade-in" style="margin-top: 3rem;">
-                <strong>Se você procura um atalho mágico, este não é o lugar.</strong>
-                Se você procura lógica, contexto e estrutura, você está no lugar certo.
-            </div>
+    <section class="target-section content-section">
+      <div class="container">
+        <h2 class="section-title fade-in">Para quem é o Atlas Levels</h2>
+        
+        <div class="target-list">
+          <div class="target-item fade-in">
+            <div class="target-check">✓</div>
+            <div class="target-text">Traders que já tentaram vários métodos e sentem que falta estrutura</div>
+          </div>
+          <div class="target-item fade-in">
+            <div class="target-check">✓</div>
+            <div class="target-text">Operadores que buscam assimetria real de risco-retorno</div>
+          </div>
+          <div class="target-item fade-in">
+            <div class="target-check">✓</div>
+            <div class="target-text">Quem quer menos ruído e mais contexto institucional</div>
+          </div>
+          <div class="target-item fade-in">
+            <div class="target-check">✓</div>
+            <div class="target-text">Traders que entendem que consistência vem de processo, não de sorte</div>
+          </div>
         </div>
+        
+        <div class="pain-conclusion fade-in" style="margin-top: 3rem;">
+          <strong>Se você procura um atalho mágico, este não é o lugar.</strong>
+          Se você procura lógica, contexto e estrutura, você está no lugar certo.
+        </div>
+      </div>
     </section>
 
     <!-- Differentiation Section -->
-    <section class="diff-section">
-        <div class="container">
-            <h2 class="section-title fade-in">Por que o Atlas Levels é diferente</h2>
-            
-            <div class="diff-content">
-                <div class="diff-list">
-                    <div class="diff-item fade-in">
-                        <div class="diff-icon">❌</div>
-                        <div class="diff-text">Não tenta adivinhar o futuro</div>
-                    </div>
-                    <div class="diff-item fade-in">
-                        <div class="diff-icon">❌</div>
-                        <div class="diff-text">Não depende de padrões subjetivos</div>
-                    </div>
-                    <div class="diff-item fade-in">
-                        <div class="diff-icon">❌</div>
-                        <div class="diff-text">Não reage ao preço depois que o movimento já aconteceu</div>
-                    </div>
-                </div>
-                
-                <div class="diff-value fade-in">
-                    ✅ Mostra onde o mercado importa, antes da maioria chegar.
-                </div>
+    <section class="diff-section content-section">
+      <div class="container">
+        <h2 class="section-title fade-in">Por que o Atlas Levels é diferente</h2>
+        
+        <div class="diff-content">
+          <div class="diff-list">
+            <div class="diff-item fade-in">
+              <div class="diff-icon">❌</div>
+              <div class="diff-text">Não tenta adivinhar o futuro</div>
             </div>
+            <div class="diff-item fade-in">
+              <div class="diff-icon">❌</div>
+              <div class="diff-text">Não depende de padrões subjetivos</div>
+            </div>
+            <div class="diff-item fade-in">
+              <div class="diff-icon">❌</div>
+              <div class="diff-text">Não reage ao preço depois que o movimento já aconteceu</div>
+            </div>
+          </div>
+          
+          <div class="diff-value fade-in">
+            ✅ Mostra onde o mercado importa, antes da maioria chegar.
+          </div>
         </div>
+      </div>
     </section>
 
     <!-- Pricing Section -->
-    <section id="planos" class="pricing-section">
-        <div class="container">
-            <h2 class="section-title fade-in">Escolha o plano que melhor se adequa ao seu estilo de trading</h2>
-            
-            <div class="pricing-grid">
-                <!-- Plan 1: Brasil -->
-                <div class="pricing-card fade-in">
-                    <div class="plan-name">Brasil</div>
-                    <div class="plan-description">Perfeito para traders focados no mercado brasileiro</div>
-                    <div class="plan-price">R$49</div>
-                    <div class="plan-period">/mês</div>
-                    <ul class="plan-features">
-                        <li>WIN + WDO + BIT</li>
-                        <li>Atualização diária</li>
-                        <li>Exportação CSV/JSON</li>
-                        <li>Suporte por email</li>
-                    </ul>
-                    <a href="/app" class="btn btn-primary" style="width: 100%;">Começar Agora</a>
-                </div>
-                
-                <!-- Plan 2: Global (Popular) -->
-                <div class="pricing-card popular fade-in">
-                    <div class="popular-badge">Mais Popular</div>
-                    <div class="plan-name">Global</div>
-                    <div class="plan-description">Para traders que atuam em mercados internacionais</div>
-                    <div class="plan-price">R$89</div>
-                    <div class="plan-period">/mês</div>
-                    <ul class="plan-features">
-                        <li>10 mercados internacionais</li>
-                        <li>Atualização diária</li>
-                        <li>Exportação CSV/JSON</li>
-                        <li>Suporte prioritário</li>
-                        <li>API access</li>
-                    </ul>
-                    <a href="/app" class="btn btn-primary" style="width: 100%;">Começar Agora</a>
-                </div>
-                
-                <!-- Plan 3: Pro -->
-                <div class="pricing-card fade-in">
-                    <div class="plan-name">Pro</div>
-                    <div class="plan-description">Acesso completo a todos os mercados</div>
-                    <div class="plan-price">R$129</div>
-                    <div class="plan-period">/mês</div>
-                    <ul class="plan-features">
-                        <li>Todos os mercados</li>
-                        <li>Atualização em tempo real</li>
-                        <li>Exportação CSV/JSON</li>
-                        <li>Suporte 24/7</li>
-                        <li>API access</li>
-                        <li>Histórico completo</li>
-                    </ul>
-                    <a href="/app" class="btn btn-primary" style="width: 100%;">Começar Agora</a>
-                </div>
-            </div>
+    <section id="planos" class="pricing-section content-section">
+      <div class="container">
+        <h2 class="section-title fade-in">Escolha o plano que melhor se adequa ao seu estilo de trading</h2>
+        
+        <div class="pricing-grid">
+          <!-- Plan 1: Brasil -->
+          <div class="pricing-card fade-in">
+            <div class="plan-name">Brasil</div>
+            <div class="plan-description">Perfeito para traders focados no mercado brasileiro</div>
+            <div class="plan-price">R$49</div>
+            <div class="plan-period">/mês</div>
+            <ul class="plan-features">
+              <li>WIN + WDO + BIT</li>
+              <li>Atualização diária</li>
+              <li>Exportação CSV/JSON</li>
+              <li>Suporte por email</li>
+            </ul>
+            <a href="/app" class="btn btn-primary" style="width: 100%;">Começar Agora</a>
+          </div>
+          
+          <!-- Plan 2: Global (Popular) -->
+          <div class="pricing-card popular fade-in">
+            <div class="popular-badge">Mais Popular</div>
+            <div class="plan-name">Global</div>
+            <div class="plan-description">Para traders que atuam em mercados internacionais</div>
+            <div class="plan-price">R$89</div>
+            <div class="plan-period">/mês</div>
+            <ul class="plan-features">
+              <li>10 mercados internacionais</li>
+              <li>Atualização diária</li>
+              <li>Exportação CSV/JSON</li>
+              <li>Suporte prioritário</li>
+              <li>API access</li>
+            </ul>
+            <a href="/app" class="btn btn-primary" style="width: 100%;">Começar Agora</a>
+          </div>
+          
+          <!-- Plan 3: Pro -->
+          <div class="pricing-card fade-in">
+            <div class="plan-name">Pro</div>
+            <div class="plan-description">Acesso completo a todos os mercados</div>
+            <div class="plan-price">R$129</div>
+            <div class="plan-period">/mês</div>
+            <ul class="plan-features">
+              <li>Todos os mercados</li>
+              <li>Atualização em tempo real</li>
+              <li>Exportação CSV/JSON</li>
+              <li>Suporte 24/7</li>
+              <li>API access</li>
+              <li>Histórico completo</li>
+            </ul>
+            <a href="/app" class="btn btn-primary" style="width: 100%;">Começar Agora</a>
+          </div>
         </div>
+      </div>
     </section>
 
     <!-- FAQ Section -->
-    <section id="faq" class="faq-section">
-        <div class="container">
-            <h2 class="section-title fade-in">Perguntas Frequentes</h2>
-            
-            <div class="faq-container">
-                <div class="faq-item fade-in">
-                    <div class="faq-question">
-                        <span>O Atlas Levels garante lucro?</span>
-                        <span class="faq-icon">+</span>
-                    </div>
-                    <div class="faq-answer">
-                        <div class="faq-answer-content">
-                            <strong>Não.</strong> Nenhuma ferramenta séria pode garantir lucro. O Atlas Levels não promete resultados fáceis, ele oferece estrutura, contexto e assimetria de risco-retorno. O resultado final depende da disciplina, gestão de risco e execução do trader.
-                        </div>
-                    </div>
-                </div>
-
-                <div class="faq-item fade-in">
-                    <div class="faq-question">
-                        <span>Isso funciona em qualquer mercado?</span>
-                        <span class="faq-icon">+</span>
-                    </div>
-                    <div class="faq-answer">
-                        <div class="faq-answer-content">
-                            <strong>Sim.</strong> Os níveis institucionais são baseados em dinâmica de liquidez, oferta e demanda, princípios universais de mercado. O Atlas Levels pode ser utilizado em índices, ações, dólar, juros, criptomoedas e outros ativos líquidos.
-                        </div>
-                    </div>
-                </div>
-
-                <div class="faq-item fade-in">
-                    <div class="faq-question">
-                        <span>Preciso mudar minha estratégia para usar o Atlas Levels?</span>
-                        <span class="faq-icon">+</span>
-                    </div>
-                    <div class="faq-answer">
-                        <div class="faq-answer-content">
-                            <strong>Não necessariamente.</strong> O Atlas Levels pode ser usado como base estrutural, filtro de contexto ou ponto de decisão para estratégias já existentes. Ele complementa setups técnicos, não concorre com eles.
-                        </div>
-                    </div>
-                </div>
-
-                <div class="faq-item fade-in">
-                    <div class="faq-question">
-                        <span>Os níveis são sinais de compra e venda?</span>
-                        <span class="faq-icon">+</span>
-                    </div>
-                    <div class="faq-answer">
-                        <div class="faq-answer-content">
-                            <strong>Não.</strong> O Atlas Levels não gera sinais automáticos. Ele mostra onde o mercado tende a decidir. A decisão de entrada, saída e gerenciamento continua sendo do trader.
-                        </div>
-                    </div>
-                </div>
-
-                <div class="faq-item fade-in">
-                    <div class="faq-question">
-                        <span>Isso é Smart Money, ICT ou Wyckoff?</span>
-                        <span class="faq-icon">+</span>
-                    </div>
-                    <div class="faq-answer">
-                        <div class="faq-answer-content">
-                            O Atlas Levels não é um método fechado nem uma releitura de conceitos da moda. Ele se apoia em fundamentos objetivos de liquidez e comportamento institucional, podendo dialogar com diversas abordagens, mas sem depender de narrativas subjetivas.
-                        </div>
-                    </div>
-                </div>
-
-                <div class="faq-item fade-in">
-                    <div class="faq-question">
-                        <span>É indicado para traders iniciantes?</span>
-                        <span class="faq-icon">+</span>
-                    </div>
-                    <div class="faq-answer">
-                        <div class="faq-answer-content">
-                            <strong>Sim</strong>, desde que o iniciante entenda que o Atlas Levels não é um atalho. Ele ajuda a construir leitura de mercado desde cedo, evitando vícios comuns como overtrading e entradas sem contexto.
-                        </div>
-                    </div>
-                </div>
-
-                <div class="faq-item fade-in">
-                    <div class="faq-question">
-                        <span>Funciona em day trade, swing trade e position?</span>
-                        <span class="faq-icon">+</span>
-                    </div>
-                    <div class="faq-answer">
-                        <div class="faq-answer-content">
-                            <strong>Sim.</strong> Os níveis institucionais se adaptam a diferentes horizontes de tempo. O Atlas Levels pode ser utilizado tanto em operações intradiárias quanto em operações de médio e longo prazo.
-                        </div>
-                    </div>
-                </div>
-
-                <div class="faq-item fade-in">
-                    <div class="faq-question">
-                        <span>Os níveis mudam com frequência?</span>
-                        <span class="faq-icon">+</span>
-                    </div>
-                    <div class="faq-answer">
-                        <div class="faq-answer-content">
-                            Os níveis evoluem conforme o mercado evolui. Alguns são defendidos por longos períodos, outros perdem relevância com o tempo. O Atlas Levels destaca o que é estrutural e o que deixou de ser relevante.
-                        </div>
-                    </div>
-                </div>
-
-                <div class="faq-item fade-in">
-                    <div class="faq-question">
-                        <span>Preciso operar exatamente nos níveis?</span>
-                        <span class="faq-icon">+</span>
-                    </div>
-                    <div class="faq-answer">
-                        <div class="faq-answer-content">
-                            <strong>Não.</strong> Os níveis funcionam como zonas de decisão, não como linhas mágicas. Eles oferecem contexto para leitura de rejeição, aceitação ou rompimento.
-                        </div>
-                    </div>
-                </div>
-
-                <div class="faq-item fade-in">
-                    <div class="faq-question">
-                        <span>Isso substitui gerenciamento de risco?</span>
-                        <span class="faq-icon">+</span>
-                    </div>
-                    <div class="faq-answer">
-                        <div class="faq-answer-content">
-                            <strong>Não.</strong> Gerenciamento de risco é indispensável. O Atlas Levels melhora a localização da entrada, mas o controle de risco continua sendo responsabilidade do trader.
-                        </div>
-                    </div>
-                </div>
-
-                <div class="faq-item fade-in">
-                    <div class="faq-question">
-                        <span>Por que isso é melhor do que indicadores tradicionais?</span>
-                        <span class="faq-icon">+</span>
-                    </div>
-                    <div class="faq-answer">
-                        <div class="faq-answer-content">
-                            Indicadores tradicionais <strong>reagem ao preço</strong>. O Atlas Levels <strong>antecipa contexto</strong>. Ele não mostra o que já aconteceu, mostra onde o mercado tende a agir.
-                        </div>
-                    </div>
-                </div>
-
-                <div class="faq-item fade-in">
-                    <div class="faq-question">
-                        <span>Em quanto tempo verei resultados?</span>
-                        <span class="faq-icon">+</span>
-                    </div>
-                    <div class="faq-answer">
-                        <div class="faq-answer-content">
-                            O aprendizado é progressivo. Alguns traders percebem melhora imediata na clareza e na qualidade das operações. Consistência vem com prática, disciplina e processo.
-                        </div>
-                    </div>
-                </div>
-
-                <div class="faq-item fade-in">
-                    <div class="faq-question">
-                        <span>O Atlas Levels é para mim?</span>
-                        <span class="faq-icon">+</span>
-                    </div>
-                    <div class="faq-answer">
-                        <div class="faq-answer-content">
-                            Se você busca previsões, promessas ou sinais milagrosos, <strong>não</strong>.<br>
-                            Se você busca estrutura, leitura institucional e decisões mais conscientes, <strong>sim</strong>.
-                        </div>
-                    </div>
-                </div>
+    <section id="faq" class="faq-section content-section">
+      <div class="container">
+        <h2 class="section-title fade-in">Perguntas Frequentes</h2>
+        
+        <div class="faq-container">
+          <div class="faq-item fade-in">
+            <div class="faq-question">
+              <span>O Atlas Levels garante lucro?</span>
+              <span class="faq-icon">+</span>
             </div>
+            <div class="faq-answer">
+              <div class="faq-answer-content">
+                <strong>Não.</strong> Nenhuma ferramenta séria pode garantir lucro. O Atlas Levels não promete resultados fáceis, ele oferece estrutura, contexto e assimetria de risco-retorno. O resultado final depende da disciplina, gestão de risco e execução do trader.
+              </div>
+            </div>
+          </div>
+
+          <div class="faq-item fade-in">
+            <div class="faq-question">
+              <span>Isso funciona em qualquer mercado?</span>
+              <span class="faq-icon">+</span>
+            </div>
+            <div class="faq-answer">
+              <div class="faq-answer-content">
+                <strong>Sim.</strong> Os níveis institucionais são baseados em dinâmica de liquidez, oferta e demanda, princípios universais de mercado. O Atlas Levels pode ser utilizado em índices, ações, dólar, juros, criptomoedas e outros ativos líquidos.
+              </div>
+            </div>
+          </div>
+
+          <div class="faq-item fade-in">
+            <div class="faq-question">
+              <span>Preciso mudar minha estratégia para usar o Atlas Levels?</span>
+              <span class="faq-icon">+</span>
+            </div>
+            <div class="faq-answer">
+              <div class="faq-answer-content">
+                <strong>Não necessariamente.</strong> O Atlas Levels pode ser usado como base estrutural, filtro de contexto ou ponto de decisão para estratégias já existentes. Ele complementa setups técnicos, não concorre com eles.
+              </div>
+            </div>
+          </div>
+
+          <div class="faq-item fade-in">
+            <div class="faq-question">
+              <span>Os níveis são sinais de compra e venda?</span>
+              <span class="faq-icon">+</span>
+            </div>
+            <div class="faq-answer">
+              <div class="faq-answer-content">
+                <strong>Não.</strong> O Atlas Levels não gera sinais automáticos. Ele mostra onde o mercado tende a decidir. A decisão de entrada, saída e gerenciamento continua sendo do trader.
+              </div>
+            </div>
+          </div>
+
+          <div class="faq-item fade-in">
+            <div class="faq-question">
+              <span>Isso é Smart Money, ICT ou Wyckoff?</span>
+              <span class="faq-icon">+</span>
+            </div>
+            <div class="faq-answer">
+              <div class="faq-answer-content">
+                O Atlas Levels não é um método fechado nem uma releitura de conceitos da moda. Ele se apoia em fundamentos objetivos de liquidez e comportamento institucional, podendo dialogar com diversas abordagens, mas sem depender de narrativas subjetivas.
+              </div>
+            </div>
+          </div>
+
+          <div class="faq-item fade-in">
+            <div class="faq-question">
+              <span>É indicado para traders iniciantes?</span>
+              <span class="faq-icon">+</span>
+            </div>
+            <div class="faq-answer">
+              <div class="faq-answer-content">
+                <strong>Sim</strong>, desde que o iniciante entenda que o Atlas Levels não é um atalho. Ele ajuda a construir leitura de mercado desde cedo, evitando vícios comuns como overtrading e entradas sem contexto.
+              </div>
+            </div>
+          </div>
+
+          <div class="faq-item fade-in">
+            <div class="faq-question">
+              <span>Funciona em day trade, swing trade e position?</span>
+              <span class="faq-icon">+</span>
+            </div>
+            <div class="faq-answer">
+              <div class="faq-answer-content">
+                <strong>Sim.</strong> Os níveis institucionais se adaptam a diferentes horizontes de tempo. O Atlas Levels pode ser utilizado tanto em operações intradiárias quanto em operações de médio e longo prazo.
+              </div>
+            </div>
+          </div>
+
+          <div class="faq-item fade-in">
+            <div class="faq-question">
+              <span>Os níveis mudam com frequência?</span>
+              <span class="faq-icon">+</span>
+            </div>
+            <div class="faq-answer">
+              <div class="faq-answer-content">
+                Os níveis evoluem conforme o mercado evolui. Alguns são defendidos por longos períodos, outros perdem relevância com o tempo. O Atlas Levels destaca o que é estrutural e o que deixou de ser relevante.
+              </div>
+            </div>
+          </div>
+
+          <div class="faq-item fade-in">
+            <div class="faq-question">
+              <span>Preciso operar exatamente nos níveis?</span>
+              <span class="faq-icon">+</span>
+            </div>
+            <div class="faq-answer">
+              <div class="faq-answer-content">
+                <strong>Não.</strong> Os níveis funcionam como zonas de decisão, não como linhas mágicas. Eles oferecem contexto para leitura de rejeição, aceitação ou rompimento.
+              </div>
+            </div>
+          </div>
+
+          <div class="faq-item fade-in">
+            <div class="faq-question">
+              <span>Isso substitui gerenciamento de risco?</span>
+              <span class="faq-icon">+</span>
+            </div>
+            <div class="faq-answer">
+              <div class="faq-answer-content">
+                <strong>Não.</strong> Gerenciamento de risco é indispensável. O Atlas Levels melhora a localização da entrada, mas o controle de risco continua sendo responsabilidade do trader.
+              </div>
+            </div>
+          </div>
+
+          <div class="faq-item fade-in">
+            <div class="faq-question">
+              <span>Por que isso é melhor do que indicadores tradicionais?</span>
+              <span class="faq-icon">+</span>
+            </div>
+            <div class="faq-answer">
+              <div class="faq-answer-content">
+                Indicadores tradicionais <strong>reagem ao preço</strong>. O Atlas Levels <strong>antecipa contexto</strong>. Ele não mostra o que já aconteceu, mostra onde o mercado tende a agir.
+              </div>
+            </div>
+          </div>
+
+          <div class="faq-item fade-in">
+            <div class="faq-question">
+              <span>Em quanto tempo verei resultados?</span>
+              <span class="faq-icon">+</span>
+            </div>
+            <div class="faq-answer">
+              <div class="faq-answer-content">
+                O aprendizado é progressivo. Alguns traders percebem melhora imediata na clareza e na qualidade das operações. Consistência vem com prática, disciplina e processo.
+              </div>
+            </div>
+          </div>
+
+          <div class="faq-item fade-in">
+            <div class="faq-question">
+              <span>O Atlas Levels é para mim?</span>
+              <span class="faq-icon">+</span>
+            </div>
+            <div class="faq-answer">
+              <div class="faq-answer-content">
+                Se você busca previsões, promessas ou sinais milagrosos, <strong>não</strong>.<br>
+                Se você busca estrutura, leitura institucional e decisões mais conscientes, <strong>sim</strong>.
+              </div>
+            </div>
+          </div>
         </div>
+      </div>
     </section>
 
     <!-- CTA Final Section -->
-    <section class="cta-final-section">
-        <div class="container">
-            <div class="cta-final-content fade-in">
-                <h2 class="section-title">Comece a operar com mais clareza</h2>
-                <p>O Atlas Levels foi criado para quem cansou de operar no escuro e decidiu entender o jogo como ele realmente é jogado.</p>
-                <p>Se você quer parar de ser levado pelo mercado e começar a se posicionar com inteligência, esse é o próximo passo.</p>
-                <a href="/app" class="btn btn-primary cta-final-btn">Acessar Plataforma Agora</a>
-                <p class="cta-secondary-text">Descubra onde os grandes players atuam e opere com mais lógica, controle e assimetria.</p>
-            </div>
+    <section class="cta-final-section content-section">
+      <div class="container">
+        <div class="cta-final-content fade-in">
+          <h2 class="section-title">Comece a operar com mais clareza</h2>
+          <p>O Atlas Levels foi criado para quem cansou de operar no escuro e decidiu entender o jogo como ele realmente é jogado.</p>
+          <p>Se você quer parar de ser levado pelo mercado e começar a se posicionar com inteligência, esse é o próximo passo.</p>
+          <a href="/app" class="btn btn-primary cta-final-btn">Acessar Plataforma Agora</a>
+          <p class="cta-secondary-text">Descubra onde os grandes players atuam e opere com mais lógica, controle e assimetria.</p>
         </div>
+      </div>
     </section>
 
-    <!-- Video Section -->
-    <section class="video-section">
-        <div class="container">
-            <h2 class="section-title fade-in">Veja o Atlas Levels em Ação</h2>
-            <p class="section-subtitle fade-in">Atlas Levels Demo</p>
-            
-            <div class="video-container fade-in">
-                <video controls>
-                    <source src="/static/demo-video.mp4" type="video/mp4">
-                    Seu navegador não suporta vídeos.
-                </video>
-            </div>
-        </div>
-    </section>
+    <!-- Vídeo de Apresentação -->
+    <style>
+      .video-presentation-section {
+        width: 100%;
+        max-width: 1200px;
+        margin: 4rem auto;
+        padding: 0 1.5rem;
+      }
+      .video-presentation-container {
+        position: relative;
+        width: 100%;
+        padding-bottom: 56.25%; /* 16:9 aspect ratio */
+        background: #0F172A;
+        border-radius: 16px;
+        overflow: hidden;
+        box-shadow: 0 20px 60px rgba(16, 185, 129, 0.15);
+      }
+      .video-presentation-container video {
+        position: absolute;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        object-fit: contain;
+      }
+      .video-presentation-title {
+        text-align: center;
+        font-size: 2rem;
+        font-weight: 700;
+        color: #fff;
+        margin-bottom: 2rem;
+      }
+      .video-presentation-title span {
+        background: linear-gradient(135deg, #10b981 0%, #3b82f6 100%);
+        -webkit-background-clip: text;
+        -webkit-text-fill-color: transparent;
+        background-clip: text;
+      }
+      @media (max-width: 768px) {
+        .video-presentation-title {
+          font-size: 1.5rem;
+        }
+        .video-presentation-section {
+          margin: 2rem auto;
+        }
+      }
+    </style>
+    <div class="video-presentation-section" id="video-demo">
+      <h2 class="video-presentation-title">
+        Veja o <span>Atlas Levels</span> em Ação
+      </h2>
+      <div class="video-presentation-container">
+        <video 
+          controls 
+          preload="metadata"
+          poster="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='1200' height='675'%3E%3Crect fill='%230F172A' width='1200' height='675'/%3E%3Ctext fill='%2310b981' font-family='sans-serif' font-size='48' font-weight='bold' x='50%25' y='50%25' text-anchor='middle' dominant-baseline='middle'%3EAtlas Levels Demo%3C/text%3E%3C/svg%3E"
+        >
+          <source src="/static/atlas-levels-demo.mp4" type="video/mp4">
+          Seu navegador não suporta a reprodução de vídeos.
+        </video>
+      </div>
+    </div>
 
     <!-- Footer -->
     <footer>
-        <div class="container">
-            <div class="footer-content">
-                <div class="footer-section">
-                    <h3>Atlas Levels</h3>
-                    <p style="color: var(--text-secondary); margin-top: 1rem;">
-                        Níveis institucionais de negociação baseados em liquidez real.
-                    </p>
-                    <div class="social-links">
-                        <a href="#" aria-label="Twitter">
-                            <svg width="20" height="20" fill="currentColor" viewBox="0 0 24 24">
-                                <path d="M23 3a10.9 10.9 0 01-3.14 1.53 4.48 4.48 0 00-7.86 3v1A10.66 10.66 0 013 4s-4 9 5 13a11.64 11.64 0 01-7 2c9 5 20 0 20-11.5a4.5 4.5 0 00-.08-.83A7.72 7.72 0 0023 3z"/>
-                            </svg>
-                        </a>
-                        <a href="#" aria-label="LinkedIn">
-                            <svg width="20" height="20" fill="currentColor" viewBox="0 0 24 24">
-                                <path d="M16 8a6 6 0 016 6v7h-4v-7a2 2 0 00-2-2 2 2 0 00-2 2v7h-4v-7a6 6 0 016-6zM2 9h4v12H2z"/>
-                                <circle cx="4" cy="4" r="2"/>
-                            </svg>
-                        </a>
-                    </div>
-                </div>
-                
-                <div class="footer-section">
-                    <h3>Plataforma</h3>
-                    <ul>
-                        <li><a href="/app">Acessar Plataforma</a></li>
-                        <li><a href="/login">Login</a></li>
-                        <li><a href="#planos">Planos e Preços</a></li>
-                        <li><a href="#mercados">Mercados</a></li>
-                    </ul>
-                </div>
-                
-                <div class="footer-section">
-                    <h3>Suporte</h3>
-                    <ul>
-                        <li><a href="#faq">FAQ</a></li>
-                        <li><a href="mailto:contato@atlas-levels-pro.com.br">Contato</a></li>
-                        <li><a href="#">Documentação</a></li>
-                        <li><a href="#">Status</a></li>
-                    </ul>
-                </div>
-                
-                <div class="footer-section">
-                    <h3>Legal</h3>
-                    <ul>
-                        <li><a href="#">Termos de Uso</a></li>
-                        <li><a href="#">Política de Privacidade</a></li>
-                        <li><a href="#">Disclaimer</a></li>
-                    </ul>
-                </div>
+      <div class="container">
+        <div class="footer-content">
+          <div class="footer-section">
+            <h3>Atlas Levels</h3>
+            <p style="color: var(--text-secondary); margin-top: 1rem;">
+              Níveis institucionais de negociação baseados em liquidez real.
+            </p>
+            <div class="social-links">
+              <a href="#" aria-label="Twitter">
+                <svg width="20" height="20" fill="currentColor" viewBox="0 0 24 24">
+                  <path d="M23 3a10.9 10.9 0 01-3.14 1.53 4.48 4.48 0 00-7.86 3v1A10.66 10.66 0 013 4s-4 9 5 13a11.64 11.64 0 01-7 2c9 5 20 0 20-11.5a4.5 4.5 0 00-.08-.83A7.72 7.72 0 0023 3z"/>
+                </svg>
+              </a>
+              <a href="#" aria-label="LinkedIn">
+                <svg width="20" height="20" fill="currentColor" viewBox="0 0 24 24">
+                  <path d="M16 8a6 6 0 016 6v7h-4v-7a2 2 0 00-2-2 2 2 0 00-2 2v7h-4v-7a6 6 0 016-6zM2 9h4v12H2z"/>
+                  <circle cx="4" cy="4" r="2"/>
+                </svg>
+              </a>
             </div>
-            
-            <div class="footer-bottom">
-                <p><strong>Disclaimer:</strong> Atlas Levels é uma ferramenta educacional. Não constitui recomendação de investimento.</p>
-                <p style="margin-top: 1rem;">© 2026 Atlas Levels. Todos os direitos reservados.</p>
-            </div>
+          </div>
+          
+          <div class="footer-section">
+            <h3>Plataforma</h3>
+            <ul>
+              <li><a href="/app">Acessar Plataforma</a></li>
+              <li><a href="/login">Login</a></li>
+              <li><a href="#planos">Planos e Preços</a></li>
+              <li><a href="#mercados">Mercados</a></li>
+            </ul>
+          </div>
+          
+          <div class="footer-section">
+            <h3>Suporte</h3>
+            <ul>
+              <li><a href="#faq">FAQ</a></li>
+              <li><a href="mailto:contato@atlas-levels-pro.com.br">Contato</a></li>
+              <li><a href="#">Documentação</a></li>
+              <li><a href="#">Status</a></li>
+            </ul>
+          </div>
+          
+          <div class="footer-section">
+            <h3>Legal</h3>
+            <ul>
+              <li><a href="#">Termos de Uso</a></li>
+              <li><a href="#">Política de Privacidade</a></li>
+              <li><a href="#">Disclaimer</a></li>
+            </ul>
+          </div>
         </div>
+        
+        <div class="footer-bottom">
+          <p><strong>Disclaimer:</strong> Atlas Levels é uma ferramenta educacional. Não constitui recomendação de investimento.</p>
+          <p style="margin-top: 1rem;">© 2026 Atlas Levels. Todos os direitos reservados.</p>
+        </div>
+      </div>
     </footer>
 
     <!-- JavaScript -->
     <script>
-        // FAQ Accordion
-        document.querySelectorAll('.faq-question').forEach(question => {
-            question.addEventListener('click', () => {
-                const item = question.parentElement;
-                const isActive = item.classList.contains('active');
-                
-                // Close all items
-                document.querySelectorAll('.faq-item').forEach(i => i.classList.remove('active'));
-                
-                // Open clicked item if it wasn't active
-                if (!isActive) {
-                    item.classList.add('active');
-                }
-            });
+      // FAQ Accordion
+      document.querySelectorAll('.faq-question').forEach(question => {
+        question.addEventListener('click', () => {
+          const item = question.parentElement;
+          const isActive = item.classList.contains('active');
+          
+          // Close all items
+          document.querySelectorAll('.faq-item').forEach(i => i.classList.remove('active'));
+          
+          // Open clicked item if it wasn't active
+          if (!isActive) {
+            item.classList.add('active');
+          }
         });
+      });
 
-        // Fade In on Scroll
-        const observerOptions = {
-            threshold: 0.1,
-            rootMargin: '0px 0px -50px 0px'
-        };
+      // Fade In on Scroll
+      const observerOptions = {
+        threshold: 0.1,
+        rootMargin: '0px 0px -50px 0px'
+      };
 
-        const observer = new IntersectionObserver((entries) => {
-            entries.forEach(entry => {
-                if (entry.isIntersecting) {
-                    entry.target.classList.add('visible');
-                }
-            });
-        }, observerOptions);
-
-        document.querySelectorAll('.fade-in').forEach(el => observer.observe(el));
-
-        // Smooth scroll for anchor links
-        document.querySelectorAll('a[href^="#"]').forEach(anchor => {
-            anchor.addEventListener('click', function (e) {
-                e.preventDefault();
-                const target = document.querySelector(this.getAttribute('href'));
-                if (target) {
-                    target.scrollIntoView({
-                        behavior: 'smooth',
-                        block: 'start'
-                    });
-                }
-            });
+      const observer = new IntersectionObserver((entries) => {
+        entries.forEach(entry => {
+          if (entry.isIntersecting) {
+            entry.target.classList.add('visible');
+          }
         });
+      }, observerOptions);
+
+      document.querySelectorAll('.fade-in').forEach(el => observer.observe(el));
+
+      // Smooth scroll for anchor links
+      document.querySelectorAll('a[href^="#"]').forEach(anchor => {
+        anchor.addEventListener('click', function (e) {
+          e.preventDefault();
+          const target = document.querySelector(this.getAttribute('href'));
+          if (target) {
+            target.scrollIntoView({
+              behavior: 'smooth',
+              block: 'start'
+            });
+          }
+        });
+      });
     </script>
-</body>
+  </body>
+
 </html>
