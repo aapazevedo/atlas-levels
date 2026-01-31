@@ -90,6 +90,17 @@
         text-align: center !important;
       }
 
+      /* Centralizar texto descritivo do hero */
+      #root section:first-child p,
+      #root section:first-child > div > p,
+      #root section:first-child > div > div > p,
+      #root > div > section:first-child p {
+        text-align: center !important;
+        margin-left: auto !important;
+        margin-right: auto !important;
+        max-width: 800px !important;
+      }
+
       /* Ajustar badge "Mais Popular" */
       #root [class*="badge"],
       #root [class*="popular"] {
