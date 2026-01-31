@@ -69,6 +69,35 @@
       #root div[class*="card"] {
         padding: 1.5rem !important;
       }
+
+      /* REMOVER OVERLAY SCROLL - SELETORES ADICIONAIS */
+      #root > div,
+      #root > div > div {
+        position: relative !important;
+      }
+
+      #root > div > div > div:last-child,
+      #root section:first-child > div:last-child,
+      #root section > div:last-child {
+        display: none !important;
+      }
+
+      /* Centralizar títulos das seções do React */
+      #root section h2,
+      #root section h3,
+      #root section > div > h2,
+      #root section > div > h3 {
+        text-align: center !important;
+      }
+
+      /* Ajustar badge "Mais Popular" */
+      #root [class*="badge"],
+      #root [class*="popular"] {
+        position: absolute !important;
+        top: -12px !important;
+        right: 20px !important;
+        z-index: 10 !important;
+      }
       
       /* Estilos para as novas seções */
       * {
