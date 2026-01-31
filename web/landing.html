@@ -150,6 +150,25 @@
       #root [class*="footer"] {
         display: none !important;
       }
+
+      /* Corrigir layout do footer HTML - grid de 4 colunas */
+      footer .footer-content {
+        display: grid !important;
+        grid-template-columns: repeat(4, 1fr) !important;
+        gap: 2rem !important;
+      }
+
+      footer .footer-section {
+        flex: none !important;
+      }
+
+      /* Restaurar botão Login no header do React */
+      #root header a[href*="login"],
+      #root header button:contains("Login") {
+        display: inline-block !important;
+        visibility: visible !important;
+        opacity: 1 !important;
+      }
       
       /* Estilos para as novas seções */
       * {
