@@ -25,12 +25,30 @@
       }
 
       /* SOBRESCREVER ESTILOS DO REACT */
+      /* Remover espaço preto no topo da página */
+      #root {
+        margin-top: 0 !important;
+        padding-top: 0 !important;
+      }
+
+      #root > div,
+      #root > div:first-child,
+      #root section:first-child {
+        margin-top: 0 !important;
+        padding-top: 0 !important;
+      }
+
       /* Forçar espaçamento reduzido nas seções do React */
       #root section,
       #root > section,
       div[class*="section"] {
         padding: 4rem 0 !important;
         margin-bottom: 2rem !important;
+      }
+
+      /* Primeira seção sem padding-top */
+      #root section:first-child {
+        padding-top: 0 !important;
       }
 
       /* Remover overlay "Scroll para explorar" */
