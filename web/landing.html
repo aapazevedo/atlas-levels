@@ -24,15 +24,34 @@
         object-fit: cover !important;
       }
 
-      /* Espaçamento entre seções do React */
-      #root > section {
-        padding: 6rem 0 !important;
-        margin-bottom: 0 !important;
+      /* SOBRESCREVER ESTILOS DO REACT */
+      /* Forçar espaçamento reduzido nas seções do React */
+      #root section,
+      #root > section,
+      div[class*="section"] {
+        padding: 4rem 0 !important;
+        margin-bottom: 2rem !important;
       }
 
-      /* Espaçamento específico para seções do React */
-      #root > section:not(:last-child) {
-        margin-bottom: 4rem !important;
+      /* Remover overlay "Scroll para explorar" */
+      div[class*="scroll"],
+      div[class*="overlay"],
+      div[style*="position: absolute"][style*="bottom"],
+      div[style*="position: fixed"][style*="bottom"] {
+        display: none !important;
+        visibility: hidden !important;
+        opacity: 0 !important;
+      }
+
+      /* Ajustar espaçamento de cards e grades do React */
+      #root div[class*="grid"],
+      #root div[class*="cards"] {
+        gap: 1rem !important;
+      }
+
+      /* Ajustar padding de cards do React */
+      #root div[class*="card"] {
+        padding: 1.5rem !important;
       }
       
       /* Estilos para as novas seções */
