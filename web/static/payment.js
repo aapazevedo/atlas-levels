@@ -147,6 +147,7 @@ async function processPayment() {
 
 // Verificar status do pagamento periodicamente
 let statusCheckInterval = null;
+let pollingStartTime = null;
 
 function startPaymentStatusCheck(paymentId) {
   // Limpar intervalo anterior se existir
@@ -154,8 +155,24 @@ function startPaymentStatusCheck(paymentId) {
     clearInterval(statusCheckInterval);
   }
 
+  // Registrar tempo de início do polling
+  pollingStartTime = Date.now();
+  const TIMEOUT = 10 * 60 * 1000; // 10 minutos
+
   // Verificar a cada 5 segundos
   statusCheckInterval = setInterval(async () => {
+    // SEGURANÇA: Verificar timeout
+    if (Date.now() - pollingStartTime > TIMEOUT) {
+      clearInterval(statusCheckInterval);
+      
+      document.getElementById('paymentStatus').textContent = 
+        '⏱️ Tempo esgotado. Verifique o status do pagamento na sua conta.';
+      document.getElementById('paymentStatus').className = 'status error';
+      
+      // Desabilitar botão de confirmar
+      document.getElementById('confirmPaymentBtn').disabled = true;
+      return;
+    }
     try {
       const response = await fetch(`/api/payment/status/${paymentId}`, {
         headers: { 'Authorization': `Bearer ${token}` }

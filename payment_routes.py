@@ -2,6 +2,9 @@
 Rotas de pagamento com Mercado Pago
 """
 from fastapi import APIRouter, HTTPException, Depends, Request
+import hmac
+import hashlib
+import os
 from pydantic import BaseModel
 from typing import Optional
 from datetime import datetime, timedelta
@@ -159,6 +162,41 @@ async def payment_webhook(request: Request, db: SessionLocal = Depends(get_db)):
         body = await request.json()
         logger.info(f"Webhook recebido: {body}")
         
+        # SEGURANÇA: Validar assinatura do webhook
+        x_signature = request.headers.get("x-signature")
+        x_request_id = request.headers.get("x-request-id")
+        
+        if x_signature and x_request_id:
+            # Extrair timestamp e hash da assinatura
+            # Formato: "ts=1234567890,v1=abc123..."
+            parts = dict(item.split("=") for item in x_signature.split(","))
+            ts = parts.get("ts")
+            hash_received = parts.get("v1")
+            
+            # Obter secret do webhook (deve ser configurado como variável de ambiente)
+            webhook_secret = os.getenv("MP_WEBHOOK_SECRET", "")
+            
+            if webhook_secret and ts and hash_received:
+                # Construir template de validação
+                data_id = body.get("data", {}).get("id", "")
+                template = f"id:{data_id};request-id:{x_request_id};ts:{ts};"
+                
+                # Calcular HMAC-SHA256
+                hash_calculated = hmac.new(
+                    webhook_secret.encode(),
+                    template.encode(),
+                    hashlib.sha256
+                ).hexdigest()
+                
+                # Comparar assinaturas
+                if hash_calculated != hash_received:
+                    logger.warning(f"Assinatura do webhook inválida! Possível tentativa de fraude.")
+                    return {"status": "error", "message": "Invalid signature"}
+                
+                logger.info("✅ Assinatura do webhook validada com sucesso")
+            else:
+                logger.warning("⚠️ Webhook secret não configurado - pulando validação")
+        
         # Verificar tipo de notificação
         if body.get("type") == "payment":
             payment_id = body.get("data", {}).get("id")
@@ -185,18 +223,27 @@ async def payment_webhook(request: Request, db: SessionLocal = Depends(get_db)):
                         
                         # Se pagamento aprovado, atualizar plano do usuário
                         if payment_data.get("status") == "approved":
+                            # SEGURANÇA: Validar valor pago
+                            expected_amount = mercadopago_config.PLANS.get(plan, {}).get("price", 0)
+                            actual_amount = payment_data.get("transaction_amount", 0)
+                            
+                            if abs(expected_amount - actual_amount) > 0.01:
+                                logger.error(f"🚨 FRAUDE DETECTADA: Valor divergente! Esperado: R$ {expected_amount}, Recebido: R$ {actual_amount}")
+                                payment.status = "fraud_detected"
+                                db.commit()
+                                return {"status": "error", "message": "Amount mismatch"}
+                            
                             user = db.query(User).filter(User.id == int(user_id)).first()
                             if user:
                                 user.plan = plan
-                                logger.info(f"Plano do usuário {user.email} atualizado para {plan}")
+                                logger.info(f"✅ Plano do usuário {user.email} atualizado para {plan}. Valor: R$ {actual_amount}")
                                 
                                 # Enviar email de confirmação
                                 try:
-                                    plan_prices = {"brasil": 97.0, "global": 147.0, "pro": 197.0}
                                     send_payment_confirmation_email(
                                         to_email=user.email,
                                         plan_name=plan,
-                                        plan_price=plan_prices.get(plan, payment.amount),
+                                        plan_price=actual_amount,
                                         payment_method=payment_data.get("payment_type_id", "pix"),
                                         transaction_id=str(payment_id)
                                     )
