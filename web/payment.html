@@ -1,261 +1,820 @@
 <!DOCTYPE html>
-<html lang="pt-br">
+<html lang="pt-BR">
 <head>
-  <meta charset="utf-8"/>
-  <meta name="viewport" content="width=device-width,initial-scale=1"/>
-  <title>Assinar Plano - Atlas Levels</title>
-  <link rel="stylesheet" href="/static/app.css">
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Assinar Plano — Atlas Levels</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Sora:wght@300;400;500;600;700&family=IBM+Plex+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+  <link rel="icon" type="image/png" href="/static/atlas-logo.png">
   <style>
+    *, *::before, *::after { margin:0; padding:0; box-sizing:border-box; }
+
+    :root {
+      --green:        #10b981;
+      --green-dark:   #059669;
+      --green-dim:    rgba(16,185,129,.12);
+      --green-border: rgba(16,185,129,.3);
+      --bg:           #020617;
+      --surface:      #0f172a;
+      --surface-2:    #1e293b;
+      --subtle:       #334155;
+      --text:         #f1f5f9;
+      --muted:        #64748b;
+      --accent:       #3b82f6;
+      --error:        #f87171;
+      --error-bg:     rgba(248,113,113,.08);
+    }
+
+    html { scroll-behavior: smooth; }
+
+    body {
+      font-family: 'Sora', sans-serif;
+      background: var(--bg);
+      color: var(--text);
+      min-height: 100vh;
+    }
+
+    /* grid texture */
+    body::before {
+      content: '';
+      position: fixed; inset: 0;
+      background-image:
+        linear-gradient(rgba(16,185,129,.025) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(16,185,129,.025) 1px, transparent 1px);
+      background-size: 48px 48px;
+      pointer-events: none; z-index: 0;
+    }
+
+    /* ── Topbar ── */
+    .topbar {
+      position: sticky; top: 0; z-index: 50;
+      background: rgba(2,6,23,.85);
+      backdrop-filter: blur(12px);
+      border-bottom: 1px solid var(--subtle);
+      padding: 0 2rem;
+      height: 60px;
+      display: flex; align-items: center; justify-content: space-between;
+    }
+
+    .brand {
+      display: flex; align-items: center; gap: .75rem;
+    }
+
+    .brand-logo {
+      width: 32px; height: 32px;
+      border-radius: 8px;
+      background: var(--green-dim);
+      border: 1px solid var(--green-border);
+      display: flex; align-items: center; justify-content: center;
+      overflow: hidden;
+    }
+    .brand-logo img { width:100%; height:100%; object-fit:cover; border-radius:8px; }
+    .brand-name { font-size: .95rem; font-weight: 600; }
+    .brand-sep { color: var(--subtle); font-weight: 300; }
+    .brand-page { font-size: .9rem; color: var(--muted); }
+
+    .topbar-right { display: flex; align-items: center; gap: .75rem; }
+
+    .pill {
+      font-family: 'IBM Plex Mono', monospace;
+      font-size: .72rem;
+      padding: .25rem .75rem;
+      border-radius: 20px;
+      background: var(--surface-2);
+      border: 1px solid var(--subtle);
+      color: var(--muted);
+    }
+
+    .btn-ghost {
+      font-family: 'Sora', sans-serif;
+      font-size: .8rem;
+      font-weight: 600;
+      padding: .4rem .9rem;
+      border-radius: 8px;
+      border: 1px solid var(--subtle);
+      background: transparent;
+      color: var(--muted);
+      cursor: pointer;
+      transition: border-color .2s, color .2s;
+      text-decoration: none;
+      display: inline-flex; align-items: center; gap: .4rem;
+    }
+    .btn-ghost:hover { border-color: var(--green-border); color: var(--text); }
+
+    /* ── Main ── */
+    main {
+      position: relative; z-index: 1;
+      max-width: 1100px;
+      margin: 0 auto;
+      padding: 4rem 1.5rem 6rem;
+    }
+
+    .page-header { text-align: center; margin-bottom: 3.5rem; }
+
+    .page-kicker {
+      font-family: 'IBM Plex Mono', monospace;
+      font-size: .72rem;
+      letter-spacing: .12em;
+      text-transform: uppercase;
+      color: var(--green);
+      margin-bottom: .75rem;
+    }
+
+    .page-title {
+      font-size: clamp(1.75rem, 4vw, 2.75rem);
+      font-weight: 700;
+      letter-spacing: -.03em;
+      margin-bottom: .75rem;
+    }
+
+    .page-subtitle {
+      font-size: 1rem;
+      color: var(--muted);
+      max-width: 520px;
+      margin: 0 auto;
+      line-height: 1.6;
+    }
+
+    /* ── Pricing grid ── */
     .pricing-grid {
       display: grid;
       grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
-      gap: 20px;
-      margin: 30px 0;
+      gap: 1.25rem;
     }
-    
+
     .plan-card {
-      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-      border-radius: 12px;
-      padding: 30px;
-      color: white;
+      background: var(--surface);
+      border: 1px solid var(--subtle);
+      border-radius: 16px;
+      padding: 2rem;
       position: relative;
-      transition: transform 0.3s ease;
+      display: flex; flex-direction: column;
+      transition: border-color .25s, transform .25s, box-shadow .25s;
+      cursor: default;
     }
-    
+
     .plan-card:hover {
-      transform: translateY(-5px);
+      border-color: var(--green-border);
+      transform: translateY(-4px);
+      box-shadow: 0 16px 40px rgba(16,185,129,.12);
     }
-    
+
     .plan-card.featured {
-      background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
-      border: 3px solid #ffd700;
+      border-color: var(--green);
+      background: linear-gradient(160deg, rgba(16,185,129,.07) 0%, var(--surface) 60%);
     }
-    
+
+    .popular-badge {
+      position: absolute;
+      top: -13px; left: 50%;
+      transform: translateX(-50%);
+      background: var(--green);
+      color: #020617;
+      font-size: .7rem;
+      font-weight: 700;
+      letter-spacing: .08em;
+      text-transform: uppercase;
+      padding: .3rem .9rem;
+      border-radius: 20px;
+      white-space: nowrap;
+    }
+
+    .plan-flag {
+      font-size: 1.75rem;
+      margin-bottom: .75rem;
+    }
+
     .plan-name {
-      font-size: 24px;
-      font-weight: bold;
-      margin-bottom: 10px;
+      font-size: 1.2rem;
+      font-weight: 700;
+      margin-bottom: .25rem;
     }
-    
+
+    .plan-desc {
+      font-size: .82rem;
+      color: var(--muted);
+      margin-bottom: 1.5rem;
+      line-height: 1.5;
+    }
+
+    .plan-price-wrap { margin-bottom: 1.5rem; }
+
     .plan-price {
-      font-size: 36px;
-      font-weight: bold;
-      margin: 20px 0;
+      font-family: 'IBM Plex Mono', monospace;
+      font-size: 2.5rem;
+      font-weight: 600;
+      color: var(--green);
+      line-height: 1;
     }
-    
-    .plan-price span {
-      font-size: 18px;
-      font-weight: normal;
+
+    .plan-price sup {
+      font-size: 1rem;
+      vertical-align: super;
+      font-weight: 400;
     }
-    
-    .plan-description {
-      font-size: 14px;
-      opacity: 0.9;
-      margin-bottom: 20px;
+
+    .plan-period {
+      font-size: .78rem;
+      color: var(--muted);
+      margin-top: .25rem;
     }
-    
+
+    .plan-divider {
+      height: 1px;
+      background: var(--subtle);
+      margin-bottom: 1.25rem;
+    }
+
     .plan-features {
       list-style: none;
-      padding: 0;
-      margin: 20px 0;
-    }
-    
-    .plan-features li {
-      padding: 8px 0;
-      border-bottom: 1px solid rgba(255,255,255,0.2);
-    }
-    
-    .plan-features li:before {
-      content: "✓ ";
-      font-weight: bold;
-      margin-right: 8px;
-    }
-    
-    .payment-methods {
-      display: flex;
-      gap: 10px;
-      margin: 20px 0;
-    }
-    
-    .payment-method {
       flex: 1;
-      padding: 15px;
-      border: 2px solid #ddd;
-      border-radius: 8px;
+      margin-bottom: 2rem;
+      display: flex; flex-direction: column; gap: .6rem;
+    }
+
+    .plan-features li {
+      display: flex; align-items: flex-start; gap: .6rem;
+      font-size: .875rem;
+      color: var(--muted);
+      line-height: 1.4;
+    }
+
+    .plan-features li::before {
+      content: '';
+      flex-shrink: 0;
+      width: 16px; height: 16px;
+      background: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16' fill='none'%3E%3Ccircle cx='8' cy='8' r='7.5' stroke='%2310b981' stroke-opacity='.3'/%3E%3Cpath d='M5 8l2 2 4-4' stroke='%2310b981' stroke-width='1.5' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E") center/contain no-repeat;
+      margin-top: 1px;
+    }
+
+    .btn-plan {
+      width: 100%;
+      padding: .85rem;
+      border-radius: 10px;
+      font-family: 'Sora', sans-serif;
+      font-size: .9rem;
+      font-weight: 700;
+      cursor: pointer;
+      transition: all .2s;
+      border: none;
+    }
+
+    .btn-plan-outline {
+      background: transparent;
+      border: 1.5px solid var(--green-border);
+      color: var(--green);
+    }
+    .btn-plan-outline:hover {
+      background: var(--green-dim);
+      border-color: var(--green);
+    }
+
+    .btn-plan-solid {
+      background: var(--green);
+      color: #020617;
+    }
+    .btn-plan-solid:hover {
+      background: var(--green-dark);
+      box-shadow: 0 8px 24px rgba(16,185,129,.3);
+      transform: translateY(-1px);
+    }
+
+    /* guarantee strip */
+    .guarantee {
+      margin-top: 2.5rem;
+      display: flex; align-items: center; justify-content: center; gap: .75rem;
+      padding: 1rem 1.5rem;
+      background: var(--surface);
+      border: 1px solid var(--subtle);
+      border-radius: 12px;
+      font-size: .82rem;
+      color: var(--muted);
+    }
+    .guarantee-icon { font-size: 1.25rem; }
+    .guarantee strong { color: var(--text); }
+
+    /* ── Modal ── */
+    .modal-overlay {
+      display: none;
+      position: fixed; inset: 0; z-index: 200;
+      background: rgba(2,6,23,.85);
+      backdrop-filter: blur(6px);
+      align-items: center; justify-content: center;
+      padding: 1.5rem;
+    }
+    .modal-overlay.open { display: flex; }
+
+    .modal {
+      background: var(--surface);
+      border: 1px solid var(--subtle);
+      border-radius: 20px;
+      width: 100%;
+      max-width: 480px;
+      max-height: 90vh;
+      overflow-y: auto;
+      padding: 2rem;
+      animation: modalIn .25s ease both;
+    }
+
+    @keyframes modalIn {
+      from { opacity:0; transform: translateY(16px) scale(.97); }
+      to   { opacity:1; transform: translateY(0)   scale(1); }
+    }
+
+    .modal-header {
+      display: flex; align-items: flex-start; justify-content: space-between;
+      margin-bottom: 1.5rem;
+    }
+
+    .modal-title { font-size: 1.2rem; font-weight: 700; }
+    .modal-subtitle { font-size: .82rem; color: var(--muted); margin-top: .2rem; }
+
+    .modal-close {
+      background: none; border: none; cursor: pointer;
+      color: var(--muted); padding: .25rem;
+      border-radius: 6px; transition: color .2s, background .2s;
+    }
+    .modal-close:hover { color: var(--text); background: var(--surface-2); }
+
+    /* plan summary chip */
+    .modal-plan-chip {
+      display: flex; align-items: center; justify-content: space-between;
+      padding: .85rem 1rem;
+      background: var(--green-dim);
+      border: 1px solid var(--green-border);
+      border-radius: 10px;
+      margin-bottom: 1.5rem;
+    }
+    .modal-plan-name { font-size: .9rem; font-weight: 600; }
+    .modal-plan-price {
+      font-family: 'IBM Plex Mono', monospace;
+      font-size: 1rem;
+      font-weight: 600;
+      color: var(--green);
+    }
+
+    /* method selector */
+    .method-label {
+      font-size: .75rem;
+      font-weight: 500;
+      text-transform: uppercase;
+      letter-spacing: .07em;
+      color: var(--muted);
+      margin-bottom: .6rem;
+    }
+
+    .methods {
+      display: grid; grid-template-columns: 1fr 1fr;
+      gap: .75rem; margin-bottom: 1.5rem;
+    }
+
+    .method-btn {
+      padding: 1rem;
+      background: var(--surface-2);
+      border: 1.5px solid var(--subtle);
+      border-radius: 10px;
       cursor: pointer;
       text-align: center;
-      transition: all 0.3s ease;
+      transition: all .2s;
+      display: flex; flex-direction: column; align-items: center; gap: .4rem;
     }
-    
-    .payment-method:hover {
-      border-color: #667eea;
-      background: #f8f9ff;
-    }
-    
-    .payment-method.selected {
-      border-color: #667eea;
-      background: #667eea;
-      color: white;
-    }
-    
-    .payment-method img {
-      width: 40px;
-      height: 40px;
-      margin-bottom: 8px;
-    }
-    
-    .modal {
+    .method-btn:hover { border-color: var(--green-border); }
+    .method-btn.selected { border-color: var(--green); background: var(--green-dim); }
+
+    .method-icon { font-size: 1.5rem; }
+    .method-name { font-size: .85rem; font-weight: 600; }
+    .method-note { font-size: .7rem; color: var(--muted); }
+
+    /* PIX result */
+    .pix-result {
       display: none;
-      position: fixed;
-      top: 0;
-      left: 0;
-      width: 100%;
-      height: 100%;
-      background: rgba(0,0,0,0.7);
-      z-index: 1000;
-      align-items: center;
-      justify-content: center;
+      flex-direction: column; align-items: center; gap: 1rem;
+      margin-bottom: 1.5rem;
     }
-    
-    .modal.active {
-      display: flex;
-    }
-    
-    .modal-content {
+    .pix-result.show { display: flex; }
+
+    .qr-wrap {
       background: white;
       border-radius: 12px;
-      padding: 30px;
-      max-width: 500px;
-      width: 90%;
-      max-height: 80vh;
-      overflow-y: auto;
+      padding: 1rem;
+      width: 200px; height: 200px;
+      display: flex; align-items: center; justify-content: center;
     }
-    
-    .qr-code {
-      text-align: center;
-      margin: 20px 0;
+    .qr-wrap img { width: 100%; height: 100%; object-fit: contain; }
+
+    .pix-note { font-size: .8rem; color: var(--muted); text-align: center; }
+
+    .pix-copy-wrap {
+      display: flex; gap: .5rem; width: 100%;
     }
-    
-    .qr-code img {
-      max-width: 300px;
-      width: 100%;
+
+    .pix-input {
+      flex: 1;
+      padding: .65rem .85rem;
+      background: var(--surface-2);
+      border: 1px solid var(--subtle);
+      border-radius: 8px;
+      color: var(--text);
+      font-family: 'IBM Plex Mono', monospace;
+      font-size: .72rem;
+      outline: none;
     }
-    
-    .badge {
-      display: inline-block;
-      padding: 4px 12px;
-      background: #ffd700;
-      color: #000;
-      border-radius: 20px;
-      font-size: 12px;
-      font-weight: bold;
-      margin-bottom: 10px;
+
+    .btn-copy {
+      padding: .65rem 1rem;
+      background: var(--surface-2);
+      border: 1px solid var(--subtle);
+      border-radius: 8px;
+      color: var(--muted);
+      font-family: 'Sora', sans-serif;
+      font-size: .8rem;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all .2s;
+      white-space: nowrap;
+    }
+    .btn-copy:hover { border-color: var(--green-border); color: var(--green); }
+    .btn-copy.copied { border-color: var(--green); color: var(--green); }
+
+    /* modal actions */
+    .modal-actions {
+      display: flex; gap: .75rem; margin-top: .5rem;
+    }
+
+    .btn-confirm {
+      flex: 1;
+      padding: .85rem;
+      background: var(--green);
+      color: #020617;
+      border: none;
+      border-radius: 10px;
+      font-family: 'Sora', sans-serif;
+      font-size: .9rem;
+      font-weight: 700;
+      cursor: pointer;
+      transition: background .2s, box-shadow .2s, transform .15s;
+      display: flex; align-items: center; justify-content: center; gap: .5rem;
+    }
+    .btn-confirm:hover:not(:disabled) {
+      background: var(--green-dark);
+      box-shadow: 0 8px 24px rgba(16,185,129,.3);
+      transform: translateY(-1px);
+    }
+    .btn-confirm:disabled { opacity: .5; cursor: not-allowed; }
+
+    .btn-cancel {
+      padding: .85rem 1.25rem;
+      background: transparent;
+      border: 1.5px solid var(--subtle);
+      border-radius: 10px;
+      color: var(--muted);
+      font-family: 'Sora', sans-serif;
+      font-size: .9rem;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all .2s;
+    }
+    .btn-cancel:hover { border-color: var(--error); color: var(--error); }
+
+    .modal-status {
+      margin-top: 1rem;
+      padding: .75rem 1rem;
+      border-radius: 8px;
+      font-size: .83rem;
+      display: none;
+    }
+    .modal-status.show { display: block; }
+    .modal-status.success {
+      background: var(--green-dim);
+      border: 1px solid var(--green-border);
+      color: var(--green);
+    }
+    .modal-status.error {
+      background: var(--error-bg);
+      border: 1px solid rgba(248,113,113,.25);
+      color: var(--error);
+    }
+
+    /* spinner */
+    .spin {
+      display: none;
+      width: 16px; height: 16px;
+      border: 2px solid rgba(2,6,23,.3);
+      border-top-color: #020617;
+      border-radius: 50%;
+      animation: rotate .6s linear infinite;
+    }
+    @keyframes rotate { to { transform: rotate(360deg); } }
+
+    /* fade-in */
+    @keyframes fadeUp {
+      from { opacity:0; transform: translateY(16px); }
+      to   { opacity:1; transform: translateY(0); }
+    }
+    .page-header { animation: fadeUp .4s ease both; }
+    .plan-card   { animation: fadeUp .4s ease both; }
+    .plan-card:nth-child(2) { animation-delay: .07s; }
+    .plan-card:nth-child(3) { animation-delay: .14s; }
+
+    @media (max-width: 640px) {
+      .topbar { padding: 0 1rem; }
+      main { padding: 2.5rem 1rem 4rem; }
     }
   </style>
 </head>
 <body>
-  <div class="container">
-    
-    <div class="topbar">
-      <div class="brand">
-        <h1>Atlas Levels <span class="muted">— Assinar Plano</span></h1>
+
+  <!-- Topbar -->
+  <header class="topbar">
+    <div class="brand">
+      <div class="brand-logo">
+        <img src="/static/atlas-logo.png" alt="Atlas Levels"
+             onerror="this.style.display='none'">
       </div>
-      <div class="row">
-        <span id="whoami" class="pill">Carregando...</span>
-        <button id="backBtn" class="btn secondary">Voltar ao App</button>
-      </div>
+      <span class="brand-name">Atlas Levels</span>
+      <span class="brand-sep">—</span>
+      <span class="brand-page">Assinar Plano</span>
+    </div>
+    <div class="topbar-right">
+      <span class="pill" id="whoami">Carregando…</span>
+      <a href="/app" class="btn-ghost">
+        <svg width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+          <path d="M19 12H5M12 5l-7 7 7 7"/>
+        </svg>
+        Voltar ao App
+      </a>
+    </div>
+  </header>
+
+  <!-- Main -->
+  <main>
+    <div class="page-header">
+      <div class="page-kicker">Escolha seu plano</div>
+      <h1 class="page-title">Acesso aos níveis institucionais</h1>
+      <p class="page-subtitle">Cancele quando quiser. Sem fidelidade. Seus níveis ficam disponíveis até o fim do período pago.</p>
     </div>
 
     <div class="pricing-grid">
-      
-      <!-- Plano Brasil -->
-      <div class="plan-card" data-plan="brasil">
-        <div class="plan-name">🇧🇷 Plano Brasil</div>
-        <div class="plan-price">R$ 97<span>/mês</span></div>
-        <div class="plan-description">Acesso aos principais ativos brasileiros</div>
+
+      <!-- Brasil -->
+      <div class="plan-card" id="card-brasil">
+        <div class="plan-flag">🇧🇷</div>
+        <div class="plan-name">Plano Brasil</div>
+        <div class="plan-desc">Principais futuros da B3 — WIN, WDO e BIT</div>
+        <div class="plan-price-wrap">
+          <div class="plan-price"><sup>R$</sup>97</div>
+          <div class="plan-period">por mês · cancele quando quiser</div>
+        </div>
+        <div class="plan-divider"></div>
         <ul class="plan-features">
-          <li>WIN (Mini Índice)</li>
-          <li>WDO (Mini Dólar)</li>
-          <li>BIT (Bitcoin Futuro)</li>
+          <li>WIN — Mini Índice Bovespa</li>
+          <li>WDO — Mini Dólar</li>
+          <li>BIT — Bitcoin Futuro B3</li>
+          <li>Atualização diária pré-abertura</li>
+          <li>Exportação CSV / JSON</li>
           <li>Suporte por email</li>
         </ul>
-        <button class="btn" onclick="selectPlan('brasil')">Assinar Agora</button>
+        <button class="btn-plan btn-plan-outline" onclick="openModal('brasil','R$ 97/mês')">Assinar Plano Brasil</button>
       </div>
 
-      <!-- Plano Global -->
-      <div class="plan-card" data-plan="global">
-        <div class="plan-name">🌎 Plano Global</div>
-        <div class="plan-price">R$ 147<span>/mês</span></div>
-        <div class="plan-description">Acesso aos principais ativos internacionais</div>
+      <!-- Global -->
+      <div class="plan-card" id="card-global">
+        <div class="plan-flag">🌐</div>
+        <div class="plan-name">Plano Global</div>
+        <div class="plan-desc">Ativos internacionais — cripto, índices, forex e commodities</div>
+        <div class="plan-price-wrap">
+          <div class="plan-price"><sup>R$</sup>147</div>
+          <div class="plan-period">por mês · cancele quando quiser</div>
+        </div>
+        <div class="plan-divider"></div>
         <ul class="plan-features">
-          <li>BTCUSD, XAUUSD</li>
+          <li>BTCUSD, XAUUSD (ouro)</li>
           <li>ES, NAS100, US30</li>
           <li>EURUSD, GBPUSD, USDJPY</li>
-          <li>AUDUSD, WTI</li>
+          <li>AUDUSD, WTI (petróleo)</li>
+          <li>Atualização diária pré-abertura</li>
           <li>Suporte prioritário</li>
         </ul>
-        <button class="btn" onclick="selectPlan('global')">Assinar Agora</button>
+        <button class="btn-plan btn-plan-outline" onclick="openModal('global','R$ 147/mês')">Assinar Plano Global</button>
       </div>
 
-      <!-- Plano Pro -->
-      <div class="plan-card featured" data-plan="pro">
-        <div class="badge">MAIS POPULAR</div>
-        <div class="plan-name">⭐ Plano Pro</div>
-        <div class="plan-price">R$ 197<span>/mês</span></div>
-        <div class="plan-description">Acesso completo a TODOS os ativos</div>
+      <!-- Pro -->
+      <div class="plan-card featured" id="card-pro">
+        <div class="popular-badge">Mais Popular</div>
+        <div class="plan-flag">⭐</div>
+        <div class="plan-name">Plano Pro</div>
+        <div class="plan-desc">Acesso completo — todos os ativos Brasil + Global</div>
+        <div class="plan-price-wrap">
+          <div class="plan-price"><sup>R$</sup>197</div>
+          <div class="plan-period">por mês · cancele quando quiser</div>
+        </div>
+        <div class="plan-divider"></div>
         <ul class="plan-features">
           <li>Todos os ativos Brasil</li>
           <li>Todos os ativos Global</li>
-          <li>Atualizações em tempo real</li>
-          <li>Suporte VIP</li>
           <li>Acesso antecipado a novos ativos</li>
+          <li>Atualizações em tempo real</li>
+          <li>Exportação CSV / JSON / API</li>
+          <li>Suporte VIP</li>
         </ul>
-        <button class="btn" onclick="selectPlan('pro')">Assinar Agora</button>
+        <button class="btn-plan btn-plan-solid" onclick="openModal('pro','R$ 197/mês')">Assinar Plano Pro</button>
       </div>
 
     </div>
 
-  </div>
+    <!-- Guarantee -->
+    <div class="guarantee">
+      <span class="guarantee-icon">🔒</span>
+      <span>
+        <strong>Pagamento seguro via Mercado Pago.</strong>
+        Cancele a qualquer momento. Acesso garantido até o fim do período.
+      </span>
+    </div>
+  </main>
 
-  <!-- Modal de Pagamento -->
-  <div id="paymentModal" class="modal">
-    <div class="modal-content">
-      <h2>Finalizar Pagamento</h2>
-      <p id="selectedPlanInfo"></p>
-      
-      <h3>Escolha o método de pagamento:</h3>
-      <div class="payment-methods">
-        <div class="payment-method" data-method="pix" onclick="selectPaymentMethod('pix')">
-          <div style="font-size: 40px;">📱</div>
-          <div><strong>PIX</strong></div>
-          <div style="font-size: 12px;">Aprovação instantânea</div>
+  <!-- Modal -->
+  <div class="modal-overlay" id="modalOverlay">
+    <div class="modal" id="modal" role="dialog" aria-modal="true" aria-labelledby="modalTitle">
+      <div class="modal-header">
+        <div>
+          <div class="modal-title" id="modalTitle">Finalizar assinatura</div>
+          <div class="modal-subtitle" id="modalSubtitle">Escolha a forma de pagamento</div>
         </div>
-        <div class="payment-method" data-method="credit_card" onclick="selectPaymentMethod('credit_card')">
-          <div style="font-size: 40px;">💳</div>
-          <div><strong>Cartão</strong></div>
-          <div style="font-size: 12px;">Até 12x sem juros</div>
+        <button class="modal-close" onclick="closeModal()" aria-label="Fechar">
+          <svg width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+            <path d="M18 6L6 18M6 6l12 12"/>
+          </svg>
+        </button>
+      </div>
+
+      <!-- Plan chip -->
+      <div class="modal-plan-chip">
+        <span class="modal-plan-name" id="chipName">—</span>
+        <span class="modal-plan-price" id="chipPrice">—</span>
+      </div>
+
+      <!-- Method -->
+      <div class="method-label">Forma de pagamento</div>
+      <div class="methods">
+        <div class="method-btn selected" id="method-pix" onclick="selectMethod('pix')">
+          <span class="method-icon">📱</span>
+          <span class="method-name">PIX</span>
+          <span class="method-note">Aprovação instantânea</span>
+        </div>
+        <div class="method-btn" id="method-credit_card" onclick="selectMethod('credit_card')">
+          <span class="method-icon">💳</span>
+          <span class="method-name">Cartão</span>
+          <span class="method-note">Até 12× sem juros</span>
         </div>
       </div>
 
-      <div id="paymentResult" style="display:none;">
-        <div class="qr-code">
-          <img id="qrCodeImage" src="" alt="QR Code PIX"/>
-          <p><strong>Escaneie o QR Code acima para pagar</strong></p>
-          <p style="font-size: 12px;">Ou copie o código PIX:</p>
-          <input id="pixCode" readonly style="width: 100%; padding: 10px; margin: 10px 0;"/>
-          <button class="btn secondary" onclick="copyPixCode()">Copiar Código PIX</button>
+      <!-- PIX result -->
+      <div class="pix-result" id="pixResult">
+        <div class="qr-wrap">
+          <img id="qrImg" src="" alt="QR Code PIX">
+        </div>
+        <p class="pix-note">Escaneie o QR Code no app do seu banco</p>
+        <div class="pix-copy-wrap">
+          <input class="pix-input" id="pixCode" readonly placeholder="Código PIX aparece aqui">
+          <button class="btn-copy" id="copyBtn" onclick="copyPix()">Copiar</button>
         </div>
       </div>
 
-      <div class="row" style="margin-top: 20px; gap: 10px;">
-        <button id="confirmPaymentBtn" class="btn" onclick="processPayment()">Confirmar Pagamento</button>
-        <button class="btn secondary" onclick="closeModal()">Cancelar</button>
+      <!-- Actions -->
+      <div class="modal-actions">
+        <button class="btn-confirm" id="confirmBtn" onclick="processPayment()">
+          <span id="confirmText">Confirmar Pagamento</span>
+          <span class="spin" id="confirmSpin"></span>
+        </button>
+        <button class="btn-cancel" onclick="closeModal()">Cancelar</button>
       </div>
 
-      <div id="paymentStatus" class="status"></div>
+      <div class="modal-status" id="modalStatus"></div>
     </div>
   </div>
 
   <script src="/static/payment.js"></script>
+  <script>
+    // ── State ──
+    let currentPlan   = null;
+    let currentMethod = 'pix';
+    let currentPrice  = null;
+
+    // ── Topbar user ──
+    const email = localStorage.getItem('user_email') || localStorage.getItem('user');
+    document.getElementById('whoami').textContent = email || 'Visitante';
+
+    // ── Plan modal ──
+    const planLabels = { brasil: 'Plano Brasil 🇧🇷', global: 'Plano Global 🌐', pro: 'Plano Pro ⭐' };
+
+    function openModal(plan, price) {
+      currentPlan  = plan;
+      currentPrice = price;
+      document.getElementById('chipName').textContent  = planLabels[plan] || plan;
+      document.getElementById('chipPrice').textContent = price;
+      document.getElementById('modalSubtitle').textContent = 'Escolha a forma de pagamento';
+      document.getElementById('pixResult').classList.remove('show');
+      document.getElementById('confirmBtn').disabled = false;
+      document.getElementById('confirmText').textContent = 'Confirmar Pagamento';
+      document.getElementById('confirmSpin').style.display = 'none';
+      hideStatus();
+      selectMethod('pix');
+      document.getElementById('modalOverlay').classList.add('open');
+      document.body.style.overflow = 'hidden';
+    }
+
+    function closeModal() {
+      document.getElementById('modalOverlay').classList.remove('open');
+      document.body.style.overflow = '';
+    }
+
+    // close on overlay click
+    document.getElementById('modalOverlay').addEventListener('click', (e) => {
+      if (e.target === e.currentTarget) closeModal();
+    });
+
+    // ── Method selector ──
+    function selectMethod(method) {
+      currentMethod = method;
+      document.querySelectorAll('.method-btn').forEach(b => b.classList.remove('selected'));
+      document.getElementById('method-' + method).classList.add('selected');
+    }
+
+    // ── Status ──
+    function showStatus(msg, type) {
+      const el = document.getElementById('modalStatus');
+      el.textContent = msg;
+      el.className = 'modal-status show ' + type;
+    }
+    function hideStatus() {
+      document.getElementById('modalStatus').className = 'modal-status';
+    }
+
+    // ── Process payment ──
+    async function processPayment() {
+      if (!currentPlan) return;
+      const btn  = document.getElementById('confirmBtn');
+      const txt  = document.getElementById('confirmText');
+      const spin = document.getElementById('confirmSpin');
+
+      btn.disabled = true;
+      txt.textContent = 'Processando…';
+      spin.style.display = 'block';
+      hideStatus();
+
+      try {
+        const token = localStorage.getItem('access_token') || localStorage.getItem('token');
+        const res   = await fetch('/api/v1/payments/subscribe', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            ...(token ? { 'Authorization': 'Bearer ' + token } : {})
+          },
+          body: JSON.stringify({ plan: currentPlan, payment_method: currentMethod })
+        });
+        const data = await res.json();
+
+        if (res.ok) {
+          if (currentMethod === 'pix' && data.qr_code) {
+            document.getElementById('qrImg').src = data.qr_code;
+            document.getElementById('pixCode').value = data.pix_code || '';
+            document.getElementById('pixResult').classList.add('show');
+            showStatus('QR Code gerado! Realize o pagamento e aguarde a confirmação.', 'success');
+            txt.textContent = 'Aguardando pagamento…';
+          } else {
+            showStatus('Redirecionando para o pagamento…', 'success');
+            if (data.redirect_url) setTimeout(() => window.location.href = data.redirect_url, 1200);
+          }
+        } else {
+          showStatus(data.detail || 'Erro ao processar pagamento.', 'error');
+          btn.disabled = false;
+          txt.textContent = 'Confirmar Pagamento';
+          spin.style.display = 'none';
+        }
+      } catch {
+        showStatus('Erro de conexão. Tente novamente.', 'error');
+        btn.disabled = false;
+        txt.textContent = 'Confirmar Pagamento';
+        spin.style.display = 'none';
+      }
+    }
+
+    // ── Copy PIX ──
+    function copyPix() {
+      const code = document.getElementById('pixCode').value;
+      if (!code) return;
+      navigator.clipboard.writeText(code).then(() => {
+        const btn = document.getElementById('copyBtn');
+        btn.textContent = 'Copiado!';
+        btn.classList.add('copied');
+        setTimeout(() => { btn.textContent = 'Copiar'; btn.classList.remove('copied'); }, 2000);
+      });
+    }
+
+    // ── Keyboard escape ──
+    document.addEventListener('keydown', e => { if (e.key === 'Escape') closeModal(); });
+  </script>
 </body>
 </html>

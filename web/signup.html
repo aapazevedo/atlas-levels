@@ -3,332 +3,679 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Cadastro - Atlas Levels</title>
+  <title>Criar Conta — Atlas Levels</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Sora:wght@300;400;500;600;700&family=IBM+Plex+Mono:wght@400;500&display=swap" rel="stylesheet">
+  <link rel="icon" type="image/png" href="/static/atlas-logo.png">
   <style>
-    * {
-      margin: 0;
-      padding: 0;
-      box-sizing: border-box;
+    *, *::before, *::after {
+      margin: 0; padding: 0; box-sizing: border-box;
     }
 
+    :root {
+      --green: #10b981;
+      --green-dim: rgba(16, 185, 129, 0.15);
+      --green-border: rgba(16, 185, 129, 0.35);
+      --bg: #020617;
+      --surface: #0f172a;
+      --surface-2: #1e293b;
+      --text: #f1f5f9;
+      --muted: #64748b;
+      --subtle: #334155;
+      --error: #f87171;
+      --error-bg: rgba(248, 113, 113, 0.08);
+    }
+
+    html { height: 100%; }
+
     body {
-      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
-      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      font-family: 'Sora', sans-serif;
+      background: var(--bg);
+      color: var(--text);
       min-height: 100vh;
+      display: flex;
+      overflow: hidden;
+    }
+
+    body::before {
+      content: '';
+      position: fixed;
+      inset: 0;
+      background-image:
+        linear-gradient(rgba(16,185,129,0.03) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(16,185,129,0.03) 1px, transparent 1px);
+      background-size: 48px 48px;
+      pointer-events: none;
+      z-index: 0;
+    }
+
+    body::after {
+      content: '';
+      position: fixed;
+      width: 600px; height: 600px;
+      background: radial-gradient(circle, rgba(16,185,129,0.07) 0%, transparent 70%);
+      top: -100px; left: -100px;
+      border-radius: 50%;
+      pointer-events: none;
+      z-index: 0;
+    }
+
+    /* ── Left: form panel ── */
+    .left-panel {
+      width: 100%;
+      max-width: 480px;
+      margin: 0 auto;
       display: flex;
       align-items: center;
       justify-content: center;
-      padding: 20px;
-    }
-
-    .signup-container {
-      background: white;
-      border-radius: 20px;
-      box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
-      padding: 40px;
-      width: 100%;
-      max-width: 450px;
-    }
-
-    .logo {
-      text-align: center;
-      margin-bottom: 30px;
-    }
-
-    .logo h1 {
-      font-size: 32px;
-      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-      -webkit-background-clip: text;
-      -webkit-text-fill-color: transparent;
-      background-clip: text;
-      margin-bottom: 10px;
-    }
-
-    .logo p {
-      color: #666;
-      font-size: 14px;
-    }
-
-    .form-group {
-      margin-bottom: 20px;
-    }
-
-    label {
-      display: block;
-      margin-bottom: 8px;
-      color: #333;
-      font-weight: 500;
-      font-size: 14px;
-    }
-
-    input[type="email"],
-    input[type="password"] {
-      width: 100%;
-      padding: 12px 16px;
-      border: 2px solid #e0e0e0;
-      border-radius: 10px;
-      font-size: 15px;
-      transition: all 0.3s;
-    }
-
-    input[type="email"]:focus,
-    input[type="password"]:focus {
-      outline: none;
-      border-color: #667eea;
-      box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
-    }
-
-    .btn-signup {
-      width: 100%;
-      padding: 14px;
-      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-      color: white;
-      border: none;
-      border-radius: 10px;
-      font-size: 16px;
-      font-weight: 600;
-      cursor: pointer;
-      transition: transform 0.2s, box-shadow 0.2s;
-      margin-top: 10px;
-    }
-
-    .btn-signup:hover {
-      transform: translateY(-2px);
-      box-shadow: 0 10px 20px rgba(102, 126, 234, 0.3);
-    }
-
-    .btn-signup:active {
-      transform: translateY(0);
-    }
-
-    .btn-signup:disabled {
-      opacity: 0.6;
-      cursor: not-allowed;
-      transform: none;
-    }
-
-    .status-message {
-      padding: 12px;
-      border-radius: 8px;
-      margin-bottom: 20px;
-      font-size: 14px;
-      display: none;
-    }
-
-    .status-message.success {
-      background: #d4edda;
-      color: #155724;
-      border: 1px solid #c3e6cb;
-    }
-
-    .status-message.error {
-      background: #f8d7da;
-      color: #721c24;
-      border: 1px solid #f5c6cb;
-    }
-
-    .divider {
-      text-align: center;
-      margin: 25px 0;
+      padding: 2rem 1.5rem;
       position: relative;
+      z-index: 1;
+      overflow-y: auto;
     }
 
-    .divider::before {
-      content: '';
-      position: absolute;
-      left: 0;
-      top: 50%;
-      width: 100%;
-      height: 1px;
-      background: #e0e0e0;
+    @media (min-width: 1024px) {
+      .left-panel {
+        width: 480px;
+        margin: 0;
+        padding: 3rem;
+      }
     }
 
-    .divider span {
-      background: white;
-      padding: 0 15px;
-      position: relative;
-      color: #999;
-      font-size: 14px;
-    }
+    .form-card { width: 100%; }
 
-    .login-link {
-      text-align: center;
-      margin-top: 20px;
-      color: #666;
-      font-size: 14px;
-    }
-
-    .login-link a {
-      color: #667eea;
-      text-decoration: none;
-      font-weight: 600;
-    }
-
-    .login-link a:hover {
-      text-decoration: underline;
-    }
-
-    .password-requirements {
-      font-size: 12px;
-      color: #666;
-      margin-top: 5px;
-    }
-
-    .features {
-      margin-top: 30px;
-      padding-top: 20px;
-      border-top: 1px solid #e0e0e0;
-    }
-
-    .features h3 {
-      font-size: 14px;
-      color: #333;
-      margin-bottom: 15px;
-      text-align: center;
-    }
-
-    .feature-item {
+    /* Mobile brand */
+    .mobile-brand {
       display: flex;
       align-items: center;
-      margin-bottom: 10px;
-      font-size: 13px;
-      color: #666;
+      gap: 0.75rem;
+      margin-bottom: 2rem;
+    }
+    @media (min-width: 1024px) { .mobile-brand { display: none; } }
+
+    .mobile-logo {
+      width: 36px; height: 36px;
+      border-radius: 9px;
+      background: var(--green-dim);
+      border: 1px solid var(--green-border);
+      display: flex; align-items: center; justify-content: center;
+      overflow: hidden;
+    }
+    .mobile-logo img { width: 100%; height: 100%; object-fit: cover; border-radius: 9px; }
+    .mobile-brand-name { font-size: 1rem; font-weight: 600; }
+
+    /* Heading */
+    .form-heading { margin-bottom: 0.5rem; }
+    .form-heading h1 {
+      font-size: 1.75rem;
+      font-weight: 700;
+      letter-spacing: -0.03em;
+    }
+    .form-heading p {
+      font-size: 0.9rem;
+      color: var(--muted);
+      margin-top: 0.4rem;
     }
 
-    .feature-item::before {
-      content: '✓';
-      color: #667eea;
-      font-weight: bold;
-      margin-right: 10px;
-      font-size: 16px;
+    /* Alert */
+    .alert {
+      display: none;
+      padding: 0.75rem 1rem;
+      border-radius: 8px;
+      font-size: 0.85rem;
+      margin: 1.5rem 0;
+      align-items: center;
+      gap: 0.5rem;
     }
+    .alert.visible { display: flex; }
+    .alert-error {
+      background: var(--error-bg);
+      border: 1px solid rgba(248,113,113,0.25);
+      color: var(--error);
+    }
+    .alert-success {
+      background: var(--green-dim);
+      border: 1px solid var(--green-border);
+      color: var(--green);
+    }
+
+    /* Form */
+    form { margin-top: 2rem; }
+
+    .field { margin-bottom: 1.25rem; }
+
+    .field label {
+      display: block;
+      font-size: 0.8rem;
+      font-weight: 500;
+      color: var(--muted);
+      text-transform: uppercase;
+      letter-spacing: 0.07em;
+      margin-bottom: 0.5rem;
+    }
+
+    .input-wrap { position: relative; }
+
+    .input-wrap input {
+      width: 100%;
+      padding: 0.85rem 1rem;
+      background: var(--surface);
+      border: 1px solid var(--subtle);
+      border-radius: 10px;
+      color: var(--text);
+      font-family: 'Sora', sans-serif;
+      font-size: 0.95rem;
+      transition: border-color 0.2s, box-shadow 0.2s;
+      outline: none;
+    }
+    .input-wrap input::placeholder { color: var(--muted); }
+    .input-wrap input:focus {
+      border-color: var(--green);
+      box-shadow: 0 0 0 3px rgba(16,185,129,0.1);
+    }
+    .input-wrap input.error {
+      border-color: var(--error);
+      box-shadow: 0 0 0 3px var(--error-bg);
+    }
+
+    .toggle-pw {
+      position: absolute;
+      right: 0.85rem;
+      top: 50%;
+      transform: translateY(-50%);
+      background: none; border: none;
+      cursor: pointer;
+      color: var(--muted);
+      display: flex; align-items: center;
+      padding: 0.25rem;
+      transition: color 0.2s;
+    }
+    .toggle-pw:hover { color: var(--text); }
+
+    /* Password strength */
+    .strength-bar {
+      display: flex;
+      gap: 4px;
+      margin-top: 0.5rem;
+    }
+    .strength-seg {
+      flex: 1;
+      height: 3px;
+      border-radius: 2px;
+      background: var(--subtle);
+      transition: background 0.3s;
+    }
+    .strength-label {
+      font-size: 0.72rem;
+      color: var(--muted);
+      margin-top: 0.3rem;
+    }
+
+    /* Submit */
+    .btn-submit {
+      width: 100%;
+      padding: 0.9rem;
+      margin-top: 0.5rem;
+      background: var(--green);
+      color: #020617;
+      border: none;
+      border-radius: 10px;
+      font-family: 'Sora', sans-serif;
+      font-size: 0.95rem;
+      font-weight: 700;
+      letter-spacing: -0.01em;
+      cursor: pointer;
+      transition: background 0.2s, transform 0.15s, box-shadow 0.2s;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 0.5rem;
+    }
+    .btn-submit:hover:not(:disabled) {
+      background: #0ea472;
+      transform: translateY(-1px);
+      box-shadow: 0 8px 24px rgba(16,185,129,0.3);
+    }
+    .btn-submit:active:not(:disabled) { transform: translateY(0); }
+    .btn-submit:disabled { opacity: 0.5; cursor: not-allowed; }
+
+    .spinner {
+      display: none;
+      width: 16px; height: 16px;
+      border: 2px solid rgba(2,6,23,0.3);
+      border-top-color: #020617;
+      border-radius: 50%;
+      animation: spin 0.6s linear infinite;
+    }
+    @keyframes spin { to { transform: rotate(360deg); } }
+
+    /* Divider */
+    .divider {
+      display: flex;
+      align-items: center;
+      gap: 1rem;
+      margin: 1.75rem 0;
+      color: var(--muted);
+      font-size: 0.8rem;
+    }
+    .divider::before, .divider::after {
+      content: ''; flex: 1; height: 1px; background: var(--subtle);
+    }
+
+    /* Bottom link */
+    .bottom-link {
+      text-align: center;
+      font-size: 0.875rem;
+      color: var(--muted);
+    }
+    .bottom-link a {
+      color: var(--green);
+      text-decoration: none;
+      font-weight: 600;
+      transition: opacity 0.2s;
+    }
+    .bottom-link a:hover { opacity: 0.75; }
+
+    /* Terms note */
+    .terms-note {
+      margin-top: 1rem;
+      font-size: 0.72rem;
+      color: var(--muted);
+      text-align: center;
+      line-height: 1.5;
+    }
+    .terms-note a { color: var(--muted); text-decoration: underline; }
+
+    /* ── Right: features panel ── */
+    .right-panel {
+      display: none;
+      flex: 1;
+      background: var(--surface);
+      border-left: 1px solid var(--subtle);
+      padding: 3rem;
+      flex-direction: column;
+      justify-content: center;
+      position: relative;
+      z-index: 1;
+      overflow: hidden;
+    }
+    @media (min-width: 1024px) { .right-panel { display: flex; } }
+
+    .right-panel::before {
+      content: '';
+      position: absolute;
+      top: -80px; right: -80px;
+      width: 400px; height: 400px;
+      background: radial-gradient(circle, rgba(16,185,129,0.06) 0%, transparent 70%);
+      border-radius: 50%;
+    }
+
+    .panel-brand {
+      display: flex;
+      align-items: center;
+      gap: 0.75rem;
+      margin-bottom: 3rem;
+    }
+    .panel-logo {
+      width: 40px; height: 40px;
+      border-radius: 10px;
+      background: var(--green-dim);
+      border: 1px solid var(--green-border);
+      display: flex; align-items: center; justify-content: center;
+      overflow: hidden;
+    }
+    .panel-logo img { width: 100%; height: 100%; object-fit: cover; border-radius: 10px; }
+    .panel-name { font-size: 1.1rem; font-weight: 600; }
+    .panel-tagline {
+      font-family: 'IBM Plex Mono', monospace;
+      font-size: 0.7rem;
+      color: var(--muted);
+      letter-spacing: 0.05em;
+    }
+
+    .panel-intro {
+      font-size: 1.4rem;
+      font-weight: 300;
+      line-height: 1.55;
+      letter-spacing: -0.02em;
+      margin-bottom: 2.5rem;
+      color: var(--text);
+    }
+    .panel-intro strong { color: var(--green); font-weight: 600; }
+
+    /* Feature checklist */
+    .feature-list {
+      list-style: none;
+      display: flex;
+      flex-direction: column;
+      gap: 1rem;
+    }
+
+    .feature-list li {
+      display: flex;
+      align-items: flex-start;
+      gap: 0.75rem;
+      padding: 1rem 1.25rem;
+      background: var(--surface-2);
+      border: 1px solid var(--subtle);
+      border-radius: 10px;
+      transition: border-color 0.2s;
+    }
+    .feature-list li:hover { border-color: var(--green-border); }
+
+    .feat-icon {
+      width: 32px; height: 32px;
+      border-radius: 8px;
+      background: var(--green-dim);
+      border: 1px solid var(--green-border);
+      display: flex; align-items: center; justify-content: center;
+      flex-shrink: 0;
+      font-size: 0.9rem;
+    }
+
+    .feat-content {}
+    .feat-title {
+      font-size: 0.875rem;
+      font-weight: 600;
+      margin-bottom: 0.15rem;
+    }
+    .feat-desc {
+      font-size: 0.78rem;
+      color: var(--muted);
+      line-height: 1.4;
+    }
+
+    /* Price badge */
+    .price-badge {
+      margin-top: 2.5rem;
+      display: inline-flex;
+      align-items: center;
+      gap: 0.75rem;
+      padding: 0.6rem 1rem;
+      border-radius: 8px;
+      background: var(--green-dim);
+      border: 1px solid var(--green-border);
+    }
+    .price-badge-value {
+      font-family: 'IBM Plex Mono', monospace;
+      font-size: 1.1rem;
+      font-weight: 500;
+      color: var(--green);
+    }
+    .price-badge-label {
+      font-size: 0.8rem;
+      color: var(--muted);
+    }
+
+    /* Animations */
+    @keyframes fadeUp {
+      from { opacity: 0; transform: translateY(12px); }
+      to   { opacity: 1; transform: translateY(0); }
+    }
+    .form-card { animation: fadeUp 0.4s ease both; }
+    .right-panel { animation: fadeUp 0.35s ease both; }
   </style>
 </head>
 <body>
-  <div class="signup-container">
-    <div class="logo">
-      <h1>Atlas Levels</h1>
-      <p>Níveis históricos organizados para trading profissional</p>
-    </div>
 
-    <div id="statusMessage" class="status-message"></div>
+  <!-- Left: form -->
+  <main class="left-panel">
+    <div class="form-card">
 
-    <form id="signupForm">
-      <div class="form-group">
-        <label for="email">Email</label>
-        <input type="email" id="email" name="email" required placeholder="seu@email.com">
-      </div>
-
-      <div class="form-group">
-        <label for="password">Senha</label>
-        <input type="password" id="password" name="password" required placeholder="Mínimo 6 caracteres">
-        <div class="password-requirements">
-          Mínimo 6 caracteres
+      <div class="mobile-brand">
+        <div class="mobile-logo">
+          <img src="/static/atlas-logo.png" alt="Atlas Levels" onerror="this.style.display='none'">
         </div>
+        <span class="mobile-brand-name">Atlas Levels</span>
       </div>
 
-      <div class="form-group">
-        <label for="confirmPassword">Confirmar Senha</label>
-        <input type="password" id="confirmPassword" name="confirmPassword" required placeholder="Digite a senha novamente">
+      <div class="form-heading">
+        <h1>Criar conta</h1>
+        <p>Acesse níveis institucionais em minutos</p>
       </div>
 
-      <button type="submit" class="btn-signup" id="signupBtn">
-        Criar Conta
-      </button>
-    </form>
+      <div id="alert" class="alert" role="alert"></div>
 
-    <div class="login-link">
-      Já tem uma conta? <a href="/app">Fazer login</a>
+      <form id="signupForm" novalidate>
+        <div class="field">
+          <label for="email">Email</label>
+          <div class="input-wrap">
+            <input type="email" id="email" name="email"
+                   placeholder="seu@email.com"
+                   autocomplete="email" required>
+          </div>
+        </div>
+
+        <div class="field">
+          <label for="password">Senha</label>
+          <div class="input-wrap">
+            <input type="password" id="password" name="password"
+                   placeholder="Mínimo 6 caracteres"
+                   autocomplete="new-password" required>
+            <button type="button" class="toggle-pw" id="togglePw1" aria-label="Mostrar senha">
+              <svg id="eye1" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/>
+                <circle cx="12" cy="12" r="3"/>
+              </svg>
+            </button>
+          </div>
+          <div class="strength-bar" id="strengthBar">
+            <div class="strength-seg" id="s1"></div>
+            <div class="strength-seg" id="s2"></div>
+            <div class="strength-seg" id="s3"></div>
+            <div class="strength-seg" id="s4"></div>
+          </div>
+          <div class="strength-label" id="strengthLabel">Digite sua senha</div>
+        </div>
+
+        <div class="field">
+          <label for="confirmPassword">Confirmar Senha</label>
+          <div class="input-wrap">
+            <input type="password" id="confirmPassword" name="confirmPassword"
+                   placeholder="Repita a senha"
+                   autocomplete="new-password" required>
+            <button type="button" class="toggle-pw" id="togglePw2" aria-label="Mostrar confirmação">
+              <svg id="eye2" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/>
+                <circle cx="12" cy="12" r="3"/>
+              </svg>
+            </button>
+          </div>
+        </div>
+
+        <button type="submit" class="btn-submit" id="submitBtn">
+          <span id="btnText">Criar Conta</span>
+          <span class="spinner" id="spinner"></span>
+        </button>
+      </form>
+
+      <p class="terms-note">
+        Ao criar sua conta você concorda com os
+        <a href="#">Termos de Uso</a> e a <a href="#">Política de Privacidade</a>.
+      </p>
+
+      <div class="divider">ou</div>
+
+      <div class="bottom-link">
+        Já tem conta? <a href="/login">Fazer login</a>
+      </div>
+    </div>
+  </main>
+
+  <!-- Right: feature panel -->
+  <aside class="right-panel">
+    <div class="panel-brand">
+      <div class="panel-logo">
+        <img src="/static/atlas-logo.png" alt="Atlas Levels"
+             onerror="this.style.display='none'; this.nextElementSibling.style.display='block'">
+        <span style="display:none; font-family:'IBM Plex Mono',monospace; font-size:0.85rem; color:var(--green)">AL</span>
+      </div>
+      <div>
+        <div class="panel-name">Atlas Levels</div>
+        <div class="panel-tagline">NÍVEIS INSTITUCIONAIS</div>
+      </div>
     </div>
 
-    <div class="features">
-      <h3>O que você terá acesso:</h3>
-      <div class="feature-item">Níveis históricos de WIN, WDO e BIT</div>
-      <div class="feature-item">Ativos globais (BTCUSD, XAUUSD, ES, NAS100)</div>
-      <div class="feature-item">Atualização em tempo real</div>
-      <div class="feature-item">Planos flexíveis a partir de R$ 97/mês</div>
+    <p class="panel-intro">
+      Acesse as regiões onde os <strong>grandes players decidem</strong>,
+      antes da maioria do mercado chegar.
+    </p>
+
+    <ul class="feature-list">
+      <li>
+        <div class="feat-icon">📊</div>
+        <div class="feat-content">
+          <div class="feat-title">WIN, WDO e BIT</div>
+          <div class="feat-desc">Níveis institucionais dos principais futuros brasileiros</div>
+        </div>
+      </li>
+      <li>
+        <div class="feat-icon">🌐</div>
+        <div class="feat-content">
+          <div class="feat-title">Ativos globais</div>
+          <div class="feat-desc">BTCUSD, XAUUSD, ES, NAS100 e outros mercados internacionais</div>
+        </div>
+      </li>
+      <li>
+        <div class="feat-icon">⚡</div>
+        <div class="feat-content">
+          <div class="feat-title">Atualização diária</div>
+          <div class="feat-desc">Níveis recalculados todos os dias antes da abertura do mercado</div>
+        </div>
+      </li>
+      <li>
+        <div class="feat-icon">📥</div>
+        <div class="feat-content">
+          <div class="feat-title">Exportação CSV / JSON</div>
+          <div class="feat-desc">Integre diretamente com sua plataforma ou EA</div>
+        </div>
+      </li>
+    </ul>
+
+    <div class="price-badge">
+      <span class="price-badge-value">R$ 97</span>
+      <span class="price-badge-label">/ mês — cancele quando quiser</span>
     </div>
-  </div>
+  </aside>
 
   <script>
-    const $ = (id) => document.getElementById(id);
-    const statusMessage = $('statusMessage');
-    const signupForm = $('signupForm');
-    const signupBtn = $('signupBtn');
+    const alertEl   = document.getElementById('alert');
+    const form      = document.getElementById('signupForm');
+    const submitBtn = document.getElementById('submitBtn');
+    const btnText   = document.getElementById('btnText');
+    const spinner   = document.getElementById('spinner');
+    const pwEl      = document.getElementById('password');
+    const confirmEl = document.getElementById('confirmPassword');
 
-    function showStatus(message, isSuccess) {
-      statusMessage.textContent = message;
-      statusMessage.className = `status-message ${isSuccess ? 'success' : 'error'}`;
-      statusMessage.style.display = 'block';
-      
-      setTimeout(() => {
-        statusMessage.style.display = 'none';
-      }, 5000);
+    // Password toggle factory
+    function makeToggle(btnId, inputEl, eyeId) {
+      const btn = document.getElementById(btnId);
+      const eye = document.getElementById(eyeId);
+      const open  = `<path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/>`;
+      const closed = `<path d="M17.94 17.94A10.07 10.07 0 0112 20c-7 0-11-8-11-8a18.45 18.45 0 015.06-5.94M9.9 4.24A9.12 9.12 0 0112 4c7 0 11 8 11 8a18.5 18.5 0 01-2.16 3.19m-6.72-1.07a3 3 0 11-4.24-4.24"/><line x1="1" y1="1" x2="23" y2="23"/>`;
+      let vis = false;
+      btn.addEventListener('click', () => {
+        vis = !vis;
+        inputEl.type = vis ? 'text' : 'password';
+        eye.innerHTML = vis ? closed : open;
+      });
+    }
+    makeToggle('togglePw1', pwEl, 'eye1');
+    makeToggle('togglePw2', confirmEl, 'eye2');
+
+    // Password strength
+    const segs   = ['s1','s2','s3','s4'].map(id => document.getElementById(id));
+    const label  = document.getElementById('strengthLabel');
+    const colors = ['#f87171','#fb923c','#facc15','#10b981'];
+    const labels = ['Muito fraca','Fraca','Razoável','Forte'];
+
+    function calcStrength(pw) {
+      let score = 0;
+      if (pw.length >= 6) score++;
+      if (pw.length >= 10) score++;
+      if (/[A-Z]/.test(pw) && /[0-9]/.test(pw)) score++;
+      if (/[^A-Za-z0-9]/.test(pw)) score++;
+      return score;
     }
 
-    signupForm.addEventListener('submit', async (e) => {
-      e.preventDefault();
-      
-      const email = $('email').value.trim();
-      const password = $('password').value;
-      const confirmPassword = $('confirmPassword').value;
-
-      // Validações
-      if (!email || !password || !confirmPassword) {
-        showStatus('Preencha todos os campos', false);
+    pwEl.addEventListener('input', () => {
+      const pw = pwEl.value;
+      if (!pw) {
+        segs.forEach(s => s.style.background = '');
+        label.textContent = 'Digite sua senha';
         return;
       }
-
-      if (password !== confirmPassword) {
-        showStatus('As senhas não coincidem', false);
-        return;
-      }
-
-      if (password.length < 6) {
-        showStatus('A senha deve ter no mínimo 6 caracteres', false);
-        return;
-      }
-
-      // Desabilitar botão
-      signupBtn.disabled = true;
-      signupBtn.textContent = 'Criando conta...';
-
-      try {
-        const response = await fetch('/api/auth/register', {
-          method: 'POST',
-          headers: {
-            'Content-Type': 'application/json'
-          },
-          body: JSON.stringify({ email, password })
-        });
-
-        const data = await response.json();
-
-        if (response.ok) {
-          // Salvar token no localStorage
-          localStorage.setItem('token', data.access_token);
-          localStorage.setItem('role', data.role);
-
-          showStatus('Conta criada com sucesso! Redirecionando...', true);
-          
-          // Redirecionar para a página de pagamento após 1 segundo
-          setTimeout(() => {
-            window.location.href = '/payment';
-          }, 1000);
-        } else {
-          showStatus(data.detail || 'Erro ao criar conta', false);
-          signupBtn.disabled = false;
-          signupBtn.textContent = 'Criar Conta';
-        }
-      } catch (error) {
-        showStatus('Erro ao conectar com o servidor', false);
-        signupBtn.disabled = false;
-        signupBtn.textContent = 'Criar Conta';
-      }
+      const score = calcStrength(pw);
+      segs.forEach((s, i) => {
+        s.style.background = i < score ? colors[score - 1] : '';
+      });
+      label.textContent = labels[score - 1] || 'Muito fraca';
+      label.style.color = colors[score - 1] || colors[0];
     });
 
-    // Página de cadastro - sem redirecionamento automático
-    // Permite que usuários acessem livremente
+    // Alert
+    function showAlert(msg, type = 'error') {
+      alertEl.textContent = msg;
+      alertEl.className = `alert visible alert-${type}`;
+    }
+    function hideAlert() { alertEl.className = 'alert'; }
+
+    // Loading
+    function setLoading(on) {
+      submitBtn.disabled = on;
+      btnText.textContent = on ? 'Criando conta…' : 'Criar Conta';
+      spinner.style.display = on ? 'block' : 'none';
+    }
+
+    // Submit
+    form.addEventListener('submit', async (e) => {
+      e.preventDefault();
+      hideAlert();
+
+      const email    = document.getElementById('email').value.trim();
+      const password = pwEl.value;
+      const confirm  = confirmEl.value;
+
+      if (!email || !password || !confirm) {
+        showAlert('Preencha todos os campos.');
+        return;
+      }
+      if (password !== confirm) {
+        showAlert('As senhas não coincidem.');
+        confirmEl.classList.add('error');
+        return;
+      }
+      if (password.length < 6) {
+        showAlert('A senha deve ter no mínimo 6 caracteres.');
+        return;
+      }
+      confirmEl.classList.remove('error');
+      setLoading(true);
+
+      try {
+        const res  = await fetch('/api/auth/register', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ email, password }),
+        });
+        const data = await res.json();
+
+        if (res.ok) {
+          localStorage.setItem('access_token', data.access_token);
+          localStorage.setItem('user_email', email);
+          localStorage.setItem('role', data.role);
+          showAlert('Conta criada! Redirecionando…', 'success');
+          setTimeout(() => window.location.href = '/payment', 1000);
+        } else {
+          showAlert(data.detail || 'Erro ao criar conta.');
+          setLoading(false);
+        }
+      } catch {
+        showAlert('Erro de conexão. Tente novamente.');
+        setLoading(false);
+      }
+    });
   </script>
 </body>
 </html>

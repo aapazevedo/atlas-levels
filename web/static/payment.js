@@ -2,7 +2,7 @@
 
 let selectedPlan = null;
 let selectedPaymentMethod = null;
-let token = localStorage.getItem('token');
+let token = localStorage.getItem('access_token') || localStorage.getItem('token');
 
 // Verificar autenticação ao carregar
 window.addEventListener('DOMContentLoaded', async () => {

@@ -3,351 +3,659 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Login - Atlas Levels</title>
+  <title>Login — Atlas Levels</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Sora:wght@300;400;500;600;700&family=IBM+Plex+Mono:wght@400;500&display=swap" rel="stylesheet">
+  <link rel="icon" type="image/png" href="/static/atlas-logo.png">
   <style>
-    * {
-      margin: 0;
-      padding: 0;
-      box-sizing: border-box;
+    *, *::before, *::after {
+      margin: 0; padding: 0; box-sizing: border-box;
     }
+
+    :root {
+      --green: #10b981;
+      --green-dim: rgba(16, 185, 129, 0.15);
+      --green-border: rgba(16, 185, 129, 0.35);
+      --bg: #020617;
+      --surface: #0f172a;
+      --surface-2: #1e293b;
+      --text: #f1f5f9;
+      --muted: #64748b;
+      --subtle: #334155;
+      --error: #f87171;
+      --error-bg: rgba(248, 113, 113, 0.08);
+    }
+
+    html { height: 100%; }
 
     body {
-      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
-      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      font-family: 'Sora', sans-serif;
+      background: var(--bg);
+      color: var(--text);
       min-height: 100vh;
       display: flex;
-      align-items: center;
-      justify-content: center;
-      padding: 20px;
+      overflow: hidden;
     }
 
-    .login-container {
-      background: white;
-      border-radius: 20px;
-      box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
-      padding: 40px;
-      width: 100%;
-      max-width: 450px;
+    /* ── Grid noise overlay ── */
+    body::before {
+      content: '';
+      position: fixed;
+      inset: 0;
+      background-image:
+        linear-gradient(rgba(16,185,129,0.03) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(16,185,129,0.03) 1px, transparent 1px);
+      background-size: 48px 48px;
+      pointer-events: none;
+      z-index: 0;
     }
 
-    .logo {
-      text-align: center;
-      margin-bottom: 30px;
+    /* ── Glow blob ── */
+    body::after {
+      content: '';
+      position: fixed;
+      width: 600px; height: 600px;
+      background: radial-gradient(circle, rgba(16,185,129,0.07) 0%, transparent 70%);
+      top: -100px; right: -100px;
+      border-radius: 50%;
+      pointer-events: none;
+      z-index: 0;
     }
 
-    .logo h1 {
-      font-size: 32px;
-      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-      -webkit-background-clip: text;
-      -webkit-text-fill-color: transparent;
-      background-clip: text;
-      margin-bottom: 10px;
-    }
-
-    .logo p {
-      color: #666;
-      font-size: 14px;
-    }
-
-    .form-group {
-      margin-bottom: 20px;
-    }
-
-    label {
-      display: block;
-      margin-bottom: 8px;
-      color: #333;
-      font-weight: 500;
-      font-size: 14px;
-    }
-
-    input[type="email"],
-    input[type="password"] {
-      width: 100%;
-      padding: 12px 16px;
-      border: 2px solid #e0e0e0;
-      border-radius: 10px;
-      font-size: 15px;
-      transition: all 0.3s;
-    }
-
-    input[type="email"]:focus,
-    input[type="password"]:focus {
-      outline: none;
-      border-color: #667eea;
-      box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
-    }
-
-    .forgot-password {
-      text-align: right;
-      margin-top: -10px;
-      margin-bottom: 20px;
-    }
-
-    .forgot-password a {
-      color: #667eea;
-      text-decoration: none;
-      font-size: 14px;
-      transition: color 0.2s;
-    }
-
-    .forgot-password a:hover {
-      color: #764ba2;
-      text-decoration: underline;
-    }
-
-    .btn-login {
-      width: 100%;
-      padding: 14px;
-      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-      color: white;
-      border: none;
-      border-radius: 10px;
-      font-size: 16px;
-      font-weight: 600;
-      cursor: pointer;
-      transition: transform 0.2s, box-shadow 0.2s;
-      margin-top: 10px;
-    }
-
-    .btn-login:hover {
-      transform: translateY(-2px);
-      box-shadow: 0 10px 20px rgba(102, 126, 234, 0.3);
-    }
-
-    .btn-login:active {
-      transform: translateY(0);
-    }
-
-    .btn-login:disabled {
-      opacity: 0.6;
-      cursor: not-allowed;
-      transform: none;
-    }
-
-    .divider {
-      text-align: center;
-      margin: 30px 0;
+    /* ── Layout ── */
+    .left-panel {
+      display: none;
+      flex: 1;
+      background: var(--surface);
+      border-right: 1px solid var(--subtle);
+      padding: 3rem;
+      flex-direction: column;
+      justify-content: space-between;
       position: relative;
+      z-index: 1;
+      overflow: hidden;
     }
 
-    .divider::before {
+    @media (min-width: 1024px) {
+      .left-panel { display: flex; }
+    }
+
+    .left-panel::before {
       content: '';
       position: absolute;
-      top: 50%;
-      left: 0;
-      right: 0;
-      height: 1px;
-      background: #e0e0e0;
+      bottom: -80px; left: -80px;
+      width: 400px; height: 400px;
+      background: radial-gradient(circle, rgba(16,185,129,0.06) 0%, transparent 70%);
+      border-radius: 50%;
     }
 
-    .divider span {
-      background: white;
-      padding: 0 15px;
-      color: #999;
-      font-size: 14px;
+    .panel-brand {
+      display: flex;
+      align-items: center;
+      gap: 0.75rem;
+    }
+
+    .panel-logo {
+      width: 40px; height: 40px;
+      border-radius: 10px;
+      background: var(--green-dim);
+      border: 1px solid var(--green-border);
+      display: flex; align-items: center; justify-content: center;
+      overflow: hidden;
+    }
+
+    .panel-logo img {
+      width: 100%; height: 100%;
+      object-fit: cover;
+      border-radius: 10px;
+    }
+
+    .panel-logo-fallback {
+      font-family: 'IBM Plex Mono', monospace;
+      font-size: 0.85rem;
+      font-weight: 500;
+      color: var(--green);
+    }
+
+    .panel-name {
+      font-size: 1.1rem;
+      font-weight: 600;
+      letter-spacing: -0.02em;
+    }
+
+    .panel-tagline {
+      font-family: 'IBM Plex Mono', monospace;
+      font-size: 0.7rem;
+      color: var(--muted);
+      letter-spacing: 0.05em;
+    }
+
+    .panel-quote {
       position: relative;
       z-index: 1;
     }
 
-    .signup-link {
-      text-align: center;
-      margin-top: 20px;
-      color: #666;
-      font-size: 14px;
+    .panel-quote blockquote {
+      font-size: 1.5rem;
+      font-weight: 300;
+      line-height: 1.5;
+      color: var(--text);
+      letter-spacing: -0.02em;
+      margin-bottom: 2rem;
     }
 
-    .signup-link a {
-      color: #667eea;
-      text-decoration: none;
+    .panel-quote blockquote strong {
+      color: var(--green);
       font-weight: 600;
-      transition: color 0.2s;
     }
 
-    .signup-link a:hover {
-      color: #764ba2;
-      text-decoration: underline;
+    .panel-stats {
+      display: flex;
+      gap: 2rem;
     }
 
+    .panel-stat {
+      display: flex;
+      flex-direction: column;
+      gap: 0.2rem;
+    }
+
+    .panel-stat-value {
+      font-family: 'IBM Plex Mono', monospace;
+      font-size: 1.5rem;
+      font-weight: 500;
+      color: var(--green);
+    }
+
+    .panel-stat-label {
+      font-size: 0.75rem;
+      color: var(--muted);
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+    }
+
+    .panel-markets {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 0.5rem;
+    }
+
+    .market-chip {
+      font-family: 'IBM Plex Mono', monospace;
+      font-size: 0.7rem;
+      padding: 0.3rem 0.6rem;
+      border-radius: 4px;
+      background: var(--surface-2);
+      border: 1px solid var(--subtle);
+      color: var(--muted);
+    }
+
+    /* ── Right: form panel ── */
+    .right-panel {
+      width: 100%;
+      max-width: 480px;
+      margin: 0 auto;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 2rem 1.5rem;
+      position: relative;
+      z-index: 1;
+    }
+
+    @media (min-width: 1024px) {
+      .right-panel {
+        width: 480px;
+        margin: 0;
+        padding: 3rem;
+      }
+    }
+
+    .form-card {
+      width: 100%;
+    }
+
+    /* Mobile brand */
+    .mobile-brand {
+      display: flex;
+      align-items: center;
+      gap: 0.75rem;
+      margin-bottom: 2.5rem;
+    }
+    @media (min-width: 1024px) {
+      .mobile-brand { display: none; }
+    }
+
+    .mobile-logo {
+      width: 36px; height: 36px;
+      border-radius: 9px;
+      background: var(--green-dim);
+      border: 1px solid var(--green-border);
+      display: flex; align-items: center; justify-content: center;
+      overflow: hidden;
+    }
+
+    .mobile-logo img {
+      width: 100%; height: 100%;
+      object-fit: cover;
+      border-radius: 9px;
+    }
+
+    .mobile-brand-name {
+      font-size: 1rem;
+      font-weight: 600;
+    }
+
+    /* Heading */
+    .form-heading {
+      margin-bottom: 0.5rem;
+    }
+
+    .form-heading h1 {
+      font-size: 1.75rem;
+      font-weight: 700;
+      letter-spacing: -0.03em;
+      color: var(--text);
+    }
+
+    .form-heading p {
+      font-size: 0.9rem;
+      color: var(--muted);
+      margin-top: 0.4rem;
+    }
+
+    /* Alert */
     .alert {
-      padding: 12px 16px;
-      border-radius: 10px;
-      margin-bottom: 20px;
-      font-size: 14px;
       display: none;
+      padding: 0.75rem 1rem;
+      border-radius: 8px;
+      font-size: 0.85rem;
+      margin: 1.5rem 0;
+      align-items: center;
+      gap: 0.5rem;
+    }
+    .alert.visible { display: flex; }
+
+    .alert-error {
+      background: var(--error-bg);
+      border: 1px solid rgba(248, 113, 113, 0.25);
+      color: var(--error);
     }
 
     .alert-success {
-      background: #d4edda;
-      border: 1px solid #c3e6cb;
-      color: #155724;
+      background: var(--green-dim);
+      border: 1px solid var(--green-border);
+      color: var(--green);
     }
 
-    .alert-error {
-      background: #f8d7da;
-      border: 1px solid #f5c6cb;
-      color: #721c24;
+    /* Form */
+    form { margin-top: 2rem; }
+
+    .field {
+      margin-bottom: 1.25rem;
     }
 
-    .password-toggle {
+    .field label {
+      display: block;
+      font-size: 0.8rem;
+      font-weight: 500;
+      color: var(--muted);
+      text-transform: uppercase;
+      letter-spacing: 0.07em;
+      margin-bottom: 0.5rem;
+    }
+
+    .input-wrap {
       position: relative;
     }
 
-    .password-toggle-btn {
+    .input-wrap input {
+      width: 100%;
+      padding: 0.85rem 1rem;
+      background: var(--surface);
+      border: 1px solid var(--subtle);
+      border-radius: 10px;
+      color: var(--text);
+      font-family: 'Sora', sans-serif;
+      font-size: 0.95rem;
+      transition: border-color 0.2s, box-shadow 0.2s;
+      outline: none;
+    }
+
+    .input-wrap input::placeholder { color: var(--muted); }
+
+    .input-wrap input:focus {
+      border-color: var(--green);
+      box-shadow: 0 0 0 3px rgba(16,185,129,0.1);
+    }
+
+    .input-wrap input.error {
+      border-color: var(--error);
+      box-shadow: 0 0 0 3px var(--error-bg);
+    }
+
+    .toggle-pw {
       position: absolute;
-      right: 12px;
+      right: 0.85rem;
       top: 50%;
       transform: translateY(-50%);
       background: none;
       border: none;
-      color: #999;
       cursor: pointer;
-      font-size: 18px;
-      padding: 5px;
+      color: var(--muted);
+      display: flex; align-items: center;
+      padding: 0.25rem;
       transition: color 0.2s;
     }
+    .toggle-pw:hover { color: var(--text); }
 
-    .password-toggle-btn:hover {
-      color: #667eea;
+    .field-footer {
+      display: flex;
+      justify-content: flex-end;
+      margin-top: 0.5rem;
     }
+
+    .field-footer a {
+      font-size: 0.8rem;
+      color: var(--muted);
+      text-decoration: none;
+      transition: color 0.2s;
+    }
+    .field-footer a:hover { color: var(--green); }
+
+    /* Submit */
+    .btn-submit {
+      width: 100%;
+      padding: 0.9rem;
+      margin-top: 0.5rem;
+      background: var(--green);
+      color: #020617;
+      border: none;
+      border-radius: 10px;
+      font-family: 'Sora', sans-serif;
+      font-size: 0.95rem;
+      font-weight: 700;
+      letter-spacing: -0.01em;
+      cursor: pointer;
+      transition: background 0.2s, transform 0.15s, box-shadow 0.2s;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 0.5rem;
+    }
+
+    .btn-submit:hover:not(:disabled) {
+      background: #0ea472;
+      transform: translateY(-1px);
+      box-shadow: 0 8px 24px rgba(16,185,129,0.3);
+    }
+
+    .btn-submit:active:not(:disabled) {
+      transform: translateY(0);
+    }
+
+    .btn-submit:disabled {
+      opacity: 0.5;
+      cursor: not-allowed;
+    }
+
+    /* Spinner */
+    .spinner {
+      display: none;
+      width: 16px; height: 16px;
+      border: 2px solid rgba(2,6,23,0.3);
+      border-top-color: #020617;
+      border-radius: 50%;
+      animation: spin 0.6s linear infinite;
+    }
+    @keyframes spin { to { transform: rotate(360deg); } }
+
+    /* Divider */
+    .divider {
+      display: flex;
+      align-items: center;
+      gap: 1rem;
+      margin: 1.75rem 0;
+      color: var(--muted);
+      font-size: 0.8rem;
+    }
+    .divider::before, .divider::after {
+      content: '';
+      flex: 1;
+      height: 1px;
+      background: var(--subtle);
+    }
+
+    /* Bottom link */
+    .bottom-link {
+      text-align: center;
+      font-size: 0.875rem;
+      color: var(--muted);
+    }
+    .bottom-link a {
+      color: var(--green);
+      text-decoration: none;
+      font-weight: 600;
+      transition: opacity 0.2s;
+    }
+    .bottom-link a:hover { opacity: 0.75; }
+
+    /* Disclaimer */
+    .disclaimer {
+      margin-top: 2.5rem;
+      padding-top: 1.5rem;
+      border-top: 1px solid var(--subtle);
+      font-size: 0.72rem;
+      color: var(--muted);
+      line-height: 1.5;
+      text-align: center;
+    }
+
+    /* Fade-in */
+    @keyframes fadeUp {
+      from { opacity: 0; transform: translateY(12px); }
+      to   { opacity: 1; transform: translateY(0); }
+    }
+
+    .form-card { animation: fadeUp 0.4s ease both; }
+    .left-panel { animation: fadeUp 0.35s ease both; }
   </style>
 </head>
 <body>
-  <div class="login-container">
-    <div class="logo">
-      <h1>🔑 Atlas Levels</h1>
-      <p>Faça login para acessar sua conta</p>
+
+  <!-- Left decorative panel -->
+  <aside class="left-panel">
+    <div class="panel-brand">
+      <div class="panel-logo">
+        <img src="/static/atlas-logo.png" alt="Atlas Levels"
+             onerror="this.style.display='none'; this.nextElementSibling.style.display='block'">
+        <span class="panel-logo-fallback" style="display:none">AL</span>
+      </div>
+      <div>
+        <div class="panel-name">Atlas Levels</div>
+        <div class="panel-tagline">NÍVEIS INSTITUCIONAIS</div>
+      </div>
     </div>
 
-    <div id="alert" class="alert"></div>
+    <div class="panel-quote">
+      <blockquote>
+        Pare de reagir ao mercado.<br>
+        Comece a operar onde as decisões<br>
+        <strong>realmente acontecem.</strong>
+      </blockquote>
 
-    <form id="loginForm">
-      <div class="form-group">
-        <label for="email">Email</label>
-        <input 
-          type="email" 
-          id="email" 
-          name="email" 
-          placeholder="seu@email.com" 
-          required
-          autocomplete="email"
-        >
-      </div>
-
-      <div class="form-group">
-        <label for="password">Senha</label>
-        <div class="password-toggle">
-          <input 
-            type="password" 
-            id="password" 
-            name="password" 
-            placeholder="••••••••" 
-            required
-            autocomplete="current-password"
-          >
-          <button type="button" class="password-toggle-btn" id="togglePassword">
-            👁️
-          </button>
+      <div class="panel-stats">
+        <div class="panel-stat">
+          <span class="panel-stat-value">7</span>
+          <span class="panel-stat-label">Períodos</span>
+        </div>
+        <div class="panel-stat">
+          <span class="panel-stat-value">Diário</span>
+          <span class="panel-stat-label">Atualização</span>
+        </div>
+        <div class="panel-stat">
+          <span class="panel-stat-value">CSV</span>
+          <span class="panel-stat-label">Exportação</span>
         </div>
       </div>
+    </div>
 
-      <div class="forgot-password">
-        <a href="/forgot-password">Esqueci minha senha</a>
+    <div class="panel-markets">
+      <span class="market-chip">WIN</span>
+      <span class="market-chip">WDO</span>
+      <span class="market-chip">BTCUSD</span>
+      <span class="market-chip">XAUUSD</span>
+      <span class="market-chip">ES</span>
+      <span class="market-chip">NAS100</span>
+    </div>
+  </aside>
+
+  <!-- Right form panel -->
+  <main class="right-panel">
+    <div class="form-card">
+
+      <!-- Mobile brand -->
+      <div class="mobile-brand">
+        <div class="mobile-logo">
+          <img src="/static/atlas-logo.png" alt="Atlas Levels"
+               onerror="this.style.display='none'">
+        </div>
+        <span class="mobile-brand-name">Atlas Levels</span>
       </div>
 
-      <button type="submit" class="btn-login" id="loginBtn">
-        Entrar
-      </button>
-    </form>
+      <div class="form-heading">
+        <h1>Bem-vindo de volta</h1>
+        <p>Acesse sua conta para ver os níveis</p>
+      </div>
 
-    <div class="divider">
-      <span>ou</span>
-    </div>
+      <div id="alert" class="alert" role="alert"></div>
 
-    <div class="signup-link">
-      Não tem uma conta? <a href="/signup">Cadastre-se</a>
+      <form id="loginForm" novalidate>
+        <div class="field">
+          <label for="email">Email</label>
+          <div class="input-wrap">
+            <input type="email" id="email" name="email"
+                   placeholder="seu@email.com"
+                   autocomplete="email" required>
+          </div>
+        </div>
+
+        <div class="field">
+          <label for="password">Senha</label>
+          <div class="input-wrap">
+            <input type="password" id="password" name="password"
+                   placeholder="••••••••"
+                   autocomplete="current-password" required>
+            <button type="button" class="toggle-pw" id="togglePw" aria-label="Mostrar senha">
+              <svg id="eyeIcon" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/>
+                <circle cx="12" cy="12" r="3"/>
+              </svg>
+            </button>
+          </div>
+          <div class="field-footer">
+            <a href="/forgot-password">Esqueci minha senha</a>
+          </div>
+        </div>
+
+        <button type="submit" class="btn-submit" id="submitBtn">
+          <span id="btnText">Entrar</span>
+          <span class="spinner" id="spinner"></span>
+        </button>
+      </form>
+
+      <div class="divider">ou</div>
+
+      <div class="bottom-link">
+        Não tem uma conta? <a href="/signup">Criar conta gratuita</a>
+      </div>
+
+      <div class="disclaimer">
+        Atlas Levels é uma ferramenta educacional. Não constitui recomendação de investimento.
+      </div>
     </div>
-  </div>
+  </main>
 
   <script>
-    const form = document.getElementById('loginForm');
-    const loginBtn = document.getElementById('loginBtn');
-    const alertDiv = document.getElementById('alert');
-    const togglePasswordBtn = document.getElementById('togglePassword');
-    const passwordInput = document.getElementById('password');
+    // Elements
+    const form       = document.getElementById('loginForm');
+    const emailEl    = document.getElementById('email');
+    const passwordEl = document.getElementById('password');
+    const submitBtn  = document.getElementById('submitBtn');
+    const btnText    = document.getElementById('btnText');
+    const spinner    = document.getElementById('spinner');
+    const alertEl    = document.getElementById('alert');
+    const togglePw   = document.getElementById('togglePw');
+    const eyeIcon    = document.getElementById('eyeIcon');
+
+    // Already logged in
+    if (localStorage.getItem('access_token')) window.location.href = '/app';
 
     // Toggle password visibility
-    togglePasswordBtn.addEventListener('click', () => {
-      if (passwordInput.type === 'password') {
-        passwordInput.type = 'text';
-        togglePasswordBtn.textContent = '🙈';
-      } else {
-        passwordInput.type = 'password';
-        togglePasswordBtn.textContent = '👁️';
-      }
+    const eyeOpen  = `<path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/>`;
+    const eyeClosed = `<path d="M17.94 17.94A10.07 10.07 0 0112 20c-7 0-11-8-11-8a18.45 18.45 0 015.06-5.94M9.9 4.24A9.12 9.12 0 0112 4c7 0 11 8 11 8a18.5 18.5 0 01-2.16 3.19m-6.72-1.07a3 3 0 11-4.24-4.24"/><line x1="1" y1="1" x2="23" y2="23"/>`;
+
+    let pwVisible = false;
+    togglePw.addEventListener('click', () => {
+      pwVisible = !pwVisible;
+      passwordEl.type = pwVisible ? 'text' : 'password';
+      eyeIcon.innerHTML = pwVisible ? eyeClosed : eyeOpen;
     });
 
-    // Show alert
-    function showAlert(message, type) {
-      alertDiv.textContent = message;
-      alertDiv.className = `alert alert-${type}`;
-      alertDiv.style.display = 'block';
-      
-      setTimeout(() => {
-        alertDiv.style.display = 'none';
-      }, 5000);
+    // Alert
+    function showAlert(msg, type = 'error') {
+      alertEl.textContent = msg;
+      alertEl.className = `alert visible alert-${type}`;
+    }
+    function hideAlert() {
+      alertEl.className = 'alert';
     }
 
-    // Handle form submission
+    // Loading state
+    function setLoading(on) {
+      submitBtn.disabled = on;
+      btnText.textContent = on ? 'Entrando…' : 'Entrar';
+      spinner.style.display = on ? 'block' : 'none';
+    }
+
+    // Submit
     form.addEventListener('submit', async (e) => {
       e.preventDefault();
-      
-      const email = document.getElementById('email').value;
-      const password = document.getElementById('password').value;
+      hideAlert();
 
-      // Disable button
-      loginBtn.disabled = true;
-      loginBtn.textContent = 'Entrando...';
+      const email    = emailEl.value.trim();
+      const password = passwordEl.value;
+
+      if (!email || !password) {
+        showAlert('Preencha email e senha.');
+        return;
+      }
+
+      setLoading(true);
 
       try {
-        // Call login API
-        const response = await fetch('/api/v1/auth/login', {
+        const res  = await fetch('/api/v1/auth/login', {
           method: 'POST',
-          headers: {
-            'Content-Type': 'application/json',
-          },
+          headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({ email, password }),
         });
+        const data = await res.json();
 
-        const data = await response.json();
-
-        if (response.ok) {
-          // Save token
+        if (res.ok) {
           localStorage.setItem('access_token', data.access_token);
           localStorage.setItem('user_email', email);
-          
-          showAlert('Login realizado com sucesso! Redirecionando...', 'success');
-          
-          // Redirect to app
-          setTimeout(() => {
-            window.location.href = '/app';
-          }, 1000);
+          showAlert('Login realizado! Redirecionando…', 'success');
+          setTimeout(() => window.location.href = '/app', 900);
         } else {
-          showAlert(data.detail || 'Email ou senha incorretos', 'error');
-          loginBtn.disabled = false;
-          loginBtn.textContent = 'Entrar';
+          showAlert(data.detail || 'Email ou senha incorretos.');
+          setLoading(false);
         }
-      } catch (error) {
-        showAlert('Erro ao fazer login. Tente novamente.', 'error');
-        loginBtn.disabled = false;
-        loginBtn.textContent = 'Entrar';
+      } catch {
+        showAlert('Erro de conexão. Tente novamente.');
+        setLoading(false);
       }
     });
-
-    // Check if already logged in
-    if (localStorage.getItem('access_token')) {
-      window.location.href = '/app';
-    }
   </script>
 </body>
 </html>
